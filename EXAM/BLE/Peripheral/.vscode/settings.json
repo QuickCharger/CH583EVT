@@ -1,0 +1,12 @@
+{
+  "C_Cpp.default.includePath": [
+    "C:/Users/Administrator/Desktop/EVT/EXAM/SRC/StdPeriphDriver",
+    "C:/Users/Administrator/Desktop/EVT/EXAM/SRC/StdPeriphDriver/inc",
+    "C:/Users/Administrator/Desktop/EVT/EXAM/SRC/RVMSIS",
+    "${workspaceFolder}/APP/include",
+    "${workspaceFolder}/Profile/include",
+    "${workspaceFolder}/../HAL/include",
+    "${workspaceFolder}/../LIB"
+  ],
+  "files.encoding": "gb18030"
+}
