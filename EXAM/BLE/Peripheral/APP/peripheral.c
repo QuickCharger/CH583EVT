@@ -206,6 +206,7 @@ static simpleProfileCBs_t Peripheral_SimpleProfileCBs = {
  */
 void Peripheral_Init()
 {
+    // 注册事件回调函数，一般用于注册任务时首先执行。
     Peripheral_TaskID = TMOS_ProcessEventRegister(Peripheral_ProcessEvent);
 
     // Setup the GAP Peripheral Role Profile
@@ -281,6 +282,7 @@ void Peripheral_Init()
     GAPRole_BroadcasterSetCB(&Broadcaster_BroadcasterCBs);
 
     // Setup a delayed profile startup
+    // 立即启动 taskID 任务中对应的 event 事件，调用一次执行一次。
     tmos_set_event(Peripheral_TaskID, SBP_START_DEVICE_EVT);
 }
 

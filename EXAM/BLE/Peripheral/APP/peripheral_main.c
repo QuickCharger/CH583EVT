@@ -55,22 +55,22 @@ int main(void)
 #if(defined(DCDC_ENABLE)) && (DCDC_ENABLE == TRUE)
     PWR_DCDCCfg(ENABLE);
 #endif
-    SetSysClock(CLK_SOURCE_PLL_60MHz);
+    SetSysClock(CLK_SOURCE_PLL_60MHz);  //设定系统时钟
 #if(defined(HAL_SLEEP)) && (HAL_SLEEP == TRUE)
-    GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
+    GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);    //配置 IO 口
     GPIOB_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
 #endif
 #ifdef DEBUG
-    GPIOA_SetBits(bTXD1);
+    GPIOA_SetBits(bTXD1);   //配置串口
     GPIOA_ModeCfg(bTXD1, GPIO_ModeOut_PP_5mA);
-    UART1_DefInit();
+    UART1_DefInit();        //初始化串口
 #endif
     PRINT("%s\n", VER_LIB);
-    CH58X_BLEInit();
+    CH58X_BLEInit();        //初始化蓝牙库
     HAL_Init();
     GAPRole_PeripheralInit();
     Peripheral_Init();
-    Main_Circulation();
+    Main_Circulation();     //主循环
 }
 
 /******************************** endfile @ main ******************************/
