@@ -205,7 +205,7 @@ static void centralPairStateCB(uint16_t connHandle, uint8_t state, uint8_t statu
 static void central_ProcessTMOSMsg(tmos_event_hdr_t *pMsg);
 static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg);
 static void centralStartDiscovery(void);
-static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType);
+static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi);
 /*********************************************************************
  * PROFILE CALLBACKS
  */
@@ -575,7 +575,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
     {
         case GAP_DEVICE_INIT_DONE_EVENT:
         {
-            PRINT("Discovering...\n");
+            PRINT("Discovering...\r\n");
             GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
                                           DEFAULT_DISCOVERY_ACTIVE_SCAN,
                                           DEFAULT_DISCOVERY_WHITE_LIST);
@@ -585,7 +585,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
         case GAP_DEVICE_INFO_EVENT:
         {
             // Add device to list
-            centralAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo.addrType);
+            centralAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo.addrType, pEvent->deviceInfo.rssi);
         }
         break;
 
@@ -603,18 +603,18 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
             // Peer device not found
             if(i == centralScanRes)
             {
-                PRINT("Device not found...\n");
+                PRINT("Device not found...\r\n");
                 centralScanRes = 0;
                 GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
                                               DEFAULT_DISCOVERY_ACTIVE_SCAN,
                                               DEFAULT_DISCOVERY_WHITE_LIST);
-                PRINT("Discovering...\n");
+                PRINT("Discovering...\r\n");
             }
 
             // Peer device found
             else
             {
-                PRINT("Device found...\n");
+                PRINT("Device found...\r\n");
                 GAPRole_CentralEstablishLink(DEFAULT_LINK_HIGH_DUTY_CYCLE,
                                              DEFAULT_LINK_WHITE_LIST,
                                              centralDevList[i].addrType,
@@ -622,7 +622,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 
                 // Start establish link timeout event
                 tmos_start_task(centralTaskId, ESTABLISH_LINK_TIMEOUT_EVT, ESTABLISH_LINK_TIMEOUT);
-                PRINT("Connecting...\n");
+                PRINT("Connecting...\r\n");
             }
         }
         break;
@@ -666,8 +666,8 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
             }
             else
             {
-                PRINT("Connect Failed...Reason:%X\n", pEvent->gap.hdr.status);
-                PRINT("Discovering...\n");
+                PRINT("Connect Failed...Reason:%X\r\n", pEvent->gap.hdr.status);
+                PRINT("Discovering...\r\n");
                 centralScanRes = 0;
                 GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
                                               DEFAULT_DISCOVERY_ACTIVE_SCAN,
@@ -685,8 +685,8 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
             centralScanRes = 0;
             centralProcedureInProgress = FALSE;
             tmos_stop_task(centralTaskId, START_READ_RSSI_EVT);
-            PRINT("Disconnected...Reason:%x\n", pEvent->linkTerminate.reason);
-            PRINT("Discovering...\n");
+            PRINT("Disconnected...Reason:%x\r\n", pEvent->linkTerminate.reason);
+            PRINT("Discovering...\r\n");
             GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
                                           DEFAULT_DISCOVERY_ACTIVE_SCAN,
                                           DEFAULT_DISCOVERY_WHITE_LIST);
@@ -710,7 +710,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
             // Display device addr
             PRINT("Recv ext adv \n");
             // Add device to list
-            centralAddDeviceInfo(pEvent->deviceExtAdvInfo.addr, pEvent->deviceExtAdvInfo.addrType);
+            centralAddDeviceInfo(pEvent->deviceExtAdvInfo.addr, pEvent->deviceExtAdvInfo.addrType, pEvent->deviceExtAdvInfo.rssi);
         }
         break;
 
@@ -719,7 +719,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
             // Display device addr
             PRINT("Recv direct adv \n");
             // Add device to list
-            centralAddDeviceInfo(pEvent->deviceDirectInfo.addr, pEvent->deviceDirectInfo.addrType);
+            centralAddDeviceInfo(pEvent->deviceDirectInfo.addr, pEvent->deviceDirectInfo.addrType, pEvent->deviceExtAdvInfo.rssi);
         }
         break;
 
@@ -919,7 +919,7 @@ static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg)
  *
  * @return  none
  */
-static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType)
+static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi)
 {
     uint8_t i;
 
@@ -931,22 +931,29 @@ static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType)
         {
             if(tmos_memcmp(pAddr, centralDevList[i].addr, B_ADDR_LEN))
             {
+              centralDevList[i].rssi = rssi;
                 return;
             }
         }
         // Add addr to scan result list
         tmos_memcpy(centralDevList[centralScanRes].addr, pAddr, B_ADDR_LEN);
         centralDevList[centralScanRes].addrType = addrType;
+        centralDevList[centralScanRes].rssi = rssi;  // Store RSSI value
         // Increment scan result count
         centralScanRes++;
-        // Display device addr
-        PRINT("Device %d - Addr %x %x %x %x %x %x \n", centralScanRes,
-              centralDevList[centralScanRes - 1].addr[0],
-              centralDevList[centralScanRes - 1].addr[1],
-              centralDevList[centralScanRes - 1].addr[2],
-              centralDevList[centralScanRes - 1].addr[3],
-              centralDevList[centralScanRes - 1].addr[4],
-              centralDevList[centralScanRes - 1].addr[5]);
+        // Display device addr and RSSI
+        // cc b1 92 ee d3 6c redmibudspro4 µÄmac
+//        if(centralDevList[centralScanRes - 1].addr[0] == 0xcc)
+        {
+          PRINT("Device %d - Addr %x %x %x %x %x %x, RSSI %d dBm\r\n", centralScanRes,
+                centralDevList[centralScanRes - 1].addr[0],
+                centralDevList[centralScanRes - 1].addr[1],
+                centralDevList[centralScanRes - 1].addr[2],
+                centralDevList[centralScanRes - 1].addr[3],
+                centralDevList[centralScanRes - 1].addr[4],
+                centralDevList[centralScanRes - 1].addr[5],
+                centralDevList[centralScanRes - 1].rssi);
+        }
     }
 }
 
