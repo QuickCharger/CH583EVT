@@ -840,8 +840,7 @@ static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg)
         }
         // If procedure complete
         if((pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP &&
-            pMsg->hdr.status == bleProcedureComplete) ||
-           (pMsg->method == ATT_ERROR_RSP))
+            pMsg->hdr.status == bleProcedureComplete) || (pMsg->method == ATT_ERROR_RSP))
         {
             if(centralSvcStartHdl != 0)
             {
@@ -858,9 +857,9 @@ static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg)
     }
     else if(centralDiscState == BLE_DISC_STATE_CHAR)
     {
+        // 特征句柄的获取
         // Characteristic found, store handle
-        if(pMsg->method == ATT_READ_BY_TYPE_RSP &&
-           pMsg->msg.readByTypeRsp.numPairs > 0)
+        if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->msg.readByTypeRsp.numPairs > 0)
         {
             centralCharHdl = BUILD_UINT16(pMsg->msg.readByTypeRsp.pDataList[0], pMsg->msg.readByTypeRsp.pDataList[1]);
 
@@ -871,9 +870,9 @@ static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg)
             PRINT("Found Characteristic 1 handle : %x \n", centralCharHdl);
         }
         if((pMsg->method == ATT_READ_BY_TYPE_RSP &&
-            pMsg->hdr.status == bleProcedureComplete) ||
-           (pMsg->method == ATT_ERROR_RSP))
+            pMsg->hdr.status == bleProcedureComplete) || (pMsg->method == ATT_ERROR_RSP))
         {
+            // 订阅通知：获取 CCCD 句柄
             // Discover characteristic
             centralDiscState = BLE_DISC_STATE_CCCD;
             req.startHandle = centralSvcStartHdl;
