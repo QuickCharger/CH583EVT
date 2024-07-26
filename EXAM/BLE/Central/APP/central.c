@@ -199,8 +199,7 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg);
 static void centralRssiCB(uint16_t connHandle, int8_t rssi);
 static void centralEventCB(gapRoleEvent_t *pEvent);
 static void centralHciMTUChangeCB(uint16_t connHandle, uint16_t maxTxOctets, uint16_t maxRxOctets);
-static void centralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle,
-                              uint8_t uiInputs, uint8_t uiOutputs);
+static void centralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle, uint8_t uiInputs, uint8_t uiOutputs);
 static void centralPairStateCB(uint16_t connHandle, uint8_t state, uint8_t status);
 static void central_ProcessTMOSMsg(tmos_event_hdr_t *pMsg);
 static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg);
@@ -211,6 +210,7 @@ static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi);
  */
 
 // GAP Role Callbacks
+// GAP 相关的回调
 static gapCentralRoleCB_t centralRoleCB = {
     centralRssiCB,        // RSSI callback
     centralEventCB,       // Event callback
@@ -218,6 +218,7 @@ static gapCentralRoleCB_t centralRoleCB = {
 };
 
 // Bond Manager Callbacks
+// 配对 和 绑定 相关的回调
 static gapBondCBs_t centralBondCB = {
     centralPasscodeCB,
     centralPairStateCB
@@ -275,6 +276,7 @@ void Central_Init()
 
 /*********************************************************************
  * @fn      Central_ProcessEvent
+ * 主回调
  *
  * @brief   Central Application Task event processor.  This function
  *          is called to process all events for the task.  Events
@@ -533,6 +535,8 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
  * @fn      centralRssiCB
  *
  * @brief   RSSI callback.
+ * 这个回调函数在接收到 RSSI（接收信号强度指示）报告时被调用。
+ * 应用程序可以根据 RSSI 值来调整通信策略，例如调整发射功率或者决定是否保持连接。
  *
  * @param   connHandle - connection handle
  * @param   rssi - RSSI
@@ -548,6 +552,9 @@ static void centralRssiCB(uint16_t connHandle, int8_t rssi)
  * @fn      centralHciMTUChangeCB
  *
  * @brief   MTU changed callback.
+ * 这个回调函数在 MTU（Maximum Transmission Unit，最大传输单元）大小发生变化时被调用。
+ * MTU 决定了单个 BLE 数据包的最大字节数。
+ * 应用程序可以根据新的 MTU 大小调整数据传输策略，以优化传输效率。
  *
  * @param   maxTxOctets - Max tx octets
  * @param   maxRxOctets - Max rx octets
@@ -564,6 +571,9 @@ static void centralHciMTUChangeCB(uint16_t connHandle, uint16_t maxTxOctets, uin
  * @fn      centralEventCB
  *
  * @brief   Central event callback function.
+ * 这个回调函数在发生 GAP 事件时被调用。
+ * GAP 事件可能包括连接建立、连接断开、发现服务等。
+ * 应用程序可以根据具体的事件类型采取相应的措施。例如，当连接建立时，可以启动数据传输；当连接断开时，可以重新启动扫描。
  *
  * @param   pEvent - pointer to event structure
  *
@@ -573,6 +583,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 {
     switch(pEvent->gap.opcode)
     {
+        // 设备初始化完成事件
         case GAP_DEVICE_INIT_DONE_EVENT:
         {
             PRINT("Discovering...\r\n");
@@ -732,6 +743,9 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
  * @fn      pairStateCB
  *
  * @brief   Pairing state callback.
+ * 当配对过程的状态发生变化时，会调用这个回调函数。
+ * 这个回调函数允许应用程序处理不同的配对状态，例如配对成功或失败。
+ * 应用程序可以根据配对状态和结果采取相应的措施，例如显示配对状态或执行后续操作。
  *
  * @return  none
  */
@@ -776,11 +790,13 @@ static void centralPairStateCB(uint16_t connHandle, uint8_t state, uint8_t statu
  * @fn      centralPasscodeCB
  *
  * @brief   Passcode callback.
+ * 当设备要求输入配对码时，会调用这个回调函数。
+ * 这个回调函数允许应用程序提供配对码，以便继续配对过程。
+ * 应用程序可以根据输入和输出能力显示或请求用户输入配对码。
  *
  * @return  none
  */
-static void centralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle,
-                              uint8_t uiInputs, uint8_t uiOutputs)
+static void centralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle, uint8_t uiInputs, uint8_t uiOutputs)
 {
     uint32_t passcode;
 
@@ -805,8 +821,7 @@ static void centralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle,
  */
 static void centralStartDiscovery(void)
 {
-    uint8_t uuid[ATT_BT_UUID_SIZE] = {LO_UINT16(SIMPLEPROFILE_SERV_UUID),
-                                      HI_UINT16(SIMPLEPROFILE_SERV_UUID)};
+    uint8_t uuid[ATT_BT_UUID_SIZE] = {LO_UINT16(SIMPLEPROFILE_SERV_UUID), HI_UINT16(SIMPLEPROFILE_SERV_UUID)};
 
     // Initialize cached handles
     centralSvcStartHdl = centralSvcEndHdl = centralCharHdl = 0;
