@@ -293,7 +293,6 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
     if(events & SYS_EVENT_MSG)
     {
         uint8_t *pMsg;
-
         if((pMsg = tmos_msg_receive(centralTaskId)) != NULL)
         {
             central_ProcessTMOSMsg((tmos_event_hdr_t *)pMsg);
@@ -352,7 +351,6 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
             {
                 // Do a write
                 attWriteReq_t req;
-
                 req.cmd = FALSE;
                 req.sig = FALSE;
                 req.handle = centralCharHdl;
@@ -361,7 +359,6 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
                 if(req.pValue != NULL)
                 {
                     *req.pValue = centralCharVal;
-
                     if(GATT_WriteCharValue(centralConnHandle, &req, centralTaskId) == SUCCESS)
                     {
                         centralProcedureInProgress = TRUE;
@@ -378,7 +375,6 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
             {
                 // Do a read
                 attReadReq_t req;
-
                 req.handle = centralCharHdl;
                 if(GATT_ReadCharValue(centralConnHandle, &req, centralTaskId) == SUCCESS)
                 {
@@ -396,7 +392,6 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
         {
             // Do a write
             attWriteReq_t req;
-
             req.cmd = FALSE;
             req.sig = FALSE;
             req.handle = centralCCCDHdl;
@@ -445,8 +440,10 @@ static void central_ProcessTMOSMsg(tmos_event_hdr_t *pMsg)
     switch(pMsg->event)
     {
         case GATT_MSG_EVENT:
+        {
             centralProcessGATTMsg((gattMsgEvent_t *)pMsg);
             break;
+        }
     }
 }
 
@@ -454,6 +451,7 @@ static void central_ProcessTMOSMsg(tmos_event_hdr_t *pMsg)
  * @fn      centralProcessGATTMsg
  *
  * @brief   Process GATT messages
+ * GATT 读取从设备发来的数据
  *
  * @return  none
  */
@@ -474,7 +472,6 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
         if(pMsg->method == ATT_ERROR_RSP)
         {
             uint8_t status = pMsg->msg.errorRsp.errCode;
-
             PRINT("Exchange MTU Error: %x\n", status);
         }
         centralProcedureInProgress = FALSE;
@@ -492,7 +489,6 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
         if(pMsg->method == ATT_ERROR_RSP)
         {
             uint8_t status = pMsg->msg.errorRsp.errCode;
-
             PRINT("Read Error: %x\n", status);
         }
         else
@@ -509,7 +505,6 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
         if(pMsg->method == ATT_ERROR_RSP)
         {
             uint8_t status = pMsg->msg.errorRsp.errCode;
-
             PRINT("Write Error: %x\n", status);
         }
         else
@@ -517,11 +512,11 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
             // Write success
             PRINT("Write success \n");
         }
-
         centralProcedureInProgress = FALSE;
     }
     else if(pMsg->method == ATT_HANDLE_VALUE_NOTI)
     {
+        // 接收到 数据 通知 指示
         PRINT("Receive noti: %x\n", *pMsg->msg.handleValueNoti.pValue);
     }
     else if(centralDiscState != BLE_DISC_STATE_IDLE)
@@ -590,16 +585,14 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
             GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
                                           DEFAULT_DISCOVERY_ACTIVE_SCAN,
                                           DEFAULT_DISCOVERY_WHITE_LIST);
+            break;
         }
-        break;
-
         case GAP_DEVICE_INFO_EVENT:
         {
             // Add device to list
             centralAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo.addrType, pEvent->deviceInfo.rssi);
+            break;
         }
-        break;
-
         case GAP_DEVICE_DISCOVERY_EVENT:
         {
             uint8_t i;
@@ -621,7 +614,6 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
                                               DEFAULT_DISCOVERY_WHITE_LIST);
                 PRINT("Discovering...\r\n");
             }
-
             // Peer device found
             else
             {
@@ -635,9 +627,8 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
                 tmos_start_task(centralTaskId, ESTABLISH_LINK_TIMEOUT_EVT, ESTABLISH_LINK_TIMEOUT);
                 PRINT("Connecting...\r\n");
             }
+            break;
         }
-        break;
-
         case GAP_LINK_ESTABLISHED_EVENT:
         {
             tmos_stop_task(centralTaskId, ESTABLISH_LINK_TIMEOUT_EVT);
@@ -684,9 +675,8 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
                                               DEFAULT_DISCOVERY_ACTIVE_SCAN,
                                               DEFAULT_DISCOVERY_WHITE_LIST);
             }
+            break;
         }
-        break;
-
         case GAP_LINK_TERMINATED_EVENT:
         {
             centralState = BLE_STATE_IDLE;
@@ -701,39 +691,34 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
             GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
                                           DEFAULT_DISCOVERY_ACTIVE_SCAN,
                                           DEFAULT_DISCOVERY_WHITE_LIST);
+            break;
         }
-        break;
-
         case GAP_LINK_PARAM_UPDATE_EVENT:
         {
             PRINT("Param Update...\n");
+            break;
         }
-        break;
-
         case GAP_PHY_UPDATE_EVENT:
         {
             PRINT("PHY Update...\n");
+            break;
         }
-        break;
-
         case GAP_EXT_ADV_DEVICE_INFO_EVENT:
         {
             // Display device addr
             PRINT("Recv ext adv \n");
             // Add device to list
             centralAddDeviceInfo(pEvent->deviceExtAdvInfo.addr, pEvent->deviceExtAdvInfo.addrType, pEvent->deviceExtAdvInfo.rssi);
+            break;
         }
-        break;
-
         case GAP_DIRECT_DEVICE_INFO_EVENT:
         {
             // Display device addr
             PRINT("Recv direct adv \n");
             // Add device to list
             centralAddDeviceInfo(pEvent->deviceDirectInfo.addr, pEvent->deviceDirectInfo.addrType, pEvent->deviceExtAdvInfo.rssi);
+            break;
         }
-        break;
-
         default:
             break;
     }
@@ -825,14 +810,10 @@ static void centralStartDiscovery(void)
 
     // Initialize cached handles
     centralSvcStartHdl = centralSvcEndHdl = centralCharHdl = 0;
-
     centralDiscState = BLE_DISC_STATE_SVC;
 
     // Discovery simple BLE service
-    GATT_DiscPrimaryServiceByUUID(centralConnHandle,
-                                  uuid,
-                                  ATT_BT_UUID_SIZE,
-                                  centralTaskId);
+    GATT_DiscPrimaryServiceByUUID(centralConnHandle, uuid, ATT_BT_UUID_SIZE, centralTaskId);
 }
 
 /*********************************************************************
@@ -849,8 +830,7 @@ static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg)
     if(centralDiscState == BLE_DISC_STATE_SVC)
     {
         // Service found, store handles
-        if(pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP &&
-           pMsg->msg.findByTypeValueRsp.numInfo > 0)
+        if(pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP && pMsg->msg.findByTypeValueRsp.numInfo > 0)
         {
             centralSvcStartHdl = ATT_ATTR_HANDLE(pMsg->msg.findByTypeValueRsp.pHandlesInfo, 0);
             centralSvcEndHdl = ATT_GRP_END_HANDLE(pMsg->msg.findByTypeValueRsp.pHandlesInfo, 0);
@@ -872,7 +852,6 @@ static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg)
                 req.type.len = ATT_BT_UUID_SIZE;
                 req.type.uuid[0] = LO_UINT16(SIMPLEPROFILE_CHAR1_UUID);
                 req.type.uuid[1] = HI_UINT16(SIMPLEPROFILE_CHAR1_UUID);
-
                 GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
             }
         }
@@ -883,8 +862,7 @@ static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg)
         if(pMsg->method == ATT_READ_BY_TYPE_RSP &&
            pMsg->msg.readByTypeRsp.numPairs > 0)
         {
-            centralCharHdl = BUILD_UINT16(pMsg->msg.readByTypeRsp.pDataList[0],
-                                          pMsg->msg.readByTypeRsp.pDataList[1]);
+            centralCharHdl = BUILD_UINT16(pMsg->msg.readByTypeRsp.pDataList[0], pMsg->msg.readByTypeRsp.pDataList[1]);
 
             // Start do read or write
             tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
@@ -903,18 +881,15 @@ static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg)
             req.type.len = ATT_BT_UUID_SIZE;
             req.type.uuid[0] = LO_UINT16(GATT_CLIENT_CHAR_CFG_UUID);
             req.type.uuid[1] = HI_UINT16(GATT_CLIENT_CHAR_CFG_UUID);
-
             GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
         }
     }
     else if(centralDiscState == BLE_DISC_STATE_CCCD)
     {
         // Characteristic found, store handle
-        if(pMsg->method == ATT_READ_BY_TYPE_RSP &&
-           pMsg->msg.readByTypeRsp.numPairs > 0)
+        if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->msg.readByTypeRsp.numPairs > 0)
         {
-            centralCCCDHdl = BUILD_UINT16(pMsg->msg.readByTypeRsp.pDataList[0],
-                                          pMsg->msg.readByTypeRsp.pDataList[1]);
+            centralCCCDHdl = BUILD_UINT16(pMsg->msg.readByTypeRsp.pDataList[0], pMsg->msg.readByTypeRsp.pDataList[1]);
             centralProcedureInProgress = FALSE;
 
             // Start do write CCCD
@@ -946,7 +921,7 @@ static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi)
         {
             if(tmos_memcmp(pAddr, centralDevList[i].addr, B_ADDR_LEN))
             {
-              centralDevList[i].rssi = rssi;
+                centralDevList[i].rssi = rssi;
                 return;
             }
         }
