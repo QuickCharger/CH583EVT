@@ -1988,6 +1988,7 @@ typedef struct
     uint8_t eventType; //!< Indicates advertising event type used by the advertiser: @ref GAP_ADVERTISEMENT_REPORT_TYPE_DEFINES
     uint8_t addrType;         //!< Address Type: @ref GAP_ADDR_TYPE_DEFINES
     uint8_t addr[B_ADDR_LEN]; //!< Device's Address
+    int8_t rssi;
 } gapDevRec_t;
 
 /**
