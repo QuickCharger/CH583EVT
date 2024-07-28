@@ -155,7 +155,7 @@ static gapDevRec_t centralDevList[DEFAULT_MAX_SCAN_RES];
 
 // Peer device address
 // Device 4 - Addr 4e a1 86 52 e4 c3, RSSI -26 dBm
-static uint8_t PeerAddrDef[B_ADDR_LEN] = {0x4e, 0xa1, 0x86, 0x52, 0xe4, 0xc3};
+static uint8_t PeerAddrDef[B_ADDR_LEN] = {0x0, 0xa1, 0x86, 0x52, 0xe4, 0xc3};
 
 // RSSI polling state
 static uint8_t centralRssi = TRUE;
@@ -587,12 +587,12 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 			// Peer device not found
 			if(i == centralScanRes)
 			{
-				PRINT("Device not found...\r\n");
+				// PRINT("Device not found...\r\n");
 				centralScanRes = 0;
 				GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
 											DEFAULT_DISCOVERY_ACTIVE_SCAN,
 											DEFAULT_DISCOVERY_WHITE_LIST);
-				PRINT("Discovering...\r\n");
+				// PRINT("Discovering...\r\n");
 			}
 			// Peer device found
 			else
@@ -885,7 +885,7 @@ static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg)
  */
 static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi)
 {
-	uint8_t i;	
+	uint8_t i;
 	// If result count not at max
 	if(centralScanRes < DEFAULT_MAX_SCAN_RES)
 	{
@@ -905,21 +905,21 @@ static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi)
 		// Increment scan result count
 		centralScanRes++;
 		// Display device addr and RSSI
-		// cc b1 92 ee d3 6c redmibudspro4 µÄmac
-		// if(centralDevList[centralScanRes - 1].addr[0] == 0xcc)
-		if(centralScanRes == 1)
+		if(rssi > -65)
 		{
-			PRINT("Device %d - Addr %x %x %x %x %x %x, RSSI %d dBm\r\n",
-				centralScanRes,
-				centralDevList[centralScanRes - 1].addr[0],
-				centralDevList[centralScanRes - 1].addr[1],
-				centralDevList[centralScanRes - 1].addr[2],
-				centralDevList[centralScanRes - 1].addr[3],
-				centralDevList[centralScanRes - 1].addr[4],
-				centralDevList[centralScanRes - 1].addr[5],
-				centralDevList[centralScanRes - 1].rssi);
+			PRINT("connect to MAC %x-%x-%x-%x-%x-%x, RSSI %d dBm\r\n", pAddr[0], pAddr[1], pAddr[2], pAddr[3], pAddr[4], pAddr[5], rssi);
+			// memcpy(PeerAddrDef, pAddr, B_ADDR_LEN);
 		}
 	}
+	// if((rssi > -35)
+	//  && !tmos_memcmp(PeerAddrDef, pAddr, B_ADDR_LEN)
+	// )
+	// {
+	// 	memcpy(PeerAddrDef, pAddr, B_ADDR_LEN);
+	// 	PRINT("connect to MAC %x-%x-%x-%x-%x-%x, RSSI %d dBm\r\n",
+	// 		pAddr, pAddr+1, pAddr+2, pAddr+3, pAddr+4, pAddr+5,
+	// 		centralDevList[centralScanRes - 1].rssi);
+	// }
 }
 
 /************************ endfile @ central **************************/
