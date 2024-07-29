@@ -63,15 +63,23 @@
 #define DEFAULT_RSSI_PERIOD                 2400
 
 // Minimum connection interval (units of 1.25ms)
+// 连接间隔就是指在一个连接事件（ Connection events ）的开始到下一个连接事件（Connection events）的开始的时间间隔。连接间隔的范围是6 ~ 3200既7.5ms ~ 4s之间。单位1.25ms
+// Connection Interval 缩短，Master和Slave通信更加频繁，提高数据吞吐速度，缩短了数据发送的时间，当然也增加了功耗。
+// Connection Interval 增长，通信频率降低，数据吞吐速度降低，增加了数据发送的时间，当然，这种设置降低了功耗。
 #define DEFAULT_UPDATE_MIN_CONN_INTERVAL    20
 
 // Maximum connection interval (units of 1.25ms)
 #define DEFAULT_UPDATE_MAX_CONN_INTERVAL    100
 
 // Slave latency to use parameter update
+// 允许Slave（从设备）在没有数据要发的情况下，跳过一定数目的连接事件。在这些连接事件（Connection events）中不必回复Master（主设备）的包，这样就能更加省电
+// Slave Latency减少或者设置为 0，每次从机Connection Events中都需要回复Master的包，功耗会上升，数据发送速度会提高。
+// Slave Latency加长，功耗下降，数据发送速度降低。
 #define DEFAULT_UPDATE_SLAVE_LATENCY        0
 
 // Supervision timeout value (units of 10ms)
+// 超过此值 连接断开 单位10ms
+// 此值应大于 （1 + slave Latency ）* （ connection Interval ）
 #define DEFAULT_UPDATE_CONN_TIMEOUT         600
 
 // Default passcode
