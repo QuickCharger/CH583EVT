@@ -590,8 +590,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 		// 设备初始化完成事件
 		case GAP_DEVICE_INIT_DONE_EVENT:
 		{
-			PRINT("centralProcessGATTMsg GAP_DEVICE_INIT_DONE_EVENT\r\n");
-			PRINT("Discovering...\r\n");
+			PRINT("GAP_DEVICE_INIT_DONE_EVENT 开始探测设备\r\n");
 			GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
 										DEFAULT_DISCOVERY_ACTIVE_SCAN,
 										DEFAULT_DISCOVERY_WHITE_LIST);
@@ -600,7 +599,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 		// 蓝牙设备扫描过程中触发，一次扫描过程中会被触发多次。每当扫描到一个新设备或接收到一个设备的广播数据包时，都会触发这个事件。 GAPRole_CentralStartDiscovery 触发
 		case GAP_DEVICE_INFO_EVENT:
 		{
-			PRINT("centralProcessGATTMsg GAP_DEVICE_INFO_EVENT\r\n");
+			// PRINT("GAP_DEVICE_INFO_EVENT 发现新设备\r\n");
 			// Add device to list
 			centralAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo.addrType, pEvent->deviceInfo.rssi);
 			break;
@@ -608,7 +607,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 		// 蓝牙设备扫描结束触发 GAPRole_CentralStartDiscovery 触发
 		case GAP_DEVICE_DISCOVERY_EVENT:
 		{
-			PRINT("centralProcessGATTMsg GAP_DEVICE_DISCOVERY_EVENT\r\n");
+			PRINT("GAP_DEVICE_DISCOVERY_EVENT 探测设备结束\r\n");
 			uint8_t i;	
 			for(i = 0; i < centralScanRes; i++)
 			{
@@ -620,10 +619,11 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 			if(i == centralScanRes)
 			{
 				// PRINT("Device not found... Discovering...\r\n");
-				centralScanRes = 0;
-				GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
-											DEFAULT_DISCOVERY_ACTIVE_SCAN,
-											DEFAULT_DISCOVERY_WHITE_LIST);
+				// centralScanRes = 0;
+				// PRINT("GAP_DEVICE_DISCOVERY_EVENT 开始探测设备\r\n");
+				// GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
+											// DEFAULT_DISCOVERY_ACTIVE_SCAN,
+											// DEFAULT_DISCOVERY_WHITE_LIST);
 			}
 			// Peer device found
 			else
@@ -683,8 +683,9 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 			else
 			{
 				PRINT("Connect Failed...Reason:%X\r\n", pEvent->gap.hdr.status);
-				PRINT("Discovering...\r\n");
+				// PRINT("Discovering...\r\n");
 				centralScanRes = 0;
+				PRINT("GAP_LINK_ESTABLISHED_EVENT. Connect Failed. 开始探测设备\r\n");
 				GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
 											DEFAULT_DISCOVERY_ACTIVE_SCAN,
 											DEFAULT_DISCOVERY_WHITE_LIST);
@@ -702,7 +703,8 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 			centralProcedureInProgress = FALSE;
 			tmos_stop_task(centralTaskId, START_READ_RSSI_EVT);
 			PRINT("Disconnected...Reason:%x\r\n", pEvent->linkTerminate.reason);
-			PRINT("Discovering...\r\n");
+			// PRINT("Discovering...\r\n");
+			PRINT("GAP_LINK_TERMINATED_EVENT 开始探测设备\r\n");
 			GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
 										DEFAULT_DISCOVERY_ACTIVE_SCAN,
 										DEFAULT_DISCOVERY_WHITE_LIST);
@@ -930,7 +932,7 @@ static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg)
  */
 static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi)
 {
-	PRINT("centralAddDeviceInfo\r\n");
+	// PRINT("centralAddDeviceInfo\r\n");
 	uint8_t i;
 	// If result count not at max
 	if(centralScanRes < DEFAULT_MAX_SCAN_RES)
@@ -952,7 +954,7 @@ static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi)
 
 		if(rssi > -65)
 		{
-			PRINT("connect to MAC %x-%x-%x-%x-%x-%x, RSSI %d dBm\r\n", pAddr[0], pAddr[1], pAddr[2], pAddr[3], pAddr[4], pAddr[5], rssi);
+			PRINT("发现新设备 连接到 connect to MAC %x-%x-%x-%x-%x-%x, RSSI %d dBm\r\n", pAddr[0], pAddr[1], pAddr[2], pAddr[3], pAddr[4], pAddr[5], rssi);
 			memcpy(PeerAddrDef, pAddr, B_ADDR_LEN);
 		}
 	}
