@@ -571,6 +571,8 @@ static void centralHciMTUChangeCB(uint16_t connHandle, uint16_t maxTxOctets, uin
 	centralProcedureInProgress = TRUE;
 }
 
+
+
 /*********************************************************************
  * @fn      centralEventCB
  *
@@ -597,6 +599,7 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 										DEFAULT_DISCOVERY_WHITE_LIST);
 			break;
 		}
+		// 蓝牙设备扫描过程中触发，一次扫描过程中会被触发多次。每当扫描到一个新设备或接收到一个设备的广播数据包时，都会触发这个事件。 GAPRole_CentralStartDiscovery 触发
 		case GAP_DEVICE_INFO_EVENT:
 		{
 			PRINT("centralProcessGATTMsg GAP_DEVICE_INFO_EVENT\r\n");
@@ -604,11 +607,11 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 			centralAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo.addrType, pEvent->deviceInfo.rssi);
 			break;
 		}
+		// 蓝牙设备扫描结束触发 GAPRole_CentralStartDiscovery 触发
 		case GAP_DEVICE_DISCOVERY_EVENT:
 		{
 			PRINT("centralProcessGATTMsg GAP_DEVICE_DISCOVERY_EVENT\r\n");
 			uint8_t i;	
-			// See if peer device has been discovered
 			for(i = 0; i < centralScanRes; i++)
 			{
 				if(tmos_memcmp(PeerAddrDef, centralDevList[i].addr, B_ADDR_LEN))
@@ -618,12 +621,11 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 			// Peer device not found
 			if(i == centralScanRes)
 			{
-				// PRINT("Device not found...\r\n");
+				// PRINT("Device not found... Discovering...\r\n");
 				centralScanRes = 0;
 				GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
 											DEFAULT_DISCOVERY_ACTIVE_SCAN,
 											DEFAULT_DISCOVERY_WHITE_LIST);
-				// PRINT("Discovering...\r\n");
 			}
 			// Peer device found
 			else
@@ -634,7 +636,6 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 											DEFAULT_LINK_WHITE_LIST,
 											centralDevList[i].addrType,
 											centralDevList[i].addr);
-				// Start establish link timeout event
 				tmos_start_task(centralTaskId, ESTABLISH_LINK_TIMEOUT_EVT, ESTABLISH_LINK_TIMEOUT);
 				PRINT("Connecting...\r\n");
 			}
@@ -658,9 +659,11 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 				GATT_ExchangeMTU(centralConnHandle, &req, centralTaskId);
 
 				// Initiate service discovery
+				// 开启枚举服务任务
 				tmos_start_task(centralTaskId, START_SVC_DISCOVERY_EVT, DEFAULT_SVC_DISCOVERY_DELAY);
 
 				// See if initiate connect parameter update
+				// 开启更新连接参数任务
 				if(centralParamUpdate)
 				{
 					tmos_start_task(centralTaskId, START_PARAM_UPDATE_EVT, DEFAULT_PARAM_UPDATE_DELAY);
@@ -833,6 +836,7 @@ static void centralStartDiscovery(void)
 	centralSvcStartHdl = centralSvcEndHdl = centralCharHdl = 0;
 	centralDiscState = BLE_DISC_STATE_SVC;
 	// Discovery simple BLE service
+	// 搜索此UUID的服务
 	GATT_DiscPrimaryServiceByUUID(centralConnHandle, uuid, ATT_BT_UUID_SIZE, centralTaskId);
 }
 
@@ -883,7 +887,7 @@ static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg)
 		if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->msg.readByTypeRsp.numPairs > 0)
 		{
 			centralCharHdl = BUILD_UINT16(pMsg->msg.readByTypeRsp.pDataList[0], pMsg->msg.readByTypeRsp.pDataList[1]);	
-			// Start do read or write
+			// 开启读写任务
 			tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);	
 			// Display Characteristic 1 handle
 			PRINT("Found Characteristic 1 handle : %x \r\n", centralCharHdl);
@@ -945,10 +949,9 @@ static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi)
 		// Add addr to scan result list
 		tmos_memcpy(centralDevList[centralScanRes].addr, pAddr, B_ADDR_LEN);
 		centralDevList[centralScanRes].addrType = addrType;
-		centralDevList[centralScanRes].rssi = rssi;  // Store RSSI value
-		// Increment scan result count
+		centralDevList[centralScanRes].rssi = rssi;
 		centralScanRes++;
-		// Display device addr and RSSI
+
 		if(rssi > -65)
 		{
 			PRINT("connect to MAC %x-%x-%x-%x-%x-%x, RSSI %d dBm\r\n", pAddr[0], pAddr[1], pAddr[2], pAddr[3], pAddr[4], pAddr[5], rssi);
