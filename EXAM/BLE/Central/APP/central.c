@@ -304,10 +304,8 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 		if((pMsg = tmos_msg_receive(centralTaskId)) != NULL)
 		{
 			central_ProcessTMOSMsg((tmos_event_hdr_t *)pMsg);
-			// Release the TMOS message
 			tmos_msg_deallocate(pMsg);
 		}
-		// return unprocessed events
 		return (events ^ SYS_EVENT_MSG);
 	}
 	if(events & START_DEVICE_EVT)

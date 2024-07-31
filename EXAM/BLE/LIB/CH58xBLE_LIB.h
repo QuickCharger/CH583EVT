@@ -4511,6 +4511,8 @@ extern bStatus_t GAPRole_CentralStartDevice( uint8_t taskid, gapBondCBs_t *pCB, 
 /**
  * @brief   Start a device discovery scan.
  * 主机扫描参数配置。
+ * 会触发 GAP_DEVICE_INFO_EVENT 扫描过程中触发
+ *       GAP_DEVICE_DISCOVERY_EVENT 扫描结束时触发
  *
  * @param   mode - discovery mode: @ref GAP_DEVDISC_MODE_DEFINES
  * @param   activeScan - TRUE to perform active scan
