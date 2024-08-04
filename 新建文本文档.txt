@@ -2,10 +2,10 @@
 https://www.cnblogs.com/yangfengwu/p/15719144.html
 
 ÈÕÖ¾
-?ÿÿCH58x_BLE_LIB_V2.10
+ÿ~?þCH58x_BLE_LIB_V2.10
 Ö÷»Øµ÷ START_DEVICE_EVT
 Ì½²âÉè±¸ ³õÊ¼»¯½áÊø ¿ªÊ¼Ì½²âÉè±¸
-·¢ÏÖÐÂÉè±¸ Á¬½Óµ½ connect to MAC 50-a1-86-52-e4-c3, RSSI -28 dBm
+·¢ÏÖÐÂÉè±¸ Á¬½Óµ½ connect to MAC 50-a1-86-52-e4-c3, RSSI -31 dBm
 Ì½²âÉè±¸ ½áÊø
 ÕÒµ½Éè±¸ MAC 50-a1-86-52-e4-c3 ³¢ÊÔÁ¬½Ó
          MAC 50-a1-86-52-e4-c3 Á¬½Ó³É¹¦
@@ -15,18 +15,20 @@ https://www.cnblogs.com/yangfengwu/p/15719144.html
 Ö÷»Øµ÷ ËÑË÷Ã¶¾Ù·þÎñÈÎÎñ ¿ªÊ¼
 Ö÷»Øµ÷ SYS_EVENT_MSG
 ÊÕµ½ÏûÏ¢ GATTÏûÏ¢
-centralProcessGATTMsg !=BLE_DISC_STATE_IDLE
+centralProcessGATTMsg != BLE_DISC_STATE_IDLE
 centralGATTDiscoveryEvent
 centralGATTDiscoveryEvent BLE_DISC_STATE_SVC
-RSSI : -28 dB 
+centralGATTDiscoveryEvent BLE_DISC_STATE_SVC procedure complete
+RSSI : -40 dB 
 Ö÷»Øµ÷ START_PARAM_UPDATE_EVT
 centralProcessGATTMsg GAP_LINK_PARAM_UPDATE_EVENT
 Param Update...
-RSSI : -30 dB 
+RSSI : -37 dB 
 RSSI : -36 dB 
 centralProcessGATTMsg GAP_LINK_PARAM_UPDATE_EVENT
 Param Update...
-RSSI : -37 dB 
-RSSI : -36 dB 
-RSSI : -37 dB 
+RSSI : -38 dB 
 RSSI : -39 dB 
+RSSI : -39 dB 
+RSSI : -40 dB 
+RSSI : -35 dB 

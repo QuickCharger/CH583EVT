@@ -859,8 +859,10 @@ static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg)
 		if((pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP &&
 			pMsg->hdr.status == bleProcedureComplete) || (pMsg->method == ATT_ERROR_RSP))
 		{
+			PRINT("centralGATTDiscoveryEvent BLE_DISC_STATE_SVC procedure complete\r\n");
 			if(centralSvcStartHdl != 0)
 			{
+				PRINT("centralGATTDiscoveryEvent BLE_DISC_STATE_SVC procedure complete Discover characteristic\r\n");
 				// Discover characteristic
 				centralDiscState = BLE_DISC_STATE_CHAR;
 				req.startHandle = centralSvcStartHdl;
