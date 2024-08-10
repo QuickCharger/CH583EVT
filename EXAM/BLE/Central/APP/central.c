@@ -841,7 +841,7 @@ static void centralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle, ui
  */
 static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg)
 {
-	PRINT("centralGATTDiscoveryEvent\r\n");
+	PRINT("centralGATTDiscoveryEvent. pMsg->method: %02x\r\n", pMsg->method);
 	attReadByTypeReq_t req;
 	if(centralDiscState == BLE_DISC_STATE_SVC)
 	{
@@ -948,7 +948,7 @@ static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi)
 		centralDevList[centralScanRes].rssi = rssi;
 		centralScanRes++;
 
-		if(rssi > -65)
+		if(rssi > -40)
 		{
 			PRINT("发现新设备 连接到 connect to MAC %x-%x-%x-%x-%x-%x, RSSI %d dBm\r\n", pAddr[0], pAddr[1], pAddr[2], pAddr[3], pAddr[4], pAddr[5], rssi);
 			memcpy(PeerAddrDef, pAddr, B_ADDR_LEN);
