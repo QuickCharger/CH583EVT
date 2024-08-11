@@ -1,0 +1,32 @@
+CH58x_BLE_LIB_V2.10
+主回调 START_DEVICE_EVT
+centralEventCB 收到事件 GAP_DEVICE_INIT_DONE_EVENT
+探测设备 初始化结束 开始探测设备
+  发现新设备 连接到 connect to MAC 50-a1-86-52-e4-c3, RSSI -33 dBm
+centralEventCB 收到事件 GAP_DEVICE_DISCOVERY_EVENT
+探测设备 结束
+找到设备 MAC 50-a1-86-52-e4-c3 尝试连接
+centralEventCB 收到事件 GAP_LINK_ESTABLISHED_EVENT
+         MAC 50-a1-86-52-e4-c3 连接成功
+主回调 SYS_EVENT_MSG
+  收到消息 GATT消息
+    Negotiated MTU: 23
+主回调 搜索枚举服务任务 开始
+主回调 SYS_EVENT_MSG
+  收到消息 GATT消息
+    centralProcessGATTMsg != BLE_DISC_STATE_IDLE
+      centralGATTDiscoveryEvent. pMsg->method: 01
+      centralGATTDiscoveryEvent BLE_DISC_STATE_SVC
+      Error response:
+        Request Opcode: 0x06
+        Handle: 0x0001
+        Error Code: 0x0A
+RSSI : -36 dB 
+主回调 START_PARAM_UPDATE_EVT
+centralEventCB 收到事件 GAP_LINK_PARAM_UPDATE_EVENT
+Param Update...
+RSSI : -36 dB 
+RSSI : -36 dB 
+centralEventCB 收到事件 GAP_LINK_PARAM_UPDATE_EVENT
+Param Update...
+RSSI : -35 dB 
