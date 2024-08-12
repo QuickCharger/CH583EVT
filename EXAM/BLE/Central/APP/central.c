@@ -587,7 +587,7 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
  */
 static void centralRssiCB(uint16_t connHandle, int8_t rssi)
 {
-	PRINT("RSSI : -%d dB \r\n", -rssi);
+	PRINT("centralRssiCB RSSI : -%d dB \r\n", -rssi);
 }
 
 /*********************************************************************
@@ -639,10 +639,13 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 		// 蓝牙设备扫描过程中触发，一次扫描过程中会被触发多次。每当扫描到一个新设备或接收到一个设备的广播数据包时，都会触发这个事件。 GAPRole_CentralStartDiscovery 触发
 		case GAP_DEVICE_INFO_EVENT:
 		{
-			PRINT("centralEventCB 事件 GAP_DEVICE_INFO_EVENT 发现设备\r\n");
-			// PRINT("GAP_DEVICE_INFO_EVENT 发现新设备\r\n");
-			// Add device to list
-			centralAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo.addrType, pEvent->deviceInfo.rssi);
+			if(pEvent->deviceInfo.rssi > -40)
+			{
+				PRINT("centralEventCB 事件 GAP_DEVICE_INFO_EVENT 发现设备\r\n");
+				// PRINT("GAP_DEVICE_INFO_EVENT 发现新设备\r\n");
+				// Add device to list
+				centralAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo. addrType, pEvent->deviceInfo.rssi);
+			}
 			break;
 		}
 		// 蓝牙设备扫描结束触发 GAPRole_CentralStartDiscovery 触发

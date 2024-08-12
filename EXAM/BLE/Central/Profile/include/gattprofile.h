@@ -33,7 +33,8 @@ extern "C" {
 #define SIMPLEPROFILE_CHAR5         4           // RW uint8_t - Profile Characteristic 4 value
 
 // Simple Profile Service UUID
-#define SIMPLEPROFILE_SERV_UUID     0xFFE0
+// #define SIMPLEPROFILE_SERV_UUID     0xFFE0
+#define SIMPLEPROFILE_SERV_UUID     0x1812
 
 // Key Pressed UUID
 #define SIMPLEPROFILE_CHAR1_UUID    0xFFE1
