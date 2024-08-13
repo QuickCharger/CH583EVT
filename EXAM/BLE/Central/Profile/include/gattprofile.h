@@ -36,6 +36,11 @@ extern "C" {
 // #define SIMPLEPROFILE_SERV_UUID     0xFFE0
 #define SIMPLEPROFILE_SERV_UUID     0x1812
 
+/**
+ * HID 信息特性：0x2A4A 通常用于获取设备的元数据，比如设备的版本、制造商、产品 ID 等。
+ * 输入报告特性：0x2A22 蓝牙鼠标主要使用这个特性向主设备发送位置信息（鼠标移动、按键点击等）。
+ * 输出报告特性：0x2A23 主设备可以向 HID 设备发送这些更新信息, 可以用于控制鼠标的 LED 灯、发送特定命令或进行设备配置。进入休眠模式
+ * /
 // Key Pressed UUID
 #define SIMPLEPROFILE_CHAR1_UUID    0xFFE1
 #define SIMPLEPROFILE_CHAR2_UUID    0xFFE2

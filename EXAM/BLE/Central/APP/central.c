@@ -527,8 +527,8 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 		PRINT("    centralProcessGATTMsg ATT_MTU_UPDATED_EVENT MTU: %d\r\n", pMsg->msg.mtuEvt.MTU);
 	}
 	// 如果消息是读取响应 或 读取请求的错误响应，则处理读取结果。
-	if((pMsg->method == ATT_READ_RSP) ||
-		((pMsg->method == ATT_ERROR_RSP) && (pMsg->msg.errorRsp.reqOpcode == ATT_READ_REQ)))
+	if((pMsg->method == ATT_READ_RSP)
+	|| ((pMsg->method == ATT_ERROR_RSP) && (pMsg->msg.errorRsp.reqOpcode == ATT_READ_REQ)))
 	{
 		if(pMsg->method == ATT_ERROR_RSP)
 		{
@@ -543,8 +543,8 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 		centralProcedureInProgress = FALSE;
 	}
 	// 如果消息是写入响应 或 写入请求的错误响应，则处理写入结果。
-	else if((pMsg->method == ATT_WRITE_RSP) ||
-			((pMsg->method == ATT_ERROR_RSP) && (pMsg->msg.errorRsp.reqOpcode == ATT_WRITE_REQ)))
+	else if((pMsg->method == ATT_WRITE_RSP)
+	|| ((pMsg->method == ATT_ERROR_RSP) && (pMsg->msg.errorRsp.reqOpcode == ATT_WRITE_REQ)))
 	{
 		if(pMsg->method == ATT_ERROR_RSP)
 		{
@@ -874,7 +874,7 @@ static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg)
 		if(pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP && pMsg->msg.findByTypeValueRsp.numInfo > 0)
 		{
 			centralSvcStartHdl = ATT_ATTR_HANDLE(pMsg->msg.findByTypeValueRsp.pHandlesInfo, 0);
-			centralSvcEndHdl = ATT_GRP_END_HANDLE(pMsg->msg.findByTypeValueRsp.pHandlesInfo, 0);	
+			centralSvcEndHdl = ATT_GRP_END_HANDLE(pMsg->msg.findByTypeValueRsp.pHandlesInfo, 0);
 			// Display Profile Service handle range
 			PRINT("      Found Profile Service handle : %x ~ %x \r\n", centralSvcStartHdl, centralSvcEndHdl);
 		}

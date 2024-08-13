@@ -1,0 +1,89 @@
+如果我不知道从机的类型是什么 怎么办  假如我连接的是蓝牙音箱或其他什么蓝牙设备。 在请求GATT_DiscPrimaryServiceByUUID之前是不是有其他操作可以获取设备信息 或什么操作
+
+
+
+
+如果您不确定从机的类型，需要进行更全面的服务发现和设备信息获取。在进行特定服务的请求之前，可以通过以下通用步骤来获取设备信息：
+
+1. **获取设备信息**：
+    - 读取设备的基本信息服务，这通常包括设备名称、制造商信息等。
+    - 设备信息服务的UUID是 `0x180A`。
+
+2. **发现所有可用服务**：
+    - 通过通用的服务发现过程，获取设备支持的所有服务。
+    - 这一步不需要提供特定的UUID，通过 `GATT_DiscAllPrimaryServices` 函数可以发现设备支持的所有服务。
+
+### 示例代码
+
+下面是一个如何实现这些步骤的示例代码：
+
+```c
+// 假设这些变量已经定义
+// uint16_t centralConnHandle;
+// uint8_t centralTaskId;
+
+#define START_ALL_SVC_DISCOVERY_EVT 0x0001
+
+if (events & START_ALL_SVC_DISCOVERY_EVT)
+{
+    // 开始发现设备的所有服务
+    PRINT("主回调 START_ALL_SVC_DISCOVERY_EVT 搜索设备的所有服务 开始\r\n");
+    
+    // 初始化缓存的句柄
+    centralSvcStartHdl = centralSvcEndHdl = centralCharHdl = 0;
+    centralDiscState = BLE_DISC_STATE_SVC;
+    
+    // 发现所有的服务
+    GATT_DiscAllPrimaryServices(centralConnHandle, centralTaskId);
+    
+    return (events ^ START_ALL_SVC_DISCOVERY_EVT);
+}
+```
+
+### 处理发现的服务
+
+在发现所有服务后，您将收到回调或事件，列出设备支持的所有服务。您可以根据这些信息判断设备的类型并进一步处理。
+
+```c
+// 假设这是您的事件处理函数
+void processGATTMsg(gattMsgEvent_t *pMsg)
+{
+    switch (pMsg->method)
+    {
+        case ATT_FIND_BY_TYPE_VALUE_RSP:
+            if (pMsg->msg.findByTypeValueRsp.numInfo > 0)
+            {
+                // 处理发现的服务
+                for (uint8_t i = 0; i < pMsg->msg.findByTypeValueRsp.numInfo; i++)
+                {
+                    uint16_t startHandle = pMsg->msg.findByTypeValueRsp.handlesInfo[i].handle;
+                    uint16_t endHandle = pMsg->msg.findByTypeValueRsp.handlesInfo[i].groupEndHandle;
+                    
+                    // 根据发现的服务UUID判断设备类型
+                    if (startHandle && endHandle)
+                    {
+                        PRINT("发现服务UUID: %04x 开始句柄: %04x 结束句柄: %04x\r\n", pMsg->msg.findByTypeValueRsp.handlesInfo[i].handle, startHandle, endHandle);
+                        
+                        // 例如：判断是否为HID服务
+                        if (pMsg->msg.findByTypeValueRsp.handlesInfo[i].handle == HID_SERV_UUID)
+                        {
+                            PRINT("这是一个HID设备\r\n");
+                        }
+                        // 可以继续添加其他服务UUID的判断
+                    }
+                }
+            }
+            break;
+            
+        // 其他处理代码
+    }
+}
+```
+
+### 总结
+
+1. **发现所有服务**：通过 `GATT_DiscAllPrimaryServices` 函数发现设备支持的所有服务。
+2. **处理发现结果**：在回调或事件处理函数中，解析发现的服务，并根据服务UUID判断设备类型。
+3. **根据服务类型进行进一步操作**：一旦确定设备类型，可以进行特定的服务请求和通信。
+
+通过上述步骤，您可以在不知道具体从机类型的情况下，动态地发现设备支持的服务，并确定适当的处理方法。
