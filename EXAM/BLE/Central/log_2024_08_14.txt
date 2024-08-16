@@ -1,0 +1,68 @@
+H58x_BLE_LIB_V2.10
+主回调 START_DEVICE_EVT 设备初始化完成
+centralEventCB 事件 GAP_DEVICE_INIT_DONE_EVENT 初始化结束 开始探测设备
+centralEventCB 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
+  探测设备 未找到设备 开始重新探测设备
+centralEventCB 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
+  探测设备 未找到设备 开始重新探测设备
+centralEventCB 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
+  探测设备 未找到设备 开始重新探测设备
+centralEventCB 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
+  探测设备 未找到设备 开始重新探测设备
+centralEventCB 事件 GAP_DEVICE_INFO_EVENT 发现设备
+  发现新设备 记录 MAC 50-a1-86-52-e4-c3, RSSI -27 dBm
+centralEventCB 事件 GAP_DEVICE_INFO_EVENT 发现设备
+centralEventCB 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
+  找到设备 MAC 50-a1-86-52-e4-c3 尝试连接
+centralEventCB 事件 GAP_LINK_ESTABLISHED_EVENT MAC 50-a1-86-52-e4-c3 连接成功
+主回调 SYS_EVENT_MSG
+  收到消息 GATT消息
+    centralProcessGATTMsg method 03
+    Negotiated MTU: 23
+主回调 START_SVC_DISCOVERY_EVT 搜索枚举服务任务 开始
+主回调 SYS_EVENT_MSG
+  收到消息 GATT消息
+    centralProcessGATTMsg method 07
+    centralProcessGATTMsg centralDiscState != BLE_DISC_STATE_IDLE
+      centralGATTDiscoveryEvent. pMsg->method: 07
+      centralGATTDiscoveryEvent BLE_DISC_STATE_SVC
+      Found Profile Service handle : 1e ~ 3d 
+主回调 SYS_EVENT_MSG
+  收到消息 GATT消息
+    centralProcessGATTMsg method 07
+    centralProcessGATTMsg centralDiscState != BLE_DISC_STATE_IDLE
+      centralGATTDiscoveryEvent. pMsg->method: 07
+      centralGATTDiscoveryEvent BLE_DISC_STATE_SVC
+      centralGATTDiscoveryEvent BLE_DISC_STATE_SVC procedure complete
+      centralGATTDiscoveryEvent BLE_DISC_STATE_SVC procedure complete Discover characteristic
+主回调 SYS_EVENT_MSG
+  收到消息 GATT消息
+    centralProcessGATTMsg method 01
+    centralProcessGATTMsg centralDiscState != BLE_DISC_STATE_IDLE
+      centralGATTDiscoveryEvent. pMsg->method: 01
+      centralGATTDiscoveryEvent BLE_DISC_STATE_CHAR
+centralRssiCB RSSI : -31 dB 
+主回调 SYS_EVENT_MSG
+  收到消息 GATT消息
+    centralProcessGATTMsg method 09
+    centralProcessGATTMsg centralDiscState != BLE_DISC_STATE_IDLE
+      centralGATTDiscoveryEvent. pMsg->method: 09
+      centralGATTDiscoveryEvent BLE_DISC_STATE_CCCD
+      Found client characteristic configuration handle : 23 
+主回调 SYS_EVENT_MSG
+  收到消息 GATT消息
+    centralProcessGATTMsg method 09
+主回调 START_PARAM_UPDATE_EVT
+主回调 START_WRITE_CCCD_EVT
+centralEventCB 事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功
+主回调 SYS_EVENT_MSG
+  收到消息 GATT消息
+    centralProcessGATTMsg method 01
+    centralProcessGATTMsg ATT_ERROR_RSP Write Error: 5
+centralRssiCB RSSI : -40 dB 
+centralRssiCB RSSI : -29 dB 
+centralEventCB 事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功
+centralRssiCB RSSI : -31 dB 
+centralRssiCB RSSI : -31 dB 
+centralRssiCB RSSI : -29 dB 
+centralRssiCB RSSI : -33 dB 
