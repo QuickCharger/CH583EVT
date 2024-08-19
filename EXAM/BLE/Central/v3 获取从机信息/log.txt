@@ -1,0 +1,60 @@
+CH58x_BLE_LIB_V2.10
+主回调 START_DEVICE_EVT 设备初始化完成
+centralEventCB 事件 GAP_DEVICE_INIT_DONE_EVENT 初始化结束 开始探测设备
+centralEventCB 事件 GAP_DEVICE_INFO_EVENT 发现设备
+  发现新设备 记录 MAC 6e-98-69-a7-14-d4, RSSI -23 dBm
+centralEventCB 事件 GAP_DEVICE_INFO_EVENT 发现设备
+centralEventCB 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
+  找到设备 MAC 6e-98-69-a7-14-d4 尝试连接
+centralEventCB 事件 GAP_LINK_ESTABLISHED_EVENT MAC 6e-98-69-a7-14-d4 连接成功
+主回调 SYS_EVENT_MSG
+  GATT MSG. GATT: method ATT_EXCHANGE_MTU_RSP, {clientRxMTU 23}
+  Negotiated MTU: 23
+主回调 START_SVC_DISCOVERY_EVT 搜索枚举服务任务 开始
+主回调 SYS_EVENT_MSG
+  GATT MSG. GATT: method ATT_READ_BY_GRP_TYPE_RSP, 
+  ATT_READ_BY_GRP_TYPE_RSP numGrps 2. len 6 01 00 09 00 00 18
+Service 1:
+  Handle: 0x0001
+  End Group Handle: 0x0009
+  UUID: 0x1800
+Service 2:
+  Handle: 0x000A
+  End Group Handle: 0x000D
+  UUID: 0x1801
+主回调 SYS_EVENT_MSG
+  GATT MSG. GATT: method ATT_READ_BY_GRP_TYPE_RSP, 
+  ATT_READ_BY_GRP_TYPE_RSP numGrps 2. len 6 0e 00 20 00 0a 18
+Service 1:
+  Handle: 0x000E
+  End Group Handle: 0x0020
+  UUID: 0x180A
+Service 2:
+  Handle: 0x0021
+  End Group Handle: 0x0025
+  UUID: 0x180F
+主回调 SYS_EVENT_MSG
+  GATT MSG. GATT: method ATT_READ_BY_GRP_TYPE_RSP, 
+  ATT_READ_BY_GRP_TYPE_RSP numGrps 2. len 6 26 00 2b 00 13 18
+Service 1:
+  Handle: 0x0026
+  End Group Handle: 0x002B
+  UUID: 0x1813
+Service 2:
+  Handle: 0x002C
+  End Group Handle: 0xFFFF
+  UUID: 0x1812
+主回调 SYS_EVENT_MSG
+  GATT MSG. GATT: method ATT_READ_BY_GRP_TYPE_RSP, 
+  ATT_READ_BY_GRP_TYPE_RSP numGrps 0. len 0
+centralRssiCB RSSI : -27 dB 
+主回调 START_PARAM_UPDATE_EVT
+centralEventCB 事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功
+centralRssiCB RSSI : -24 dB 
+centralRssiCB RSSI : -26 dB 
+centralRssiCB RSSI : -26 dB 
+centralRssiCB RSSI : -24 dB 
+centralEventCB 事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功
+centralRssiCB RSSI : -28 dB 
+centralRssiCB RSSI : -24 dB 
+centralRssiCB RSSI : -28 dB 
