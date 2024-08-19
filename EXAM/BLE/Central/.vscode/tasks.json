@@ -1,0 +1,24 @@
+{
+	// 也不知道为啥 caps+b 能运行
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build",
+			"type": "shell",
+			"command": "rmdir /s /q ${workspaceFolder}\\..\\.metadata; & \"C:\\MounRiver\\MounRiver_Studio\\eclipsec.exe\" -nosplash -application org.eclipse.cdt.managedbuilder.core.headlessbuild -data ${workspaceFolder}\\..\\ -import ${workspaceFolder} -cleanBuild \"all\"",
+			"options": {
+				"shell": {
+					"executable": "cmd.exe",
+					"args": [
+						"/c"
+					]
+				}
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": []
+		}
+	]
+}
