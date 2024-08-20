@@ -1,0 +1,16 @@
+{
+  "C_Cpp.default.includePath": [
+    "${workspaceFolder}/StdPeriphDriver",
+    "${workspaceFolder}/StdPeriphDriver/inc",
+    "${workspaceFolder}/RVMSIS"
+  ],
+  "files.encoding": "gb18030",
+  "files.associations": {
+    "*.js": "javascript",
+    "*.json": "jsonc",
+    "*.cjson": "jsonc",
+    "*.wxss": "css",
+    "*.wxs": "javascript",
+    "config.h": "c"
+  }
+}
