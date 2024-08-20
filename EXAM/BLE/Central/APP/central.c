@@ -15,6 +15,7 @@
 /*********************************************************************
  * INCLUDES
  */
+#include "easy.h"
 #include "CONFIG.h"
 #include "gattprofile.h"
 #include "central.h"
@@ -231,110 +232,6 @@ static gapBondCBs_t centralBondCB = {
 	centralPasscodeCB,
 	centralPairStateCB
 };
-
-// MTU 一般为20+ 所以全部输出即可
-void PAddr(uint8_t *p, uint16_t len) {
-	PRINT("0x");
-	for (uint16_t i = 0; i < len; i++) {
-		PRINT("%02x ",*(p+i));
-	}
-}
-
-// message 2 string
-char* m2s(uint8_t m) 
-{
-	if(m == 0x01) return "ATT_ERROR_RSP";
-	if(m == 0x02) return "ATT_EXCHANGE_MTU_REQ";
-	if(m == 0x03) return "ATT_EXCHANGE_MTU_RSP";
-	if(m == 0x04) return "ATT_FIND_INFO_REQ";
-	if(m == 0x05) return "ATT_FIND_INFO_RSP";
-	if(m == 0x06) return "ATT_FIND_BY_TYPE_VALUE_REQ";
-	if(m == 0x07) return "ATT_FIND_BY_TYPE_VALUE_RSP";
-	if(m == 0x08) return "ATT_READ_BY_TYPE_REQ";
-	if(m == 0x09) return "ATT_READ_BY_TYPE_RSP";
-	if(m == 0x0a) return "ATT_READ_REQ";
-	if(m == 0x0b) return "ATT_READ_RSP";
-	if(m == 0x0c) return "ATT_READ_BLOB_REQ";
-	if(m == 0x0d) return "ATT_READ_BLOB_RSP";
-	if(m == 0x0e) return "ATT_READ_MULTI_REQ";
-	if(m == 0x0f) return "ATT_READ_MULTI_RSP";
-	if(m == 0x10) return "ATT_READ_BY_GRP_TYPE_REQ";
-	if(m == 0x11) return "ATT_READ_BY_GRP_TYPE_RSP";
-	if(m == 0x12) return "ATT_WRITE_REQ";
-	if(m == 0x13) return "ATT_WRITE_RSP";
-	if(m == 0x16) return "ATT_PREPARE_WRITE_REQ";
-	if(m == 0x17) return "ATT_PREPARE_WRITE_RSP";
-	if(m == 0x18) return "ATT_EXECUTE_WRITE_REQ";
-	if(m == 0x19) return "ATT_EXECUTE_WRITE_RSP";
-	if(m == 0x1b) return "ATT_HANDLE_VALUE_NOTI";
-	if(m == 0x1d) return "ATT_HANDLE_VALUE_IND";
-	if(m == 0x1e) return "ATT_HANDLE_VALUE_CFM";
-	return "unknown ATT msg";
-}
-
-void descGattMsgEvent_t(gattMsgEvent_t *m)
-{
-	gattMsg_t msg = m->msg;
-	if(m->method == 0x01) {
-		PRINT("GATT: method %s, {reqOpcode %s, errCode 0x%02x}", 
-			m2s(m->method), m2s(msg.errorRsp.reqOpcode), msg.errorRsp.errCode);
-	} else if(m->method == 0x02) {
-		PRINT("GATT: method ATT_EXCHANGE_MTU_REQ, ");
-	} else if(m->method == 0x03) {
-		PRINT("GATT: method ATT_EXCHANGE_MTU_RSP, {clientRxMTU %d}", msg.exchangeMTUReq.clientRxMTU);
-	} else if(m->method == 0x04) {
-		PRINT("GATT: method ATT_FIND_INFO_REQ, ");
-	} else if(m->method == 0x05) {
-		PRINT("GATT: method ATT_FIND_INFO_RSP, ");
-	} else if(m->method == 0x06) {
-		// PRINT("GATT: method ATT_FIND_BY_TYPE_VALUE_REQ, {numInfo %d, pHandlesInfo 0x%02x}", msg.findByTypeValueReq.numInfo, *(msg.findByTypeValueReq.pHandlesInfo));
-		PRINT("GATT: method ATT_FIND_BY_TYPE_VALUE_REQ, ");
-	} else if(m->method == 0x07) {
-		PRINT("GATT: method ATT_FIND_BY_TYPE_VALUE_RSP, {numInfo %d, pHandlesInfo 0x%02x}", msg.findByTypeValueRsp.numInfo, msg.findByTypeValueRsp.pHandlesInfo);
-	} else if(m->method == 0x08) {
-		PRINT("GATT: method ATT_READ_BY_TYPE_REQ, ");
-	} else if(m->method == 0x09) {
-		PRINT("GATT: method ATT_READ_BY_TYPE_RSP, {numPairs %d, len %d, pDataList ", msg.readByTypeRsp.numPairs, msg.readByTypeRsp.len);
-		PAddr(msg.readByTypeRsp.pDataList, msg.readByTypeRsp.len);
-		PRINT("}");
-	} else if(m->method == 0x0a) {
-		PRINT("GATT: method ATT_READ_REQ, ");
-	} else if(m->method == 0x0b) {
-		PRINT("GATT: method ATT_READ_RSP, ");
-	} else if(m->method == 0x0c) {
-		PRINT("GATT: method ATT_READ_BLOB_REQ, ");
-	} else if(m->method == 0x0d) {
-		PRINT("GATT: method ATT_READ_BLOB_RSP, ");
-	} else if(m->method == 0x0e) {
-		PRINT("GATT: method ATT_READ_MULTI_REQ, ");
-	} else if(m->method == 0x0f) {
-		PRINT("GATT: method ATT_READ_MULTI_RSP, ");
-	} else if(m->method == 0x10) {
-		PRINT("GATT: method ATT_READ_BY_GRP_TYPE_REQ, ");
-	} else if(m->method == 0x11) {
-		PRINT("GATT: method ATT_READ_BY_GRP_TYPE_RSP, ");
-	} else if(m->method == 0x12) {
-		PRINT("GATT: method ATT_WRITE_REQ, ");
-	} else if(m->method == 0x13) {
-		PRINT("GATT: method ATT_WRITE_RSP, ");
-	} else if(m->method == 0x16) {
-		PRINT("GATT: method ATT_PREPARE_WRITE_REQ, ");
-	} else if(m->method == 0x17) {
-		PRINT("GATT: method ATT_PREPARE_WRITE_RSP, ");
-	} else if(m->method == 0x18) {
-		PRINT("GATT: method ATT_EXECUTE_WRITE_REQ, ");
-	} else if(m->method == 0x19) {
-		PRINT("GATT: method ATT_EXECUTE_WRITE_RSP, ");
-	} else if(m->method == 0x1b) {
-		PRINT("GATT: method ATT_HANDLE_VALUE_NOTI, ");
-	} else if(m->method == 0x1d) {
-		PRINT("GATT: method ATT_HANDLE_VALUE_IND, ");
-	} else if(m->method == 0x1e) {
-		PRINT("GATT: method ATT_HANDLE_VALUE_CFM, ");
-	} else {
-		PRINT("GATT: method unknown %02x\r\n", m);
-	}
-}
 
 /*********************************************************************
  * PUBLIC FUNCTIONS
@@ -590,26 +487,6 @@ static void central_ProcessTMOSMsg(tmos_event_hdr_t *pMsg)
 	}
 }
 
-
-void parseDataList(uint8_t *pDataList, uint16_t numGrps) {
-    for (uint16_t i = 0; i < numGrps; i++) {
-        // 解析属性句柄
-        uint16_t handle = pDataList[i * 6] | (pDataList[i * 6 + 1] << 8);
-        
-        // 解析结束组句柄
-        uint16_t endGroupHandle = pDataList[i * 6 + 2] | (pDataList[i * 6 + 3] << 8);
-        
-        // 解析 UUID
-        uint16_t uuid = pDataList[i * 6 + 4] | (pDataList[i * 6 + 5] << 8);
-        
-        // 输出解析结果
-        PRINT("Service %d:\r\n", i + 1);
-        PRINT("  Handle: 0x%04X\r\n", handle);
-        PRINT("  End Group Handle: 0x%04X\r\n", endGroupHandle);
-        PRINT("  UUID: 0x%04X\r\n", uuid);
-    }
-}
-
 /*********************************************************************
  * @fn      centralProcessGATTMsg
  *
@@ -623,7 +500,7 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 {
 	{
 		PRINT("  GATT MSG. ");
-		descGattMsgEvent_t(pMsg);
+		BLE_GATT_MSG_DESC(pMsg);
 		PRINT("\r\n");
 	}
 	// 如果设备当前不在已连接状态，则忽略所有GATT消息，释放消息内存并返回。
@@ -711,7 +588,7 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 		for(uint16_t i = 0; i < min(len,100); ++i)
 			PRINT(" %02x", *(l+i));
 		PRINT("\r\n");
-		parseDataList(l, numGrps);
+		BLE_UUID_DESC(l, numGrps);
 	}
 	// 如果设备正在进行服务或特征发现，则调用 centralGATTDiscoveryEvent 函数处理发现事件。
 	else if(centralDiscState != BLE_DISC_STATE_IDLE)

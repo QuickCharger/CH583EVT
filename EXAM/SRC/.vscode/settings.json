@@ -11,6 +11,9 @@
     "*.cjson": "jsonc",
     "*.wxss": "css",
     "*.wxs": "javascript",
-    "config.h": "c"
+    "config.h": "c",
+    "easy.h": "c",
+    "ch58xble_rom.h": "c",
+    "ch58x_common.h": "c"
   }
 }
