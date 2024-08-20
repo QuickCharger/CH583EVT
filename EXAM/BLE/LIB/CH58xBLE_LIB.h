@@ -3169,6 +3169,7 @@ extern bStatus_t GATT_ExchangeMTU( uint16_t connHandle, attExchangeMTUReq_t *pRe
  *          or ATT_ERROR_RSP (if an error occurred on the server).
  * 主机指令
  * 发现服务器上的所有主服务。
+ * 如果返回true 则会多次发送 ATT_READ_BY_GRP_TYPE_RSP | ATT_ERROR_RSP
  *
  * @note    This sub-procedure is complete when either ATT_READ_BY_GRP_TYPE_RSP
  *          (with bleProcedureComplete or bleTimeout status) or ATT_ERROR_RSP
