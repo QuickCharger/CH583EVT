@@ -129,8 +129,9 @@ enum
 enum
 {
 	BLE_DISC_STATE_IDLE, // Idle
-	BLE_DISC_STATE_SVC,  // Service discovery
-	BLE_DISC_STATE_CHAR, // Characteristic discovery
+	BLE_DISC_STATE_SVC,  // Service discovery 发送 GATT_DiscPrimaryServiceByUUID 后置此状态
+	BLE_DISC_STATE_CHAR, // Characteristic discovery 发送 GATT_ReadUsingCharUUID 后置此状态
+	// 发送 GATT_ReadUsingCharUUID 后置此状态
 	BLE_DISC_STATE_CCCD  // client characteristic configuration discovery
 };
 /*********************************************************************
@@ -212,7 +213,6 @@ static void centralHciMTUChangeCB(uint16_t connHandle, uint16_t maxTxOctets, uin
 static void centralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle, uint8_t uiInputs, uint8_t uiOutputs);
 static void centralPairStateCB(uint16_t connHandle, uint8_t state, uint8_t status);
 static void central_ProcessTMOSMsg(tmos_event_hdr_t *pMsg);		// 一处调用 可精简
-static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg);	// 一处调用 可精简
 static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi);
 /*********************************************************************
  * PROFILE CALLBACKS
@@ -232,6 +232,12 @@ static gapBondCBs_t centralBondCB = {
 	centralPasscodeCB,
 	centralPairStateCB
 };
+
+/**
+ * 消息回调、触发机制
+ * 	发送消息、执行函数					回调消息
+ * 	GATT_DiscAllPrimaryServices		ATT_READ_BY_GRP_TYPE_RSP
+*/
 
 /*********************************************************************
  * PUBLIC FUNCTIONS
@@ -348,7 +354,8 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 		// start service discovery
 		PRINT("主回调 START_SVC_DISCOVERY_EVT 搜索枚举服务任务 开始\r\n");
 		{
-			uint16_t HID_UUID = 0x1812;
+			// uint16_t HID_UUID = 0x1812;	// HID设备
+			uint16_t HID_UUID = 0x180F;		// 电池数据
 			uint8_t uuid[ATT_BT_UUID_SIZE] = {LO_UINT16(HID_UUID), HI_UINT16(HID_UUID)};
 			// Initialize cached handles
 			centralSvcStartHdl = centralSvcEndHdl = centralCharHdl = 0;
@@ -590,11 +597,100 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 		PRINT("\r\n");
 		BLE_UUID_DESC(l, numGrps);
 	}
-	// 如果设备正在进行服务或特征发现，则调用 centralGATTDiscoveryEvent 函数处理发现事件。
 	else if(centralDiscState != BLE_DISC_STATE_IDLE)
 	{
-		// 当前处于discovery状态，有三种discovery状态
-		centralGATTDiscoveryEvent(pMsg);
+		attReadByTypeReq_t req;
+		if(centralDiscState == BLE_DISC_STATE_SVC)
+		{
+			// 如果消息是服务发现响应 ATT_FIND_BY_TYPE_VALUE_RSP, 则遍历所有发现的服务，并打印每个服务的起始句	柄和结束句柄。
+			PRINT("    centralGATTDiscoveryEvent centralDiscState=BLE_DISC_STATE_SVC\r\n");
+			// Service found, store handles
+			if(pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP && pMsg->msg.findByTypeValueRsp.numInfo > 	0)
+			{
+				uint16_t waitUUID = 0x2A19;
+				for (uint16_t i = 0; i < pMsg->msg.findByTypeValueRsp.numInfo; i++)
+				{
+					uint16_t uuid = pMsg->msg.readByGrpTypeRsp.pDataList[i * 6 + 4] | (pMsg->msg.	readByGrpTypeRsp.pDataList[i * 6 + 5] << 8);
+					if(uuid == waitUUID)
+					{
+						centralSvcStartHdl = ATT_ATTR_HANDLE(pMsg->msg.findByTypeValueRsp.	pHandlesInfo, 0);
+						centralSvcEndHdl = ATT_GRP_END_HANDLE(pMsg->msg.findByTypeValueRsp.	pHandlesInfo, 0);
+					}
+				}
+				// Display Profile Service handle range
+				PRINT("    Found Profile Service handle : %x ~ %x \r\n", centralSvcStartHdl, 	centralSvcEndHdl);
+			}
+			// If procedure complete
+			if((pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP && pMsg->hdr.status == 	bleProcedureComplete)
+			|| (pMsg->method == ATT_ERROR_RSP))
+			{
+				if((pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP && pMsg->hdr.status == 	bleProcedureComplete))
+				{
+					PRINT("    centralGATTDiscoveryEvent BLE_DISC_STATE_SVC procedure 	complete\r\n");
+					if(centralSvcStartHdl != 0)
+					{
+						PRINT("    centralGATTDiscoveryEvent BLE_DISC_STATE_SVC procedure complete 	Discover characteristic\r\n");
+						centralDiscState = BLE_DISC_STATE_CHAR;
+						// Discover characteristic
+						uint16_t HID_mouse_input = 0x2A33;
+						req.startHandle = centralSvcStartHdl;
+						req.endHandle = centralSvcEndHdl;
+						req.type.len = ATT_BT_UUID_SIZE;
+						req.type.uuid[0] = LO_UINT16(HID_mouse_input);
+						req.type.uuid[1] = HI_UINT16(HID_mouse_input);
+						GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
+					}
+				}
+				else if(pMsg->method == ATT_ERROR_RSP)
+				{
+					PRINT("    Error response todo\r\n");
+				}
+			}
+		}
+		else if(centralDiscState == BLE_DISC_STATE_CHAR)
+		{
+			// 如果消息是特征发现响应 ATT_READ_BY_TYPE_RSP, 则遍历所有发现的特征，并打印每个特征的句柄和值句柄。
+			PRINT("    centralGATTDiscoveryEvent centralDiscState=BLE_DISC_STATE_CHAR\r\n");
+			// 特征句柄的获取
+			// Characteristic found, store handle
+			if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->msg.readByTypeRsp.numPairs > 0)
+			{
+				centralCharHdl = BUILD_UINT16(pMsg->msg.readByTypeRsp.pDataList[0], pMsg->msg.	readByTypeRsp.pDataList[1]);	
+				// 开启读写任务
+				tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, 	DEFAULT_READ_OR_WRITE_DELAY);	
+				// Display Characteristic 1 handle
+				PRINT("    Found Characteristic 1 handle : %x \r\n", centralCharHdl);
+			}
+			if((pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->hdr.status == bleProcedureComplete)
+			|| (pMsg->method == ATT_ERROR_RSP))
+			{
+				// 此处有问题 没有对error处理 todo
+				centralDiscState = BLE_DISC_STATE_CCCD;
+				// 订阅通知：获取 CCCD 句柄
+				// Discover characteristic
+				req.startHandle = centralSvcStartHdl;
+				req.endHandle = centralSvcEndHdl;
+				req.type.len = ATT_BT_UUID_SIZE;
+				req.type.uuid[0] = LO_UINT16(GATT_CLIENT_CHAR_CFG_UUID);
+				req.type.uuid[1] = HI_UINT16(GATT_CLIENT_CHAR_CFG_UUID);
+				GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
+			}
+		}
+		else if(centralDiscState == BLE_DISC_STATE_CCCD)
+		{
+			PRINT("    centralGATTDiscoveryEvent centralDiscState=BLE_DISC_STATE_CCCD\r\n");
+			// Characteristic found, store handle
+			if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->msg.readByTypeRsp.numPairs > 0)
+			{
+				centralCCCDHdl = BUILD_UINT16(pMsg->msg.readByTypeRsp.pDataList[0], pMsg->msg.	readByTypeRsp.pDataList[1]);
+				centralProcedureInProgress = FALSE;
+				// Start do write CCCD
+				tmos_start_task(centralTaskId, START_WRITE_CCCD_EVT, DEFAULT_WRITE_CCCD_DELAY);	
+				// Display Characteristic 1 handle
+				PRINT("    Found client characteristic configuration handle : %x \r\n", 	centralCCCDHdl);
+			}
+			centralDiscState = BLE_DISC_STATE_IDLE;
+		}
 	}
 	GATT_bm_free(&pMsg->msg, pMsg->method);
 }
@@ -878,102 +974,6 @@ static void centralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle, ui
 	}
 	// Send passcode response
 	GAPBondMgr_PasscodeRsp(connectionHandle, SUCCESS, passcode);
-}
-
-/*********************************************************************
- * @fn      centralGATTDiscoveryEvent
- * centralGATTDiscoveryEvent 函数用于处理GATT（通用属性协议）发现事件。这个函数主要负责处理来自从设备的服务和特征发现过程，包括服务发现、特征发现和描述符发现。
- *
- * @brief   Process GATT discovery event
- *
- * @return  none
- */
-static void centralGATTDiscoveryEvent(gattMsgEvent_t *pMsg)
-{
-	attReadByTypeReq_t req;
-	if(centralDiscState == BLE_DISC_STATE_SVC)
-	{
-		// 如果消息是服务发现响应 ATT_FIND_BY_TYPE_VALUE_RSP, 则遍历所有发现的服务，并打印每个服务的起始句柄和结束句柄。
-		PRINT("    centralGATTDiscoveryEvent centralDiscState=BLE_DISC_STATE_SVC\r\n");
-		// Service found, store handles
-		if(pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP && pMsg->msg.findByTypeValueRsp.numInfo > 0)
-		{
-			centralSvcStartHdl = ATT_ATTR_HANDLE(pMsg->msg.findByTypeValueRsp.pHandlesInfo, 0);
-			centralSvcEndHdl = ATT_GRP_END_HANDLE(pMsg->msg.findByTypeValueRsp.pHandlesInfo, 0);
-			// Display Profile Service handle range
-			PRINT("    Found Profile Service handle : %x ~ %x \r\n", centralSvcStartHdl, centralSvcEndHdl);
-		}
-		// If procedure complete
-		if((pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP && pMsg->hdr.status == bleProcedureComplete)
-		|| (pMsg->method == ATT_ERROR_RSP))
-		{
-			if((pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP && pMsg->hdr.status == bleProcedureComplete))
-			{
-				PRINT("    centralGATTDiscoveryEvent BLE_DISC_STATE_SVC procedure complete\r\n");
-				if(centralSvcStartHdl != 0)
-				{
-					PRINT("    centralGATTDiscoveryEvent BLE_DISC_STATE_SVC procedure complete Discover characteristic\r\n");
-					centralDiscState = BLE_DISC_STATE_CHAR;
-					// Discover characteristic
-					uint16_t HID_mouse_input = 0x2A33;
-					req.startHandle = centralSvcStartHdl;
-					req.endHandle = centralSvcEndHdl;
-					req.type.len = ATT_BT_UUID_SIZE;
-					req.type.uuid[0] = LO_UINT16(HID_mouse_input);
-					req.type.uuid[1] = HI_UINT16(HID_mouse_input);
-					GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
-				}
-			}
-			else if(pMsg->method == ATT_ERROR_RSP)
-			{
-				PRINT("    Error response todo\r\n");
-			}
-		}
-	}
-	else if(centralDiscState == BLE_DISC_STATE_CHAR)
-	{
-		// 如果消息是特征发现响应 ATT_READ_BY_TYPE_RSP, 则遍历所有发现的特征，并打印每个特征的句柄和值句柄。
-		PRINT("    centralGATTDiscoveryEvent centralDiscState=BLE_DISC_STATE_CHAR\r\n");
-		// 特征句柄的获取
-		// Characteristic found, store handle
-		if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->msg.readByTypeRsp.numPairs > 0)
-		{
-			centralCharHdl = BUILD_UINT16(pMsg->msg.readByTypeRsp.pDataList[0], pMsg->msg.readByTypeRsp.pDataList[1]);	
-			// 开启读写任务
-			tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);	
-			// Display Characteristic 1 handle
-			PRINT("    Found Characteristic 1 handle : %x \r\n", centralCharHdl);
-		}
-		if((pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->hdr.status == bleProcedureComplete)
-		|| (pMsg->method == ATT_ERROR_RSP))
-		{
-			// 此处有问题 没有对error处理 todo
-			centralDiscState = BLE_DISC_STATE_CCCD;
-			// 订阅通知：获取 CCCD 句柄
-			// Discover characteristic
-			req.startHandle = centralSvcStartHdl;
-			req.endHandle = centralSvcEndHdl;
-			req.type.len = ATT_BT_UUID_SIZE;
-			req.type.uuid[0] = LO_UINT16(GATT_CLIENT_CHAR_CFG_UUID);
-			req.type.uuid[1] = HI_UINT16(GATT_CLIENT_CHAR_CFG_UUID);
-			GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
-		}
-	}
-	else if(centralDiscState == BLE_DISC_STATE_CCCD)
-	{
-		PRINT("    centralGATTDiscoveryEvent centralDiscState=BLE_DISC_STATE_CCCD\r\n");
-		// Characteristic found, store handle
-		if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->msg.readByTypeRsp.numPairs > 0)
-		{
-			centralCCCDHdl = BUILD_UINT16(pMsg->msg.readByTypeRsp.pDataList[0], pMsg->msg.readByTypeRsp.pDataList[1]);
-			centralProcedureInProgress = FALSE;
-			// Start do write CCCD
-			tmos_start_task(centralTaskId, START_WRITE_CCCD_EVT, DEFAULT_WRITE_CCCD_DELAY);	
-			// Display Characteristic 1 handle
-			PRINT("    Found client characteristic configuration handle : %x \r\n", centralCCCDHdl);
-		}
-		centralDiscState = BLE_DISC_STATE_IDLE;
-	}
 }
 
 /*********************************************************************
