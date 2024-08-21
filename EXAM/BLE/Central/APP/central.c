@@ -527,16 +527,10 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 			// 获取实际协商的MTU大小
 			uint16_t negotiatedMTU = pMsg->msg.exchangeMTUReq.clientRxMTU;
 			PRINT("  Negotiated MTU: %d\r\n", negotiatedMTU);
-			// 在这里可以根据需要更新本地的MTU设置，例如：
-			// setLocalMTU(negotiatedMTU);
-			// 可能还需要更新连接参数或执行其他配置
-			// updateConnectionParameters(negotiatedMTU);
 		}
 		else
 		{
-			// PRINT("    收到消息 MTU交换响应 处理MTU交换\r\n");
-			// PRINT("centralProcessGATTMsg (ATT_EXCHANGE_MTU_RSP||(ATT_ERROR_RSP&&ATT_EXCHANGE_MTU_REQ))\r\n");
-			// if(pMsg->method == ATT_ERROR_RSP)
+			if(pMsg->method == ATT_ERROR_RSP)
 			{
 				uint8_t status = pMsg->msg.errorRsp.errCode;
 				PRINT("  Exchange MTU Error: %x\r\n", status);
