@@ -238,6 +238,11 @@ static gapBondCBs_t centralBondCB = {
  * 	发送消息、执行函数					回调消息
  * 	GATT_DiscAllPrimaryServices		ATT_READ_BY_GRP_TYPE_RSP
 */
+uint16_t UUID_SRV_HID = 0x1812;		// HID设备
+uint16_t UUID_SRV_BTT = 0x180F;		// 电池数据
+uint16_t UUID_char_MOUSE_IN = 0x2A33;	// HID鼠标输入
+uint16_t UUID_char_BTT = 0x2A19;	// 电池数据
+
 
 /*********************************************************************
  * PUBLIC FUNCTIONS
@@ -354,14 +359,10 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 		// start service discovery
 		PRINT("主回调 START_SVC_DISCOVERY_EVT 搜索枚举服务任务 开始\r\n");
 		{
-			// uint16_t HID_UUID = 0x1812;	// HID设备
-			uint16_t HID_UUID = 0x180F;		// 电池数据
-			uint8_t uuid[ATT_BT_UUID_SIZE] = {LO_UINT16(HID_UUID), HI_UINT16(HID_UUID)};
+			uint8_t uuid[ATT_BT_UUID_SIZE] = {LO_UINT16(UUID_SRV_BTT), HI_UINT16(UUID_SRV_BTT)};
 			// Initialize cached handles
 			centralSvcStartHdl = centralSvcEndHdl = centralCharHdl = 0;
 			centralDiscState = BLE_DISC_STATE_SVC;
-			// Discovery simple BLE service
-			// 搜索此UUID的服务
 			// GATT_DiscPrimaryServiceByUUID(centralConnHandle, uuid, ATT_BT_UUID_SIZE, centralTaskId);
 			GATT_DiscAllPrimaryServices(centralConnHandle, centralTaskId);
 		}
@@ -607,11 +608,10 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 			// Service found, store handles
 			if(pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP && pMsg->msg.findByTypeValueRsp.numInfo > 	0)
 			{
-				uint16_t waitUUID = 0x2A19;
 				for (uint16_t i = 0; i < pMsg->msg.findByTypeValueRsp.numInfo; i++)
 				{
 					uint16_t uuid = pMsg->msg.readByGrpTypeRsp.pDataList[i * 6 + 4] | (pMsg->msg.	readByGrpTypeRsp.pDataList[i * 6 + 5] << 8);
-					if(uuid == waitUUID)
+					if(uuid == UUID_char_BTT)
 					{
 						centralSvcStartHdl = ATT_ATTR_HANDLE(pMsg->msg.findByTypeValueRsp.	pHandlesInfo, 0);
 						centralSvcEndHdl = ATT_GRP_END_HANDLE(pMsg->msg.findByTypeValueRsp.	pHandlesInfo, 0);
@@ -632,12 +632,11 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 						PRINT("    centralGATTDiscoveryEvent BLE_DISC_STATE_SVC procedure complete 	Discover characteristic\r\n");
 						centralDiscState = BLE_DISC_STATE_CHAR;
 						// Discover characteristic
-						uint16_t HID_mouse_input = 0x2A33;
 						req.startHandle = centralSvcStartHdl;
 						req.endHandle = centralSvcEndHdl;
 						req.type.len = ATT_BT_UUID_SIZE;
-						req.type.uuid[0] = LO_UINT16(HID_mouse_input);
-						req.type.uuid[1] = HI_UINT16(HID_mouse_input);
+						req.type.uuid[0] = LO_UINT16(UUID_char_MOUSE_IN);
+						req.type.uuid[1] = HI_UINT16(UUID_char_MOUSE_IN);
 						GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
 					}
 				}
