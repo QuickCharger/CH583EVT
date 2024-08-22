@@ -5,6 +5,18 @@ void Print_Memory(uint8_t *p, uint16_t len) {
 		PRINT("%02x ",*(p+i));
 	}
 }
+void DoPRINT(const char* file, int line, const char* date, const char* time, const char* func,  const char* format, ...)
+{
+    static char buffer[256];
+
+    int offset = snprintf(buffer, sizeof(buffer), "[%s:%d] ", func, line);
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer + offset, sizeof(buffer) - offset, format, args);
+    va_end(args);
+
+	PRINT("%s", buffer);
+}
 
 const char* BLE_Opcode2str(uint8_t m) 
 {

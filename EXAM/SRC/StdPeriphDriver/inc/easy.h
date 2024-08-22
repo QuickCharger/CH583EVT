@@ -1,6 +1,7 @@
 #ifndef __CH58x_EASY_H__
 #define __CH58x_EASY_H__
 
+#include <stdarg.h>
 #include "CH58x_common.h"
 
 #include "../../BLE/LIB/CH58xBLE_LIB.h"
@@ -12,6 +13,8 @@ extern "C" {
  * ¥Ú”°
 */
 extern void Print_Memory(uint8_t *p, uint16_t len);
+extern void DoPRINT(const char* file, int line, const char* date, const char* time, const char* func,  const char* format, ...);
+#define LOG(format, ...) DoPRINT(__FILE__, __LINE__, __DATE__, __TIME__, __func__, format, ##__VA_ARGS__)
 
 
 /**

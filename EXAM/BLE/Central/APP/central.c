@@ -206,13 +206,12 @@ static uint8_t centralProcedureInProgress = FALSE;
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
-static void centralProcessGATTMsg(gattMsgEvent_t *pMsg);
-static void centralRssiCB(uint16_t connHandle, int8_t rssi);
-static void centralEventCB(gapRoleEvent_t *pEvent);
-static void centralHciMTUChangeCB(uint16_t connHandle, uint16_t maxTxOctets, uint16_t maxRxOctets);
-static void centralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle, uint8_t uiInputs, uint8_t uiOutputs);
-static void centralPairStateCB(uint16_t connHandle, uint8_t state, uint8_t status);
-static void central_ProcessTMOSMsg(tmos_event_hdr_t *pMsg);		// 一处调用 可精简
+static void gattCentralMsg(gattMsgEvent_t *pMsg);
+static void gapCentralRssiCB(uint16_t connHandle, int8_t rssi);
+static void gapCentralEventCB(gapRoleEvent_t *pEvent);
+static void gapCentralHciMTUChangeCB(uint16_t connHandle, uint16_t maxTxOctets, uint16_t maxRxOctets);
+static void gapCentralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle, uint8_t uiInputs, uint8_t uiOutputs);
+static void gapCentralPairStateCB(uint16_t connHandle, uint8_t state, uint8_t status);
 static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi);
 /*********************************************************************
  * PROFILE CALLBACKS
@@ -221,19 +220,21 @@ static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi);
 // GAP Role Callbacks
 // GAP 相关的回调
 static gapCentralRoleCB_t centralRoleCB = {
-	centralRssiCB,        // RSSI callback
-	centralEventCB,       // Event callback
-	centralHciMTUChangeCB // MTU change callback
+	gapCentralRssiCB,        // RSSI callback
+	gapCentralEventCB,       // Event callback
+	gapCentralHciMTUChangeCB // MTU change callback
 };
 
 // Bond Manager Callbacks
 // 配对 和 绑定 相关的回调
 static gapBondCBs_t centralBondCB = {
-	centralPasscodeCB,
-	centralPairStateCB
+	gapCentralPasscodeCB,
+	gapCentralPairStateCB
 };
 
 /**
+ * GAP 的消息走 centralRoleCB centralBondCB 的回调
+ * GATT的消息走 gattCentralMsg
  * 消息回调、触发机制
  * 	发送消息、执行函数					回调消息
  * 	GATT_DiscAllPrimaryServices		ATT_READ_BY_GRP_TYPE_RSP
@@ -324,14 +325,14 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 	if(events & SYS_EVENT_MSG)
 	{
 		uint8_t *pMsg;
-		PRINT("主回调 SYS_EVENT_MSG\r\n");
+		// PRINT("主回调 SYS_EVENT_MSG\r\n");
+		LOG("主回调 SYS_EVENT_MSG\r\n");
 		if((pMsg = tmos_msg_receive(centralTaskId)) != NULL)
 		{
-			// central_ProcessTMOSMsg((tmos_event_hdr_t *)pMsg);
 			uint8_t e = ((gattMsgEvent_t *)pMsg)->hdr.event;
 			if(e == GATT_MSG_EVENT)
 			{
-				centralProcessGATTMsg((gattMsgEvent_t *)pMsg);
+				gattCentralMsg((gattMsgEvent_t *)pMsg);
 			}
 			else
 			{
@@ -344,20 +345,23 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 	if(events & START_DEVICE_EVT)
 	{
 		// Start the Device
-		PRINT("主回调 START_DEVICE_EVT 设备初始化完成\r\n");
+		// PRINT("主回调 START_DEVICE_EVT 设备初始化完成\r\n");
+		LOG("主回调 START_DEVICE_EVT 设备初始化完成\r\n");
 		GAPRole_CentralStartDevice(centralTaskId, &centralBondCB, &centralRoleCB);
 		return (events ^ START_DEVICE_EVT);
 	}
 	if(events & ESTABLISH_LINK_TIMEOUT_EVT)
 	{
-		PRINT("主回调 ESTABLISH_LINK_TIMEOUT_EVT\r\n");
+		// PRINT("主回调 ESTABLISH_LINK_TIMEOUT_EVT\r\n");
+		LOG("主回调 ESTABLISH_LINK_TIMEOUT_EVT\r\n");
 		GAPRole_TerminateLink(INVALID_CONNHANDLE);
 		return (events ^ ESTABLISH_LINK_TIMEOUT_EVT);
 	}	
 	if(events & START_SVC_DISCOVERY_EVT)
 	{
 		// start service discovery
-		PRINT("主回调 START_SVC_DISCOVERY_EVT 搜索枚举服务任务 开始\r\n");
+		// PRINT("主回调 START_SVC_DISCOVERY_EVT 搜索枚举服务任务 开始\r\n");
+		LOG("主回调 START_SVC_DISCOVERY_EVT 搜索枚举服务任务 开始\r\n");
 		{
 			uint8_t uuid[ATT_BT_UUID_SIZE] = {LO_UINT16(UUID_SRV_BTT), HI_UINT16(UUID_SRV_BTT)};
 			// Initialize cached handles
@@ -371,7 +375,8 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 	if(events & START_PARAM_UPDATE_EVT)
 	{
 		// start connect parameter update 
-		PRINT("主回调 START_PARAM_UPDATE_EVT\r\n");
+		// PRINT("主回调 START_PARAM_UPDATE_EVT\r\n");
+		LOG("主回调 START_PARAM_UPDATE_EVT\r\n");
 		GAPRole_UpdateLink(centralConnHandle,
 							DEFAULT_UPDATE_MIN_CONN_INTERVAL,
 							DEFAULT_UPDATE_MAX_CONN_INTERVAL,
@@ -382,13 +387,17 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 	if(events & START_PHY_UPDATE_EVT)
 	{
 		// start phy update
-		PRINT("主回调 START_PHY_UPDATE_EVT\r\n");
-		PRINT("PHY Update %x...\r\n", GAPRole_UpdatePHY(centralConnHandle, 0, GAP_PHY_BIT_LE_2M, GAP_PHY_BIT_LE_2M, GAP_PHY_OPTIONS_NOPRE));
+		// PRINT("主回调 START_PHY_UPDATE_EVT\r\n");
+		LOG("主回调 START_PHY_UPDATE_EVT\r\n");
+		bStatus_t t = GAPRole_UpdatePHY(centralConnHandle, 0, GAP_PHY_BIT_LE_2M, GAP_PHY_BIT_LE_2M, GAP_PHY_OPTIONS_NOPRE);
+		// PRINT("PHY Update %x...\r\n", t);
+		LOG("PHY Update %x...\r\n", t);
 		return (events ^ START_PHY_UPDATE_EVT);
 	}
 	if(events & START_READ_OR_WRITE_EVT)
 	{
-		PRINT("主回调 START_READ_OR_WRITE_EVT\r\n");
+		// PRINT("主回调 START_READ_OR_WRITE_EVT\r\n");
+		LOG("主回调 START_READ_OR_WRITE_EVT\r\n");
 		if(centralProcedureInProgress == FALSE)
 		{
 			if(centralDoWrite)
@@ -431,7 +440,8 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 	}
 	if(events & START_WRITE_CCCD_EVT)
 	{
-		PRINT("主回调 START_WRITE_CCCD_EVT\r\n");
+		// PRINT("主回调 START_WRITE_CCCD_EVT\r\n");
+		LOG("主回调 START_WRITE_CCCD_EVT\r\n");
 		if(centralProcedureInProgress == FALSE)
 		{
 			// Do a write
@@ -469,34 +479,7 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 }
 
 /*********************************************************************
- * @fn      central_ProcessTMOSMsg
- *
- * @brief   Process an incoming task message.
- *
- * @param   pMsg - message to process
- *
- * @return  none
- */
-// 日志前加两空格
-static void central_ProcessTMOSMsg(tmos_event_hdr_t *pMsg)
-{
-	switch(pMsg->event)
-	{
-		case GATT_MSG_EVENT:
-		{
-			PRINT("  收到消息 GATT消息\r\n");
-			centralProcessGATTMsg((gattMsgEvent_t *)pMsg);
-			break;
-		}
-		default:
-		{
-			PRINT("  收到消息 GATT消息 unknown %d\r\n", pMsg->event);
-		}
-	}
-}
-
-/*********************************************************************
- * @fn      centralProcessGATTMsg
+ * @fn      gattCentralMsg
  *
  * @brief   Process GATT messages
  * GATT 读取从设备发来的数据
@@ -504,17 +487,18 @@ static void central_ProcessTMOSMsg(tmos_event_hdr_t *pMsg)
  * @return  none
  */
 // 日志前加二空格
-static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
+static void gattCentralMsg(gattMsgEvent_t *pMsg)
 {
 	{
-		PRINT("  GATT MSG. ");
+		PRINT("GATT MSG. ");
 		BLE_GATT_MSG_DESC(pMsg);
 		PRINT("\r\n");
 	}
 	// 如果设备当前不在已连接状态，则忽略所有GATT消息，释放消息内存并返回。
 	if(centralState != BLE_STATE_CONNECTED)
 	{
-		PRINT("  centralProcessGATTMsg centralState != BLE_STATE_CONNECTED\r\n");
+		// PRINT("  gattCentralMsg centralState != BLE_STATE_CONNECTED\r\n");
+		PRINT("  centralState != BLE_STATE_CONNECTED\r\n");
 		GATT_bm_free(&pMsg->msg, pMsg->method);
 		return;
 	}
@@ -526,14 +510,16 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 		{
 			// 获取实际协商的MTU大小
 			uint16_t negotiatedMTU = pMsg->msg.exchangeMTUReq.clientRxMTU;
-			PRINT("  Negotiated MTU: %d\r\n", negotiatedMTU);
+			// PRINT("  Negotiated MTU: %d\r\n", negotiatedMTU);
+			LOG("  Negotiated MTU: %d\r\n", negotiatedMTU);
 		}
 		else
 		{
 			if(pMsg->method == ATT_ERROR_RSP)
 			{
 				uint8_t status = pMsg->msg.errorRsp.errCode;
-				PRINT("  Exchange MTU Error: %x\r\n", status);
+				// PRINT("  Exchange MTU Error: %x\r\n", status);
+				LOG("  Exchange MTU Error: %x\r\n", status);
 			}
 			centralProcedureInProgress = FALSE;
 		}
@@ -541,7 +527,8 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 	// 如果消息是MTU更新事件，则打印新的MTU值。
 	if(pMsg->method == ATT_MTU_UPDATED_EVENT)
 	{
-		PRINT("  centralProcessGATTMsg ATT_MTU_UPDATED_EVENT MTU: %d\r\n", pMsg->msg.mtuEvt.MTU);
+		// PRINT("  gattCentralMsg ATT_MTU_UPDATED_EVENT MTU: %d\r\n", pMsg->msg.mtuEvt.MTU);
+		LOG("  ATT_MTU_UPDATED_EVENT MTU: %d\r\n", pMsg->msg.mtuEvt.MTU);
 	}
 	// 如果消息是读取响应 或 读取请求的错误响应，则处理读取结果。
 	if((pMsg->method == ATT_READ_RSP)
@@ -550,12 +537,14 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 		if(pMsg->method == ATT_ERROR_RSP)
 		{
 			uint8_t status = pMsg->msg.errorRsp.errCode;
-			PRINT("  centralProcessGATTMsg ATT_ERROR_RSP Read Error: %x\r\n", status);
+			// PRINT("  gattCentralMsg ATT_ERROR_RSP Read Error: %x\r\n", status);
+			LOG("  ATT_ERROR_RSP Read Error: %x\r\n", status);
 		}
 		else
 		{
 			// After a successful read, display the read value
-			PRINT("  centralProcessGATTMsg ATT_READ_RSP Read rsp: %x\r\n", *pMsg->msg.readRsp.pValue);
+			// PRINT("  gattCentralMsg ATT_READ_RSP Read rsp: %x\r\n", *pMsg->msg.readRsp.pValue);
+			LOG("  ATT_READ_RSP Read rsp: %x\r\n", *pMsg->msg.readRsp.pValue);
 		}
 		centralProcedureInProgress = FALSE;
 	}
@@ -566,12 +555,14 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 		if(pMsg->method == ATT_ERROR_RSP)
 		{
 			uint8_t status = pMsg->msg.errorRsp.errCode;
-			PRINT("  centralProcessGATTMsg ATT_ERROR_RSP Write Error: %x\r\n", status);
+			// PRINT("  gattCentralMsg ATT_ERROR_RSP Write Error: %x\r\n", status);
+			LOG("  ATT_ERROR_RSP Write Error: %x\r\n", status);
 		}
 		else
 		{
 			// Write success
-			PRINT("  centralProcessGATTMsg ATT_WRITE_RSP Write success\r\n");
+			// PRINT("  gattCentralMsg ATT_WRITE_RSP Write success\r\n");
+			LOG("  ATT_WRITE_RSP Write success\r\n");
 		}
 		centralProcedureInProgress = FALSE;
 	}
@@ -579,13 +570,15 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 	else if(pMsg->method == ATT_HANDLE_VALUE_NOTI)
 	{
 		// 接收到 数据 通知 指示
-		PRINT("  centralProcessGATTMsg ATT_HANDLE_VALUE_NOTI Receive noti: %x\r\n", *pMsg->msg.handleValueNoti.pValue);
+		// PRINT("  gattCentralMsg ATT_HANDLE_VALUE_NOTI Receive noti: %x\r\n", *pMsg->msg.handleValueNoti.pValue);
+		LOG("  ATT_HANDLE_VALUE_NOTI Receive noti: %x\r\n", *pMsg->msg.handleValueNoti.pValue);
 	}
 	else if(pMsg->method == ATT_READ_BY_GRP_TYPE_RSP)
 	{
 		uint16_t numGrps = pMsg->msg.readByGrpTypeRsp.numGrps;
 		uint16_t len = pMsg->msg.readByGrpTypeRsp.len;
 		uint8_t* l = pMsg->msg.readByGrpTypeRsp.pDataList;
+		// todo
 		PRINT("  ATT_READ_BY_GRP_TYPE_RSP numGrps %d. len %d", numGrps, len);
 		for(uint16_t i = 0; i < min(len,100); ++i)
 			PRINT(" %02x", *(l+i));
@@ -598,7 +591,8 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 		if(centralDiscState == BLE_DISC_STATE_SVC)
 		{
 			// 如果消息是服务发现响应 ATT_FIND_BY_TYPE_VALUE_RSP, 则遍历所有发现的服务，并打印每个服务的起始句	柄和结束句柄。
-			PRINT("    centralGATTDiscoveryEvent centralDiscState=BLE_DISC_STATE_SVC\r\n");
+			// PRINT("    centralGATTDiscoveryEvent centralDiscState=BLE_DISC_STATE_SVC\r\n");
+			LOG("    centralDiscState=BLE_DISC_STATE_SVC\r\n");
 			// Service found, store handles
 			if(pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP && pMsg->msg.findByTypeValueRsp.numInfo > 	0)
 			{
@@ -612,7 +606,8 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 					}
 				}
 				// Display Profile Service handle range
-				PRINT("    Found Profile Service handle : %x ~ %x \r\n", centralSvcStartHdl, 	centralSvcEndHdl);
+				// PRINT("    Found Profile Service handle : %x ~ %x \r\n", centralSvcStartHdl, 	centralSvcEndHdl);
+				LOG("    Found Profile Service handle : %x ~ %x \r\n", centralSvcStartHdl, 	centralSvcEndHdl);
 			}
 			// If procedure complete
 			if((pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP && pMsg->hdr.status == 	bleProcedureComplete)
@@ -620,10 +615,12 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 			{
 				if((pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP && pMsg->hdr.status == 	bleProcedureComplete))
 				{
-					PRINT("    centralGATTDiscoveryEvent BLE_DISC_STATE_SVC procedure 	complete\r\n");
+					// PRINT("    centralGATTDiscoveryEvent BLE_DISC_STATE_SVC procedure 	complete\r\n");
+					LOG("    BLE_DISC_STATE_SVC procedure 	complete\r\n");
 					if(centralSvcStartHdl != 0)
 					{
-						PRINT("    centralGATTDiscoveryEvent BLE_DISC_STATE_SVC procedure complete 	Discover characteristic\r\n");
+						// PRINT("    centralGATTDiscoveryEvent BLE_DISC_STATE_SVC procedure complete 	Discover characteristic\r\n");
+						LOG("    BLE_DISC_STATE_SVC procedure complete 	Discover characteristic\r\n");
 						centralDiscState = BLE_DISC_STATE_CHAR;
 						// Discover characteristic
 						req.startHandle = centralSvcStartHdl;
@@ -636,14 +633,16 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 				}
 				else if(pMsg->method == ATT_ERROR_RSP)
 				{
-					PRINT("    Error response todo\r\n");
+					// PRINT("    Error response todo\r\n");
+					LOG("    Error response todo\r\n");
 				}
 			}
 		}
 		else if(centralDiscState == BLE_DISC_STATE_CHAR)
 		{
 			// 如果消息是特征发现响应 ATT_READ_BY_TYPE_RSP, 则遍历所有发现的特征，并打印每个特征的句柄和值句柄。
-			PRINT("    centralGATTDiscoveryEvent centralDiscState=BLE_DISC_STATE_CHAR\r\n");
+			// PRINT("    centralGATTDiscoveryEvent centralDiscState=BLE_DISC_STATE_CHAR\r\n");
+			LOG("    centralDiscState=BLE_DISC_STATE_CHAR\r\n");
 			// 特征句柄的获取
 			// Characteristic found, store handle
 			if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->msg.readByTypeRsp.numPairs > 0)
@@ -652,7 +651,8 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 				// 开启读写任务
 				tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, 	DEFAULT_READ_OR_WRITE_DELAY);	
 				// Display Characteristic 1 handle
-				PRINT("    Found Characteristic 1 handle : %x \r\n", centralCharHdl);
+				// PRINT("    Found Characteristic 1 handle : %x \r\n", centralCharHdl);
+				LOG("    Found Characteristic 1 handle : %x \r\n", centralCharHdl);
 			}
 			if((pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->hdr.status == bleProcedureComplete)
 			|| (pMsg->method == ATT_ERROR_RSP))
@@ -671,7 +671,8 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 		}
 		else if(centralDiscState == BLE_DISC_STATE_CCCD)
 		{
-			PRINT("    centralGATTDiscoveryEvent centralDiscState=BLE_DISC_STATE_CCCD\r\n");
+			// PRINT("    centralGATTDiscoveryEvent centralDiscState=BLE_DISC_STATE_CCCD\r\n");
+			LOG("    centralDiscState=BLE_DISC_STATE_CCCD\r\n");
 			// Characteristic found, store handle
 			if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->msg.readByTypeRsp.numPairs > 0)
 			{
@@ -680,7 +681,8 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 				// Start do write CCCD
 				tmos_start_task(centralTaskId, START_WRITE_CCCD_EVT, DEFAULT_WRITE_CCCD_DELAY);	
 				// Display Characteristic 1 handle
-				PRINT("    Found client characteristic configuration handle : %x \r\n", 	centralCCCDHdl);
+				// PRINT("    Found client characteristic configuration handle : %x \r\n", 	centralCCCDHdl);
+				LOG("    Found client characteristic configuration handle : %x \r\n", 	centralCCCDHdl);
 			}
 			centralDiscState = BLE_DISC_STATE_IDLE;
 		}
@@ -689,7 +691,7 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
 }
 
 /*********************************************************************
- * @fn      centralRssiCB
+ * @fn      gapCentralRssiCB
  *
  * @brief   RSSI callback.
  * 这个回调函数在接收到 RSSI（接收信号强度指示）报告时被调用。
@@ -700,13 +702,14 @@ static void centralProcessGATTMsg(gattMsgEvent_t *pMsg)
  *
  * @return  none
  */
-static void centralRssiCB(uint16_t connHandle, int8_t rssi)
+static void gapCentralRssiCB(uint16_t connHandle, int8_t rssi)
 {
-	PRINT("centralRssiCB RSSI : -%d dB \r\n", -rssi);
+	// PRINT("gapCentralRssiCB RSSI : -%d dB \r\n", -rssi);
+	LOG("RSSI : -%d dB \r\n", -rssi);
 }
 
 /*********************************************************************
- * @fn      centralHciMTUChangeCB
+ * @fn      gapCentralHciMTUChangeCB
  *
  * @brief   MTU changed callback.
  * 这个回调函数在 MTU（Maximum Transmission Unit，最大传输单元）大小发生变化时被调用。
@@ -718,16 +721,17 @@ static void centralRssiCB(uint16_t connHandle, int8_t rssi)
  *
  * @return  none
  */
-static void centralHciMTUChangeCB(uint16_t connHandle, uint16_t maxTxOctets, uint16_t maxRxOctets)
+static void gapCentralHciMTUChangeCB(uint16_t connHandle, uint16_t maxTxOctets, uint16_t maxRxOctets)
 {
-	PRINT("HCI data length changed, Tx: %d, Rx: %d\r\n", maxTxOctets, maxRxOctets);
+	// PRINT("HCI data length changed, Tx: %d, Rx: %d\r\n", maxTxOctets, maxRxOctets);
+	LOG("HCI data length changed, Tx: %d, Rx: %d\r\n", maxTxOctets, maxRxOctets);
 	centralProcedureInProgress = TRUE;
 }
 
 
 
 /*********************************************************************
- * @fn      centralEventCB
+ * @fn      gapCentralEventCB
  *
  * @brief   Central event callback function.
  * 这个回调函数在发生 GAP 事件时被调用。
@@ -738,14 +742,15 @@ static void centralHciMTUChangeCB(uint16_t connHandle, uint16_t maxTxOctets, uin
  *
  * @return  none
  */
-static void centralEventCB(gapRoleEvent_t *pEvent)
+static void gapCentralEventCB(gapRoleEvent_t *pEvent)
 {
 	switch(pEvent->gap.opcode)
 	{
 		// 设备初始化完成事件
 		case GAP_DEVICE_INIT_DONE_EVENT:
 		{
-			PRINT("centralEventCB 事件 GAP_DEVICE_INIT_DONE_EVENT 初始化结束 开始探测设备\r\n");
+			// PRINT("gapCentralEventCB 事件 GAP_DEVICE_INIT_DONE_EVENT 初始化结束 开始探测设备\r\n");
+			LOG("事件 GAP_DEVICE_INIT_DONE_EVENT 初始化结束 开始探测设备\r\n");
 			GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
 										DEFAULT_DISCOVERY_ACTIVE_SCAN,
 										DEFAULT_DISCOVERY_WHITE_LIST);
@@ -756,7 +761,8 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 		{
 			if(pEvent->deviceInfo.rssi > -40)
 			{
-				PRINT("centralEventCB 事件 GAP_DEVICE_INFO_EVENT 发现设备\r\n");
+				// PRINT("gapCentralEventCB 事件 GAP_DEVICE_INFO_EVENT 发现设备\r\n");
+				LOG("事件 GAP_DEVICE_INFO_EVENT 发现设备\r\n");
 				// PRINT("GAP_DEVICE_INFO_EVENT 发现新设备\r\n");
 				// Add device to list
 				centralAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo. addrType, pEvent->deviceInfo.rssi);
@@ -766,7 +772,8 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 		// 蓝牙设备扫描结束触发 GAPRole_CentralStartDiscovery 触发
 		case GAP_DEVICE_DISCOVERY_EVENT:
 		{
-			PRINT("centralEventCB 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束\r\n");
+			// PRINT("gapCentralEventCB 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束\r\n");
+			LOG("事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束\r\n");
 			uint8_t i;
 			for(i = 0; i < centralScanRes; i++)
 			{
@@ -779,7 +786,8 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 			{
 				// PRINT("Device not found... Discovering...\r\n");
 				centralScanRes = 0;
-				PRINT("  探测设备 未找到设备 开始重新探测设备\r\n");
+				// PRINT("  探测设备 未找到设备 开始重新探测设备\r\n");
+				LOG("  探测设备 未找到设备 开始重新探测设备\r\n");
 				GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
 											DEFAULT_DISCOVERY_ACTIVE_SCAN,
 											DEFAULT_DISCOVERY_WHITE_LIST);
@@ -788,7 +796,8 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 			else
 			{
 				// 连接第一步
-				PRINT("  找到设备 MAC %x-%x-%x-%x-%x-%x 尝试连接\r\n", PeerAddrDef[0], PeerAddrDef[1], PeerAddrDef[2], PeerAddrDef[3], PeerAddrDef[4], PeerAddrDef[5]);
+				// PRINT("  找到设备 MAC %x-%x-%x-%x-%x-%x 尝试连接\r\n", PeerAddrDef[0], PeerAddrDef[1], PeerAddrDef[2], PeerAddrDef[3], PeerAddrDef[4], PeerAddrDef[5]);
+				LOG("  找到设备 MAC %x-%x-%x-%x-%x-%x 尝试连接\r\n", PeerAddrDef[0], PeerAddrDef[1], PeerAddrDef[2], PeerAddrDef[3], PeerAddrDef[4], PeerAddrDef[5]);
 				GAPRole_CentralEstablishLink(DEFAULT_LINK_HIGH_DUTY_CYCLE,
 											DEFAULT_LINK_WHITE_LIST,
 											centralDevList[i].addrType,
@@ -802,7 +811,8 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 			tmos_stop_task(centralTaskId, ESTABLISH_LINK_TIMEOUT_EVT);
 			if(pEvent->gap.hdr.status == SUCCESS)
 			{
-				PRINT("centralEventCB 事件 GAP_LINK_ESTABLISHED_EVENT MAC %x-%x-%x-%x-%x-%x 连接成功\r\n", PeerAddrDef[0], PeerAddrDef[1], PeerAddrDef[2], PeerAddrDef[3], PeerAddrDef[4], PeerAddrDef[5]);
+				// PRINT("gapCentralEventCB 事件 GAP_LINK_ESTABLISHED_EVENT MAC %x-%x-%x-%x-%x-%x 连接成功\r\n", PeerAddrDef[0], PeerAddrDef[1], PeerAddrDef[2], PeerAddrDef[3], PeerAddrDef[4], PeerAddrDef[5]);
+				LOG("事件 GAP_LINK_ESTABLISHED_EVENT MAC %x-%x-%x-%x-%x-%x 连接成功\r\n", PeerAddrDef[0], PeerAddrDef[1], PeerAddrDef[2], PeerAddrDef[3], PeerAddrDef[4], PeerAddrDef[5]);
 				centralState = BLE_STATE_CONNECTED;
 				centralConnHandle = pEvent->linkCmpl.connectionHandle;
 				centralProcedureInProgress = TRUE;
@@ -837,7 +847,8 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 			}
 			else
 			{
-				PRINT("centralEventCB 事件 GAP_LINK_ESTABLISHED_EVENT MAC %x-%x-%x-%x-%x-%x 连接失败 Reason:%X. 开始探测设备\r\n", PeerAddrDef[0], PeerAddrDef[1], PeerAddrDef[2], PeerAddrDef[3], PeerAddrDef[4], PeerAddrDef[5],pEvent->gap.hdr.status);
+				// PRINT("gapCentralEventCB 事件 GAP_LINK_ESTABLISHED_EVENT MAC %x-%x-%x-%x-%x-%x 连接失败 Reason:%X. 开始探测设备\r\n", PeerAddrDef[0], PeerAddrDef[1], PeerAddrDef[2], PeerAddrDef[3], PeerAddrDef[4], PeerAddrDef[5],pEvent->gap.hdr.status);
+				LOG("事件 GAP_LINK_ESTABLISHED_EVENT MAC %x-%x-%x-%x-%x-%x 连接失败 Reason:%X. 开始探测设备\r\n", PeerAddrDef[0], PeerAddrDef[1], PeerAddrDef[2], PeerAddrDef[3], PeerAddrDef[4], PeerAddrDef[5],pEvent->gap.hdr.status);
 				centralScanRes = 0;
 				GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
 											DEFAULT_DISCOVERY_ACTIVE_SCAN,
@@ -847,7 +858,8 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 		}
 		case GAP_LINK_TERMINATED_EVENT:
 		{
-			PRINT("centralEventCB 事件 GAP_LINK_TERMINATED_EVENT\r\n");
+			// PRINT("gapCentralEventCB 事件 GAP_LINK_TERMINATED_EVENT\r\n");
+			LOG("gapCentralEventCB 事件 GAP_LINK_TERMINATED_EVENT\r\n");
 			centralState = BLE_STATE_IDLE;
 			centralConnHandle = GAP_CONNHANDLE_INIT;
 			centralDiscState = BLE_DISC_STATE_IDLE;
@@ -855,9 +867,11 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 			centralScanRes = 0;
 			centralProcedureInProgress = FALSE;
 			tmos_stop_task(centralTaskId, START_READ_RSSI_EVT);
-			PRINT("Disconnected...Reason:%x\r\n", pEvent->linkTerminate.reason);
+			// PRINT("Disconnected...Reason:%x\r\n", pEvent->linkTerminate.reason);
+			LOG("Disconnected...Reason:%x\r\n", pEvent->linkTerminate.reason);
 			// PRINT("Discovering...\r\n");
-			PRINT("探测设备 开始\r\n");
+			// PRINT("探测设备 开始\r\n");
+			LOG("探测设备 开始\r\n");
 			GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
 										DEFAULT_DISCOVERY_ACTIVE_SCAN,
 										DEFAULT_DISCOVERY_WHITE_LIST);
@@ -865,38 +879,44 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
 		}
 		case GAP_LINK_PARAM_UPDATE_EVENT:
 		{
-			PRINT("centralEventCB 事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功\r\n");
+			// PRINT("gapCentralEventCB 事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功\r\n");
+			LOG(" 事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功\r\n");
 			break;
 		}
 		case GAP_PHY_UPDATE_EVENT:
 		{
-			PRINT("centralEventCB 事件 GAP_PHY_UPDATE_EVENT PHY Update...\r\n");
+			// PRINT("gapCentralEventCB 事件 GAP_PHY_UPDATE_EVENT PHY Update...\r\n");
+			LOG("事件 GAP_PHY_UPDATE_EVENT PHY Update...\r\n");
 			break;
 		}
 		case GAP_EXT_ADV_DEVICE_INFO_EVENT:
 		{
-			PRINT("centralEventCB 事件 GAP_EXT_ADV_DEVICE_INFO_EVENT Recv ext adv \r\n");
+			// PRINT("gapCentralEventCB 事件 GAP_EXT_ADV_DEVICE_INFO_EVENT Recv ext adv \r\n");
+			LOG(" 事件 GAP_EXT_ADV_DEVICE_INFO_EVENT Recv ext adv \r\n");
 			// Add device to list
 			centralAddDeviceInfo(pEvent->deviceExtAdvInfo.addr, pEvent->deviceExtAdvInfo.addrType, pEvent->deviceExtAdvInfo.rssi);
 			break;
 		}
 		case GAP_DIRECT_DEVICE_INFO_EVENT:
 		{
-			PRINT("centralEventCB 事件 GAP_DIRECT_DEVICE_INFO_EVENT\r\n");
+			// PRINT("gapCentralEventCB 事件 GAP_DIRECT_DEVICE_INFO_EVENT\r\n");
+			LOG(" 事件 GAP_DIRECT_DEVICE_INFO_EVENT\r\n");
 			// Display device addr
-			PRINT("Recv direct adv \r\n");
+			// PRINT("Recv direct adv \r\n");
+			LOG("Recv direct adv \r\n");
 			// Add device to list
 			centralAddDeviceInfo(pEvent->deviceDirectInfo.addr, pEvent->deviceDirectInfo.addrType, pEvent->deviceExtAdvInfo.rssi);
 			break;
 		}
 		default:
-			PRINT("centralEventCB 事件 未知事件 id %02x\r\n", pEvent->gap.opcode);
+			// PRINT("gapCentralEventCB 事件 未知事件 id %02x\r\n", pEvent->gap.opcode);
+			LOG(" 事件 未知事件 id %02x\r\n", pEvent->gap.opcode);
 			break;
 	}
 }
 
 /*********************************************************************
- * @fn      pairStateCB
+ * @fn      gapCentralPairStateCB
  *
  * @brief   Pairing state callback.
  * 当配对过程的状态发生变化时，会调用这个回调函数。
@@ -905,46 +925,53 @@ static void centralEventCB(gapRoleEvent_t *pEvent)
  *
  * @return  none
  */
-static void centralPairStateCB(uint16_t connHandle, uint8_t state, uint8_t status)
+static void gapCentralPairStateCB(uint16_t connHandle, uint8_t state, uint8_t status)
 {
-	PRINT("centralPairStateCB\r\n");
+	// PRINT("gapCentralPairStateCB\r\n");
+	LOG("gapCentralPairStateCB\r\n");
 	if(state == GAPBOND_PAIRING_STATE_STARTED)
 	{
-		PRINT("Pairing started:%d\r\n", status);
+		// PRINT("Pairing started:%d\r\n", status);
+		LOG("Pairing started:%d\r\n", status);
 	}
 	else if(state == GAPBOND_PAIRING_STATE_COMPLETE)
 	{
 		if(status == SUCCESS)
 		{
-			PRINT("Pairing success\r\n");
+			// PRINT("Pairing success\r\n");
+			LOG("Pairing success\r\n");
 		}
 		else
 		{
-			PRINT("Pairing fail\r\n");
+			// PRINT("Pairing fail\r\n");
+			LOG("Pairing fail\r\n");
 		}
 	}
 	else if(state == GAPBOND_PAIRING_STATE_BONDED)
 	{
 		if(status == SUCCESS)
 		{
-			PRINT("Bonding success\r\n");
+			// PRINT("Bonding success\r\n");
+			LOG("Bonding success\r\n");
 		}
 	}
 	else if(state == GAPBOND_PAIRING_STATE_BOND_SAVED)
 	{
 		if(status == SUCCESS)
 		{
-			PRINT("Bond save success\r\n");
+			// PRINT("Bond save success\r\n");
+			LOG("Bond save success\r\n");
 		}
 		else
 		{
-			PRINT("Bond save failed: %d\r\n", status);
+			// PRINT("Bond save failed: %d\r\n", status);
+			LOG("Bond save failed: %d\r\n", status);
 		}
 	}
 }
 
 /*********************************************************************
- * @fn      centralPasscodeCB
+ * @fn      gapCentralPasscodeCB
  *
  * @brief   Passcode callback.
  * 当设备要求输入配对码时，会调用这个回调函数。
@@ -953,9 +980,10 @@ static void centralPairStateCB(uint16_t connHandle, uint8_t state, uint8_t statu
  *
  * @return  none
  */
-static void centralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle, uint8_t uiInputs, uint8_t uiOutputs)
+static void gapCentralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle, uint8_t uiInputs, uint8_t uiOutputs)
 {
-	PRINT("centralPasscodeCB\r\n");
+	// PRINT("gapCentralPasscodeCB\r\n");
+	LOG("gapCentralPasscodeCB\r\n");
 	uint32_t passcode;
 	// Create random passcode
 	passcode = tmos_rand();
@@ -963,7 +991,8 @@ static void centralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle, ui
 	// Display passcode to user
 	if(uiOutputs != 0)
 	{
-		PRINT("Passcode:%06d\r\n", (int)passcode);
+		// PRINT("Passcode:%06d\r\n", (int)passcode);
+		LOG("Passcode:%06d\r\n", (int)passcode);
 	}
 	// Send passcode response
 	GAPBondMgr_PasscodeRsp(connectionHandle, SUCCESS, passcode);
@@ -1000,7 +1029,8 @@ static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi)
 
 		if(rssi > -40)
 		{
-			PRINT("  发现新设备 记录 MAC %x-%x-%x-%x-%x-%x, RSSI %d dBm\r\n", pAddr[0], pAddr[1], pAddr[2], pAddr[3], pAddr[4], pAddr[5], rssi);
+			// PRINT("  发现新设备 记录 MAC %x-%x-%x-%x-%x-%x, RSSI %d dBm\r\n", pAddr[0], pAddr[1], pAddr[2], pAddr[3], pAddr[4], pAddr[5], rssi);
+			LOG("  发现新设备 记录 MAC %x-%x-%x-%x-%x-%x, RSSI %d dBm\r\n", pAddr[0], pAddr[1], pAddr[2], pAddr[3], pAddr[4], pAddr[5], rssi);
 			memcpy(PeerAddrDef, pAddr, B_ADDR_LEN);
 		}
 	}

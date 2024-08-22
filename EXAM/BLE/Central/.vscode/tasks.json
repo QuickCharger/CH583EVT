@@ -1,5 +1,5 @@
 {
-	// 也不知道为啥 caps+b 能运行
+	// ctrl + shift + b run build
 	"version": "2.0.0",
 	"tasks": [
 		{
