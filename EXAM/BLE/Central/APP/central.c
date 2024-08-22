@@ -579,9 +579,10 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 		uint16_t len = pMsg->msg.readByGrpTypeRsp.len;
 		uint8_t* l = pMsg->msg.readByGrpTypeRsp.pDataList;
 		// todo
-		PRINT("  ATT_READ_BY_GRP_TYPE_RSP numGrps %d. len %d", numGrps, len);
-		for(uint16_t i = 0; i < min(len,100); ++i)
-			PRINT(" %02x", *(l+i));
+		PRINT("  ATT_READ_BY_GRP_TYPE_RSP numGrps %d. len %d. ", numGrps, len);
+		Print_Memory(l, len);
+		// for(uint16_t i = 0; i < min(len,100); ++i)
+		// 	PRINT(" %02x", *(l+i));
 		PRINT("\r\n");
 		BLE_UUID_DESC(l, numGrps);
 	}
