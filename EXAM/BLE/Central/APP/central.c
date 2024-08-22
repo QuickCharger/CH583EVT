@@ -12,24 +12,14 @@
  * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
 
-/*********************************************************************
- * INCLUDES
- */
 #include "easy.h"
 #include "CONFIG.h"
 #include "gattprofile.h"
 #include "central.h"
 
-/*********************************************************************
- * MACROS
- */
-
 // Length of bd addr as a string
 #define B_ADDR_STR_LEN                      15
 
-/*********************************************************************
- * CONSTANTS
- */
 // Maximum number of scan responses
 #define DEFAULT_MAX_SCAN_RES                10
 
@@ -134,25 +124,6 @@ enum
 	// 发送 GATT_ReadUsingCharUUID 后置此状态
 	BLE_DISC_STATE_CCCD  // client characteristic configuration discovery
 };
-/*********************************************************************
- * TYPEDEFS
- */
-
-/*********************************************************************
- * GLOBAL VARIABLES
- */
-
-/*********************************************************************
- * EXTERNAL VARIABLES
- */
-
-/*********************************************************************
- * EXTERNAL FUNCTIONS
- */
-
-/*********************************************************************
- * LOCAL VARIABLES
- */
 
 // Task ID for internal task/event processing
 static uint8_t centralTaskId;
@@ -235,7 +206,6 @@ static gapBondCBs_t centralBondCB = {
 /**
  * GAP 的消息走 centralRoleCB centralBondCB 的回调
  * GATT的消息走 gattCentralMsg
- * 消息回调、触发机制
  * 	发送消息、执行函数					回调消息
  * 	GATT_DiscAllPrimaryServices		ATT_READ_BY_GRP_TYPE_RSP
 */
@@ -244,10 +214,6 @@ uint16_t UUID_SRV_BTT = 0x180F;		// 电池数据
 uint16_t UUID_char_MOUSE_IN = 0x2A33;	// HID鼠标输入
 uint16_t UUID_char_BTT = 0x2A19;	// 电池数据
 
-
-/*********************************************************************
- * PUBLIC FUNCTIONS
- */
 
 /*********************************************************************
  * @fn      Central_Init
@@ -292,19 +258,6 @@ void Central_Init()
 	// Setup a delayed profile startup
 	tmos_set_event(centralTaskId, START_DEVICE_EVT);
 }
-
-// char logExt[200];
-// int logExtLen = 0;
-// void logExtAdd(const char *src, int len) {
-// 	for(int i = 0; i < len; ++i) {
-// 		logExt[logExtLen++] = src[i];
-// 	}
-// 	logExt[logExtLen++] = '\0';
-// }
-// void logExtClear() {
-// 	logExtLen = 0;
-// 	logExt[0] = '\0';
-// }
 
 /*********************************************************************
  * @fn      Central_ProcessEvent
@@ -578,7 +531,6 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 		uint16_t numGrps = pMsg->msg.readByGrpTypeRsp.numGrps;
 		uint16_t len = pMsg->msg.readByGrpTypeRsp.len;
 		uint8_t* l = pMsg->msg.readByGrpTypeRsp.pDataList;
-		// todo
 		PRINT("  ATT_READ_BY_GRP_TYPE_RSP numGrps %d. len %d. ", numGrps, len);
 		Print_Memory(l, len);
 		// for(uint16_t i = 0; i < min(len,100); ++i)
@@ -986,10 +938,8 @@ static void gapCentralPasscodeCB(uint8_t *deviceAddr, uint16_t connectionHandle,
 	// PRINT("gapCentralPasscodeCB\r\n");
 	LOG("gapCentralPasscodeCB\r\n");
 	uint32_t passcode;
-	// Create random passcode
 	passcode = tmos_rand();
 	passcode %= 1000000;
-	// Display passcode to user
 	if(uiOutputs != 0)
 	{
 		// PRINT("Passcode:%06d\r\n", (int)passcode);
@@ -1035,15 +985,6 @@ static void centralAddDeviceInfo(uint8_t *pAddr, uint8_t addrType, int8_t rssi)
 			memcpy(PeerAddrDef, pAddr, B_ADDR_LEN);
 		}
 	}
-	// if((rssi > -35)
-	//  && !tmos_memcmp(PeerAddrDef, pAddr, B_ADDR_LEN)
-	// )
-	// {
-	// 	memcpy(PeerAddrDef, pAddr, B_ADDR_LEN);
-	// 	PRINT("connect to MAC %x-%x-%x-%x-%x-%x, RSSI %d dBm\r\n",
-	// 		pAddr, pAddr+1, pAddr+2, pAddr+3, pAddr+4, pAddr+5,
-	// 		centralDevList[centralScanRes - 1].rssi);
-	// }
 }
 
 /************************ endfile @ central **************************/
