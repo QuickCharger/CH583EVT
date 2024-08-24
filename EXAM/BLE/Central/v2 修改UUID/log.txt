@@ -1,49 +1,59 @@
 H58x_BLE_LIB_V2.10
 主回调 START_DEVICE_EVT 设备初始化完成
 centralEventCB 事件 GAP_DEVICE_INIT_DONE_EVENT 初始化结束 开始探测设备
+centralEventCB 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
+  探测设备 未找到设备 开始重新探测设备
+centralEventCB 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
+  探测设备 未找到设备 开始重新探测设备
 centralEventCB 事件 GAP_DEVICE_INFO_EVENT 发现设备
-  发现新设备 记录 MAC 50-a1-86-52-e4-c3, RSSI -30 dBm
+  发现新设备 记录 MAC 6e-98-69-a7-14-d4, RSSI -35 dBm
 centralEventCB 事件 GAP_DEVICE_INFO_EVENT 发现设备
 centralEventCB 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
-  找到设备 MAC 50-a1-86-52-e4-c3 尝试连接
-centralEventCB 事件 GAP_LINK_ESTABLISHED_EVENT MAC 50-a1-86-52-e4-c3 连接成功
+  找到设备 MAC 6e-98-69-a7-14-d4 尝试连接
+centralEventCB 事件 GAP_LINK_ESTABLISHED_EVENT MAC 6e-98-69-a7-14-d4 连接成功
 主回调 SYS_EVENT_MSG
-  收到消息 GATT消息
-    centralProcessGATTMsg method 03
-    Negotiated MTU: 23
+  GATT MSG. GATT: method ATT_EXCHANGE_MTU_RSP, {clientRxMTU 23}
+  Negotiated MTU: 23
 主回调 START_SVC_DISCOVERY_EVT 搜索枚举服务任务 开始
 主回调 SYS_EVENT_MSG
-  收到消息 GATT消息
-    centralProcessGATTMsg method 07
-    centralProcessGATTMsg centralDiscState != BLE_DISC_STATE_IDLE
-      centralGATTDiscoveryEvent. pMsg->method: 07
-      centralGATTDiscoveryEvent BLE_DISC_STATE_SVC
-      Found Profile Service handle : 1e ~ 3d 
+  GATT MSG. GATT: method ATT_READ_BY_GRP_TYPE_RSP, 
+  ATT_READ_BY_GRP_TYPE_RSP numGrps 2. len 6 01 00 09 00 00 18
+Service 1:
+  Handle: 0x0001
+  End Group Handle: 0x0009
+  UUID: 0x1800
+Service 2:
+  Handle: 0x000A
+  End Group Handle: 0x000D
+  UUID: 0x1801
 主回调 SYS_EVENT_MSG
-  收到消息 GATT消息
-    centralProcessGATTMsg method 07
-    centralProcessGATTMsg centralDiscState != BLE_DISC_STATE_IDLE
-      centralGATTDiscoveryEvent. pMsg->method: 07
-      centralGATTDiscoveryEvent BLE_DISC_STATE_SVC
-      centralGATTDiscoveryEvent BLE_DISC_STATE_SVC procedure complete
-      centralGATTDiscoveryEvent BLE_DISC_STATE_SVC procedure complete Discover characteristic
+  GATT MSG. GATT: method ATT_READ_BY_GRP_TYPE_RSP, 
+  ATT_READ_BY_GRP_TYPE_RSP numGrps 2. len 6 0e 00 20 00 0a 18
+Service 1:
+  Handle: 0x000E
+  End Group Handle: 0x0020
+  UUID: 0x180A
+Service 2:
+  Handle: 0x0021
+  End Group Handle: 0x0025
+  UUID: 0x180F
 主回调 SYS_EVENT_MSG
-  收到消息 GATT消息
-    centralProcessGATTMsg method 01
-    centralProcessGATTMsg centralDiscState != BLE_DISC_STATE_IDLE
-      centralGATTDiscoveryEvent. pMsg->method: 01
-      centralGATTDiscoveryEvent BLE_DISC_STATE_CHAR
-centralRssiCB RSSI : -32 dB 
+  GATT MSG. GATT: method ATT_READ_BY_GRP_TYPE_RSP, 
+  ATT_READ_BY_GRP_TYPE_RSP numGrps 2. len 6 26 00 2b 00 13 18
+Service 1:
+  Handle: 0x0026
+  End Group Handle: 0x002B
+  UUID: 0x1813
+Service 2:
+  Handle: 0x002C
+  End Group Handle: 0xFFFF
+  UUID: 0x1812
 主回调 SYS_EVENT_MSG
-  收到消息 GATT消息
-    centralProcessGATTMsg method 09
-    centralProcessGATTMsg centralDiscState != BLE_DISC_STATE_IDLE
-      centralGATTDiscoveryEvent. pMsg->method: 09
-      centralGATTDiscoveryEvent BLE_DISC_STATE_CCCD
+  GATT MSG. GATT: method ATT_READ_BY_GRP_TYPE_RSP, 
+  ATT_READ_BY_GRP_TYPE_RSP numGrps 0. len 0
+centralRssiCB RSSI : -43 dB 
 主回调 START_PARAM_UPDATE_EVT
 centralEventCB 事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功
-centralRssiCB RSSI : -33 dB 
-centralRssiCB RSSI : -35 dB 
-centralEventCB 事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功
-centralRssiCB RSSI : -27 dB 
-centralRssiCB RSSI : -27 dB 
+centralRssiCB RSSI : -38 dB 
+centralRssiCB RSSI : -42 dB 
+centralRssiCB RSSI : -39 dB 
