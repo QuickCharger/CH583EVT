@@ -1,0 +1,82 @@
+H58x_BLE_LIB_V2.10
+[Central_ProcessEvent:306] 主回调 START_DEVICE_EVT 设备初始化完成
+[gapCentralEventCB   :699] 事件 GAP_DEVICE_INIT_DONE_EVENT 初始化结束 开始探测设备
+[gapCentralEventCB   :710] 事件 GAP_DEVICE_INFO_EVENT 发现设备
+[centralAddDeviceInfo:948]   发现新设备 记录 MAC 6e-98-69-a7-14-d4, RSSI -32 dBm
+[gapCentralEventCB   :710] 事件 GAP_DEVICE_INFO_EVENT 发现设备
+[gapCentralEventCB   :719] 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
+[gapCentralEventCB   :740]   找到设备 MAC 6e-98-69-a7-14-d4 尝试连接
+[gapCentralEventCB   :754] 事件 GAP_LINK_ESTABLISHED_EVENT MAC 6e-98-69-a7-14-d4 连接成功
+[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_EXCHANGE_MTU_RSP, {clientRxMTU:23}
+[gattCentralMsg      :455]   Negotiated MTU: 23
+[Central_ProcessEvent:319] 主回调 START_SVC_DISCOVERY_EVT 搜索枚举服务任务 开始
+[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:2, len:6, pDataList:0x01 00 09 00 00 18 }
+[gattCentralMsg      :517]     当前状态 BLE_DISC_STATE_ALL_SVC
+Service 1:
+  Handle: 0x0001
+  End Group Handle: 0x0009
+  UUID: 0x1800 UUID Service 通用访问
+Service 2:
+  Handle: 0x000A
+  End Group Handle: 0x000D
+  UUID: 0x1801 UUID Service 通用属性
+[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:2, len:6, pDataList:0x0e 00 20 00 0a 18 }
+[gattCentralMsg      :517]     当前状态 BLE_DISC_STATE_ALL_SVC
+Service 1:
+  Handle: 0x000E
+  End Group Handle: 0x0020
+  UUID: 0x180A UUID Service 设备信息
+Service 2:
+  Handle: 0x0021
+  End Group Handle: 0x0025
+  UUID: 0x180F UUID Service 电池数据
+[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:2, len:6, pDataList:0x26 00 2b 00 13 18 }
+[gattCentralMsg      :517]     当前状态 BLE_DISC_STATE_ALL_SVC
+Service 1:
+  Handle: 0x0026
+  End Group Handle: 0x002B
+  UUID: 0x1813 UUID Service 扫描参数
+Service 2:
+  Handle: 0x002C
+  End Group Handle: 0xFFFF
+  UUID: 0x1812 UUID Service HID设备
+[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:0, len:0, pDataList:0x}
+[gattCentralMsg      :517]     当前状态 BLE_DISC_STATE_ALL_SVC
+[gattCentralMsg      :529]     这个是128位的UUID 暂时不支持数据打印 todo
+[gattCentralMsg      :534]     BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_SVC 状态
+[gapCentralRssiCB    :656] RSSI : -32 dB 
+[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_FIND_BY_TYPE_VALUE_RSP, {numInfo:1, pHandlesInfo:0x200027e3}
+[gattCentralMsg      :555]     当前状态 BLE_DISC_STATE_SVC
+[gattCentralMsg      :567]     Found char UUID 2842 Profile Service handle : 0021 ~ 0025 
+21 00 25 00 42 28 0f 18 00 04 28 00 20 10 00 01 ff 01 01 02 [gattCentralMsg      :569] 
+[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_FIND_BY_TYPE_VALUE_RSP, {numInfo:0, pHandlesInfo:0x00}
+[gattCentralMsg      :555]     当前状态 BLE_DISC_STATE_SVC
+[gattCentralMsg      :574]     BLE_DISC_STATE_SVC procedure complete
+[gattCentralMsg      :577]     BLE_DISC_STATE_SVC procedure complete Discover characteristic
+[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_ERROR_RSP, {reqOpcode:ATT_READ_BY_TYPE_REQ, errCode:0x0a}}
+[gattCentralMsg      :596]     当前状态 BLE_DISC_STATE_CHAR
+[gattCentralMsg      :620]     Error response todo
+[Central_ProcessEvent:329] 主回调 START_PARAM_UPDATE_EVT
+[gapCentralEventCB   :816]  事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功
+[gapCentralRssiCB    :656] RSSI : -32 dB 
+[gapCentralRssiCB    :656] RSSI : -33 dB 
+[gapCentralRssiCB    :656] RSSI : -36 dB 
+[gapCentralRssiCB    :656] RSSI : -35 dB 
+[gapCentralEventCB   :816]  事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功
+[gapCentralRssiCB    :656] RSSI : -32 dB 
+[gapCentralRssiCB    :656] RSSI : -34 dB 
+[gapCentralRssiCB    :656] RSSI : -38 dB 
+[gapCentralRssiCB    :656] RSSI : -34 dB 
+[gapCentralRssiCB    :656] RSSI : -41 dB 
+[gapCentralRssiCB    :656] RSSI : -35 dB 
+[gapCentralRssiCB    :656] RSSI : -39 dB 
+[gapCentralRssiCB    :656] RSSI : -40 dB 
+[gapCentralRssiCB    :656] RSSI : -38 dB 
