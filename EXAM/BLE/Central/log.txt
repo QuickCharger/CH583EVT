@@ -1,12 +1,12 @@
-H58x_BLE_LIB_V2.10
+CH58x_BLE_LIB_V2.10
 [Central_ProcessEvent:306] 主回调 START_DEVICE_EVT 设备初始化完成
-[gapCentralEventCB   :699] 事件 GAP_DEVICE_INIT_DONE_EVENT 初始化结束 开始探测设备
-[gapCentralEventCB   :710] 事件 GAP_DEVICE_INFO_EVENT 发现设备
-[centralAddDeviceInfo:948]   发现新设备 记录 MAC 6e-98-69-a7-14-d4, RSSI -32 dBm
-[gapCentralEventCB   :710] 事件 GAP_DEVICE_INFO_EVENT 发现设备
-[gapCentralEventCB   :719] 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
-[gapCentralEventCB   :740]   找到设备 MAC 6e-98-69-a7-14-d4 尝试连接
-[gapCentralEventCB   :754] 事件 GAP_LINK_ESTABLISHED_EVENT MAC 6e-98-69-a7-14-d4 连接成功
+[gapCentralEventCB   :692] 事件 GAP_DEVICE_INIT_DONE_EVENT 初始化结束 开始探测设备
+[gapCentralEventCB   :703] 事件 GAP_DEVICE_INFO_EVENT 发现设备
+[centralAddDeviceInfo:941]   发现新设备 记录 MAC 6e-98-69-a7-14-d4, RSSI -34 dBm
+[gapCentralEventCB   :703] 事件 GAP_DEVICE_INFO_EVENT 发现设备
+[gapCentralEventCB   :712] 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
+[gapCentralEventCB   :733]   找到设备 MAC 6e-98-69-a7-14-d4 尝试连接
+[gapCentralEventCB   :747] 事件 GAP_LINK_ESTABLISHED_EVENT MAC 6e-98-69-a7-14-d4 连接成功
 [Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_EXCHANGE_MTU_RSP, {clientRxMTU:23}
 [gattCentralMsg      :455]   Negotiated MTU: 23
@@ -48,32 +48,43 @@ Service 2:
 GATT 消息总体描述. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:0, len:0, pDataList:0x}
 [gattCentralMsg      :517]     当前状态 BLE_DISC_STATE_ALL_SVC
 [gattCentralMsg      :534]     BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_SVC 状态
-[gapCentralRssiCB    :656] RSSI : -32 dB 
+[gapCentralRssiCB    :649] RSSI : -36 dB 
 [Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_FIND_BY_TYPE_VALUE_RSP, {numInfo:1, pHandlesInfo:0x200027e3}
 [gattCentralMsg      :555]     当前状态 BLE_DISC_STATE_SVC
-[gattCentralMsg      :567]     Found Profile Service handle : 0021 ~ 0025 
+[gattCentralMsg      :562]     Found UUID 0x0000 Profile Service handle : 0021 ~ 0025 
 [Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_FIND_BY_TYPE_VALUE_RSP, {numInfo:0, pHandlesInfo:0x00}
 [gattCentralMsg      :555]     当前状态 BLE_DISC_STATE_SVC
-[gattCentralMsg      :574]     BLE_DISC_STATE_SVC 结束. 进入 BLE_DISC_STATE_CHAR 状态
+[gattCentralMsg      :566]     BLE_DISC_STATE_SVC 结束. 进入 BLE_DISC_STATE_CHAR 状态
 [Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
-GATT 消息总体描述. GATT {method:ATT_ERROR_RSP, {reqOpcode:ATT_READ_BY_TYPE_REQ, errCode:0x0a}}
-[gattCentralMsg      :596]     当前状态 BLE_DISC_STATE_CHAR
-[gattCentralMsg      :620]     Error response todo
+GATT 消息总体描述. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 1, len:3, pDataList:0x23 00 14 }
+[gattCentralMsg      :589]     当前状态 BLE_DISC_STATE_CHAR
+[gattCentralMsg      :596]     Found Characteristic 1 handle : 23 
 [Central_ProcessEvent:329] 主回调 START_PARAM_UPDATE_EVT
-[gapCentralEventCB   :816]  事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功
-[gapCentralRssiCB    :656] RSSI : -32 dB 
-[gapCentralRssiCB    :656] RSSI : -33 dB 
-[gapCentralRssiCB    :656] RSSI : -36 dB 
-[gapCentralRssiCB    :656] RSSI : -35 dB 
-[gapCentralEventCB   :816]  事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功
-[gapCentralRssiCB    :656] RSSI : -32 dB 
-[gapCentralRssiCB    :656] RSSI : -34 dB 
-[gapCentralRssiCB    :656] RSSI : -38 dB 
-[gapCentralRssiCB    :656] RSSI : -34 dB 
-[gapCentralRssiCB    :656] RSSI : -41 dB 
-[gapCentralRssiCB    :656] RSSI : -35 dB 
-[gapCentralRssiCB    :656] RSSI : -39 dB 
-[gapCentralRssiCB    :656] RSSI : -40 dB 
-[gapCentralRssiCB    :656] RSSI : -38 dB 
+[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 0, len:0, pDataList:0x}
+[gattCentralMsg      :589]     当前状态 BLE_DISC_STATE_CHAR
+[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 1, len:4, pDataList:0x24 00 00 00 }
+[gattCentralMsg      :619]     当前状态 BLE_DISC_STATE_CCCD
+[gattCentralMsg      :626]     Found client characteristic configuration handle : 24 
+[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 0, len:0, pDataList:0x}
+[gapCentralEventCB   :809]  事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功
+[Central_ProcessEvent:347] 主回调 START_READ_OR_WRITE_EVT
+[gapCentralRssiCB    :649] RSSI : -33 dB 
+[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_ERROR_RSP, {reqOpcode:ATT_WRITE_REQ, errCode:0x03}}
+[gattCentralMsg      :495]   ATT_ERROR_RSP Write Error: 3
+[Central_ProcessEvent:390] 主回调 START_WRITE_CCCD_EVT
+[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_WRITE_RSP}
+[gattCentralMsg      :500]   ATT_WRITE_RSP Write success
+[Central_ProcessEvent:347] 主回调 START_READ_OR_WRITE_EVT
+[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_READ_RSP}
+[gattCentralMsg      :484]   ATT_READ_RSP Read rsp: 14
+[gapCentralRssiCB    :649] RSSI : -34 dB 
+[gapCentralRssiCB    :649] RSSI : -34 dB 
+[gapCentralRssiCB    :649] RSSI : -39 dB 
