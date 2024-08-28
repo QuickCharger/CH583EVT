@@ -47,19 +47,16 @@ Service 2:
 [Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:0, len:0, pDataList:0x}
 [gattCentralMsg      :517]     当前状态 BLE_DISC_STATE_ALL_SVC
-[gattCentralMsg      :529]     这个是128位的UUID 暂时不支持数据打印 todo
 [gattCentralMsg      :534]     BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_SVC 状态
 [gapCentralRssiCB    :656] RSSI : -32 dB 
 [Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_FIND_BY_TYPE_VALUE_RSP, {numInfo:1, pHandlesInfo:0x200027e3}
 [gattCentralMsg      :555]     当前状态 BLE_DISC_STATE_SVC
-[gattCentralMsg      :567]     Found char UUID 2842 Profile Service handle : 0021 ~ 0025 
-21 00 25 00 42 28 0f 18 00 04 28 00 20 10 00 01 ff 01 01 02 [gattCentralMsg      :569] 
+[gattCentralMsg      :567]     Found Profile Service handle : 0021 ~ 0025 
 [Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_FIND_BY_TYPE_VALUE_RSP, {numInfo:0, pHandlesInfo:0x00}
 [gattCentralMsg      :555]     当前状态 BLE_DISC_STATE_SVC
-[gattCentralMsg      :574]     BLE_DISC_STATE_SVC procedure complete
-[gattCentralMsg      :577]     BLE_DISC_STATE_SVC procedure complete Discover characteristic
+[gattCentralMsg      :574]     BLE_DISC_STATE_SVC 结束. 进入 BLE_DISC_STATE_CHAR 状态
 [Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_ERROR_RSP, {reqOpcode:ATT_READ_BY_TYPE_REQ, errCode:0x0a}}
 [gattCentralMsg      :596]     当前状态 BLE_DISC_STATE_CHAR
