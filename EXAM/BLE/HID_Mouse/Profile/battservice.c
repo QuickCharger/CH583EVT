@@ -107,7 +107,7 @@ static gattAttribute_t battAttrTbl[] = {
         {ATT_BT_UUID_SIZE, primaryServiceUUID}, /* type */
         GATT_PERMIT_READ,                       /* permissions */
         0,                                      /* handle */
-        (uint8_t *)&battService                 /* pValue */
+        (uint8_t *)&battService                 /* pValue */    // BATT_SERV_UUID 0x180f
     },
 
     // Battery Level Declaration
@@ -119,7 +119,7 @@ static gattAttribute_t battAttrTbl[] = {
 
     // Battery Level Value
     {
-        {ATT_BT_UUID_SIZE, battLevelUUID},
+        {ATT_BT_UUID_SIZE, battLevelUUID},      // BATT_LEVEL_UUID 0x2a19
         GATT_PERMIT_READ,
         0,
         &battLevel},
