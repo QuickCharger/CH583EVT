@@ -8,8 +8,7 @@ void Print_Memory(uint8_t *p, uint16_t len) {
 void DoPRINT(const char* file, int line, const char* date, const char* time, const char* func,  const char* format, ...)
 {
     static char buffer[256];
-
-    int offset = snprintf(buffer, sizeof(buffer), "[%s:%d] ", func, line);
+    int offset = snprintf(buffer, sizeof(buffer), "[%-20s:%03d] ", func, line);
     va_list args;
     va_start(args, format);
     vsnprintf(buffer + offset, sizeof(buffer) - offset, format, args);
@@ -375,7 +374,7 @@ const char* BLE_UUID2str(uint16_t m)
 	if(m == 0x290E) return "UUID Descriptors 时间触发设定";
 
 	static char ret[20];
-	sprintf(ret, "UUID 未知 %d", m);
+	sprintf(ret, "UUID未知 %04x", m);
 	return ret;
 }
 
@@ -400,7 +399,7 @@ void BLE_GATT_MSG_DESC(gattMsgEvent_t *m)
 	} else if(m->method == ATT_READ_BY_TYPE_REQ) {
 		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
 	} else if(m->method == ATT_READ_BY_TYPE_RSP) {
-		PRINT("GATT {method:%s, {numPairs %d, len %d, pDataList 0x", BLE_Opcode2str(m->method), msg.readByTypeRsp.numPairs, msg.readByTypeRsp.len);
+		PRINT("GATT {method:%s, {numPairs %d, len:%d, pDataList:0x", BLE_Opcode2str(m->method), msg.readByTypeRsp.numPairs, msg.readByTypeRsp.len);
 		Print_Memory(msg.readByTypeRsp.pDataList, msg.readByTypeRsp.len);
 		PRINT("}");
 	} else if(m->method == ATT_READ_REQ) {
@@ -418,7 +417,9 @@ void BLE_GATT_MSG_DESC(gattMsgEvent_t *m)
 	} else if(m->method == ATT_READ_BY_GRP_TYPE_REQ) {
 		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
 	} else if(m->method == ATT_READ_BY_GRP_TYPE_RSP) {
-		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
+		PRINT("GATT {method:%s, {numGrps:%d, len:%d, pDataList:0x", BLE_Opcode2str(m->method), msg.readByGrpTypeRsp.numGrps, msg.readByGrpTypeRsp.len);
+		Print_Memory(msg.readByGrpTypeRsp.pDataList, msg.readByGrpTypeRsp.len);
+		PRINT("}");
 	} else if(m->method == ATT_WRITE_REQ) {
 		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
 	} else if(m->method == ATT_WRITE_RSP) {
@@ -446,12 +447,13 @@ void BLE_UUID_DESC(uint8_t *pDataList, uint16_t numGrps)
 {
 	for (uint16_t i = 0; i < numGrps; i++)
 	{
+		uint8_t* u = pDataList + i * 6;
 		// 解析属性句柄
-		uint16_t handle = pDataList[i * 6] | (pDataList[i * 6 + 1] << 8);
+		uint16_t handle = BUILD_UINT16(*(u+0), *(u+1));
 		// 解析结束组句柄
-		uint16_t endGroupHandle = pDataList[i * 6 + 2] | (pDataList[i * 6 + 3] << 8);
+		uint16_t endGroupHandle = BUILD_UINT16(*(u+2), *(u+3));
 		// 解析 UUID
-		uint16_t uuid = pDataList[i * 6 + 4] | (pDataList[i * 6 + 5] << 8);
+		uint16_t uuid = BUILD_UINT16(*(u+4), *(u+5));
 		// 输出解析结果
 		PRINT("Service %d:\r\n", i + 1);
 		PRINT("  Handle: 0x%04X\r\n", handle);

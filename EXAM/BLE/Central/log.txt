@@ -1,19 +1,23 @@
 CH58x_BLE_LIB_V2.10
-[Central_ProcessEvent:306] 主回调 START_DEVICE_EVT 设备初始化完成
-[gapCentralEventCB   :692] 事件 GAP_DEVICE_INIT_DONE_EVENT 初始化结束 开始探测设备
-[gapCentralEventCB   :703] 事件 GAP_DEVICE_INFO_EVENT 发现设备
-[centralAddDeviceInfo:941]   发现新设备 记录 MAC 6e-98-69-a7-14-d4, RSSI -34 dBm
-[gapCentralEventCB   :703] 事件 GAP_DEVICE_INFO_EVENT 发现设备
-[gapCentralEventCB   :712] 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
-[gapCentralEventCB   :733]   找到设备 MAC 6e-98-69-a7-14-d4 尝试连接
-[gapCentralEventCB   :747] 事件 GAP_LINK_ESTABLISHED_EVENT MAC 6e-98-69-a7-14-d4 连接成功
-[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+[Central_ProcessEvent:308] 主回调 START_DEVICE_EVT 设备初始化完成
+[gapCentralEventCB   :731] 事件 GAP_DEVICE_INIT_DONE_EVENT 初始化结束 开始探测设备
+[gapCentralEventCB   :751] 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
+[gapCentralEventCB   :763]   探测设备 未找到设备 开始重新探测设备
+[gapCentralEventCB   :751] 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
+[gapCentralEventCB   :763]   探测设备 未找到设备 开始重新探测设备
+[gapCentralEventCB   :742] 事件 GAP_DEVICE_INFO_EVENT 发现设备
+[centralAddDeviceInfo:980]   发现新设备 记录 MAC 6e-98-69-a7-14-d4, RSSI -31 dBm
+[gapCentralEventCB   :742] 事件 GAP_DEVICE_INFO_EVENT 发现设备
+[gapCentralEventCB   :751] 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
+[gapCentralEventCB   :772]   找到设备 MAC 6e-98-69-a7-14-d4 尝试连接
+[gapCentralEventCB   :786] 事件 GAP_LINK_ESTABLISHED_EVENT MAC 6e-98-69-a7-14-d4 连接成功
+[Central_ProcessEvent:289] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_EXCHANGE_MTU_RSP, {clientRxMTU:23}
-[gattCentralMsg      :455]   Negotiated MTU: 23
-[Central_ProcessEvent:319] 主回调 START_SVC_DISCOVERY_EVT 搜索枚举服务任务 开始
-[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+[gattCentralMsg      :457]   Negotiated MTU: 23
+[Central_ProcessEvent:321] 主回调 START_SVC_DISCOVERY_EVT 搜索枚举服务任务 开始
+[Central_ProcessEvent:289] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:2, len:6, pDataList:0x01 00 09 00 00 18 }
-[gattCentralMsg      :517]     当前状态 BLE_DISC_STATE_ALL_SVC
+[gattCentralMsg      :519]     当前状态 BLE_DISC_STATE_ALL_SVC
 Service 1:
   Handle: 0x0001
   End Group Handle: 0x0009
@@ -22,9 +26,9 @@ Service 2:
   Handle: 0x000A
   End Group Handle: 0x000D
   UUID: 0x1801 UUID Service 通用属性
-[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+[Central_ProcessEvent:289] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:2, len:6, pDataList:0x0e 00 20 00 0a 18 }
-[gattCentralMsg      :517]     当前状态 BLE_DISC_STATE_ALL_SVC
+[gattCentralMsg      :519]     当前状态 BLE_DISC_STATE_ALL_SVC
 Service 1:
   Handle: 0x000E
   End Group Handle: 0x0020
@@ -33,9 +37,9 @@ Service 2:
   Handle: 0x0021
   End Group Handle: 0x0025
   UUID: 0x180F UUID Service 电池数据
-[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+[Central_ProcessEvent:289] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:2, len:6, pDataList:0x26 00 2b 00 13 18 }
-[gattCentralMsg      :517]     当前状态 BLE_DISC_STATE_ALL_SVC
+[gattCentralMsg      :519]     当前状态 BLE_DISC_STATE_ALL_SVC
 Service 1:
   Handle: 0x0026
   End Group Handle: 0x002B
@@ -44,47 +48,54 @@ Service 2:
   Handle: 0x002C
   End Group Handle: 0xFFFF
   UUID: 0x1812 UUID Service HID设备
-[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+[Central_ProcessEvent:289] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:0, len:0, pDataList:0x}
-[gattCentralMsg      :517]     当前状态 BLE_DISC_STATE_ALL_SVC
-[gattCentralMsg      :534]     BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_SVC 状态
-[gapCentralRssiCB    :649] RSSI : -36 dB 
-[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+[gattCentralMsg      :519]     当前状态 BLE_DISC_STATE_ALL_SVC
+[gattCentralMsg      :536]     BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_SVC 状态
+[gapCentralRssiCB    :688] RSSI : -42 dB 
+[Central_ProcessEvent:289] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_FIND_BY_TYPE_VALUE_RSP, {numInfo:1, pHandlesInfo:0x200027e3}
-[gattCentralMsg      :555]     当前状态 BLE_DISC_STATE_SVC
-[gattCentralMsg      :562]     Found UUID 0x0000 Profile Service handle : 0021 ~ 0025 
-[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+[gattCentralMsg      :557]     当前状态 BLE_DISC_STATE_SVC
+[gattCentralMsg      :564]     Found UUID 0x0000 Profile Service handle : 0021 ~ 0025 
+[Central_ProcessEvent:289] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_FIND_BY_TYPE_VALUE_RSP, {numInfo:0, pHandlesInfo:0x00}
-[gattCentralMsg      :555]     当前状态 BLE_DISC_STATE_SVC
-[gattCentralMsg      :566]     BLE_DISC_STATE_SVC 结束. 进入 BLE_DISC_STATE_CHAR 状态
-[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+[gattCentralMsg      :557]     当前状态 BLE_DISC_STATE_SVC
+[gattCentralMsg      :568]     BLE_DISC_STATE_SVC 结束. 进入 BLE_DISC_STATE_CHAR_ALL 状态
+[Central_ProcessEvent:289] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 1, len:7, pDataList:0x22 00 12 23 00 19 2a }
+[gattCentralMsg      :592]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :606] declareHandle 0x0022 readWrite 18 handle 0x0023 uuid 0x2A19
+[Central_ProcessEvent:331] 主回调 START_PARAM_UPDATE_EVT
+[Central_ProcessEvent:289] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 0, len:0, pDataList:0x}
+[gattCentralMsg      :592]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[Central_ProcessEvent:289] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 1, len:3, pDataList:0x23 00 14 }
-[gattCentralMsg      :589]     当前状态 BLE_DISC_STATE_CHAR
-[gattCentralMsg      :596]     Found Characteristic 1 handle : 23 
-[Central_ProcessEvent:329] 主回调 START_PARAM_UPDATE_EVT
-[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+[gattCentralMsg      :628]     当前状态 BLE_DISC_STATE_CHAR
+[gattCentralMsg      :635]     Found Characteristic 1 handle : 23 
+[Central_ProcessEvent:289] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 0, len:0, pDataList:0x}
-[gattCentralMsg      :589]     当前状态 BLE_DISC_STATE_CHAR
-[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+[gattCentralMsg      :628]     当前状态 BLE_DISC_STATE_CHAR
+[Central_ProcessEvent:289] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 1, len:4, pDataList:0x24 00 00 00 }
-[gattCentralMsg      :619]     当前状态 BLE_DISC_STATE_CCCD
-[gattCentralMsg      :626]     Found client characteristic configuration handle : 24 
-[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+[gattCentralMsg      :658]     当前状态 BLE_DISC_STATE_CCCD
+[gattCentralMsg      :665]     Found client characteristic configuration handle : 24 
+[gapCentralEventCB   :848]  事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功
+[Central_ProcessEvent:289] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 0, len:0, pDataList:0x}
-[gapCentralEventCB   :809]  事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功
-[Central_ProcessEvent:347] 主回调 START_READ_OR_WRITE_EVT
-[gapCentralRssiCB    :649] RSSI : -33 dB 
-[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+[gapCentralRssiCB    :688] RSSI : -38 dB 
+[Central_ProcessEvent:349] 主回调 START_READ_OR_WRITE_EVT
+[Central_ProcessEvent:289] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_ERROR_RSP, {reqOpcode:ATT_WRITE_REQ, errCode:0x03}}
-[gattCentralMsg      :495]   ATT_ERROR_RSP Write Error: 3
-[Central_ProcessEvent:390] 主回调 START_WRITE_CCCD_EVT
-[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+[gattCentralMsg      :497]   ATT_ERROR_RSP Write Error: 3
+[Central_ProcessEvent:392] 主回调 START_WRITE_CCCD_EVT
+[Central_ProcessEvent:289] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_WRITE_RSP}
-[gattCentralMsg      :500]   ATT_WRITE_RSP Write success
-[Central_ProcessEvent:347] 主回调 START_READ_OR_WRITE_EVT
-[Central_ProcessEvent:287] 主回调 SYS_EVENT_MSG
+[gattCentralMsg      :502]   ATT_WRITE_RSP Write success
+[Central_ProcessEvent:349] 主回调 START_READ_OR_WRITE_EVT
+[gapCentralRssiCB    :688] RSSI : -42 dB 
+[Central_ProcessEvent:289] 主回调 SYS_EVENT_MSG
 GATT 消息总体描述. GATT {method:ATT_READ_RSP}
-[gattCentralMsg      :484]   ATT_READ_RSP Read rsp: 14
-[gapCentralRssiCB    :649] RSSI : -34 dB 
-[gapCentralRssiCB    :649] RSSI : -34 dB 
-[gapCentralRssiCB    :649] RSSI : -39 dB 
+[gattCentralMsg      :486]   ATT_READ_RSP Read rsp: 14
+[gapCentralRssiCB    :688] RSSI : -42 dB 
+[gapCentralRssiCB    :688] RSSI : -40 dB 
