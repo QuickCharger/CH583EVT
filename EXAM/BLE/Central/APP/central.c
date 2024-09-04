@@ -240,10 +240,10 @@ void Central_Init()
 	centralTaskId = TMOS_ProcessEventRegister(Central_ProcessEvent);
 
 	// Setup GAP
-	GAP_SetParamValue(TGAP_DISC_SCAN, DEFAULT_SCAN_DURATION);
+	GAP_SetParamValue(TGAP_DISC_SCAN, DEFAULT_SCAN_DURATION);	// 单次扫描时长
 	GAP_SetParamValue(TGAP_CONN_EST_INT_MIN, DEFAULT_MIN_CONNECTION_INTERVAL);
 	GAP_SetParamValue(TGAP_CONN_EST_INT_MAX, DEFAULT_MAX_CONNECTION_INTERVAL);
-	GAP_SetParamValue(TGAP_CONN_EST_SUPERV_TIMEOUT, DEFAULT_CONNECTION_TIMEOUT);	
+	GAP_SetParamValue(TGAP_CONN_EST_SUPERV_TIMEOUT, DEFAULT_CONNECTION_TIMEOUT);	// 连接超时时长
 	// Setup the GAP Bond Manager
 	{
 		uint32_t passkey = DEFAULT_PASSCODE;
@@ -344,7 +344,7 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 	}
 	if(events & START_READ_OR_WRITE_EVT)
 	{
-		LOG("主回调 START_READ_OR_WRITE_EVT\r\n");
+		LOG("主回调 START_READ_OR_WRITE_EVT 主机写数据给从机，一秒一次\r\n");
 		if(centralProcedureInProgress == FALSE)
 		{
 			if(centralDoWrite)
@@ -505,7 +505,7 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 	else if(pMsg->method == ATT_HANDLE_VALUE_NOTI)
 	{
 		// 接收到 数据 通知 指示
-		LOG("  ATT_HANDLE_VALUE_NOTI Receive noti: %x\r\n", *pMsg->msg.handleValueNoti.pValue);
+		LOG("  ATT_HANDLE_VALUE_NOTI Receive noti: %x 接收到从机notify数据 \r\n", *pMsg->msg.handleValueNoti.pValue);
 	}
 	else if(centralDiscState != BLE_DISC_STATE_IDLE)
 	{
@@ -701,8 +701,22 @@ static void gapCentralEventCB(gapRoleEvent_t *pEvent)
 			if(pEvent->deviceInfo.rssi > -40)
 			{
 				LOG("事件 GAP_DEVICE_INFO_EVENT 发现设备\r\n");
-				// Add device to list
-				centralAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo. addrType, pEvent->deviceInfo.rssi);
+				int8_t rssi = pEvent->deviceInfo.rssi;
+				uint8_t addrType =  pEvent->deviceInfo.addrType;
+				uint8_t eventType = pEvent->deviceInfo.eventType;
+				if(eventType == GAP_ADRPT_ADV_IND)	// 广播包
+				{
+					LOG("广播数据包");
+					Print_Memory(pEvent->deviceInfo.pEvtData, pEvent->deviceInfo.dataLen);
+					LOG("\r\n广播名称 %s", pEvent->deviceInfo.pEvtData);
+				}
+				else if(GAP_ADRPT_SCAN_RSP == 4)	// 扫描应答数据
+				{
+					LOG("扫描应答包");
+					Print_Memory(pEvent->deviceInfo.pEvtData, pEvent->deviceInfo.dataLen);
+					LOG("\r\n广播名称 %s", pEvent->deviceInfo.pEvtData);
+				}
+				centralAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo.addrType, pEvent->deviceInfo.rssi);
 			}
 			break;
 		}
