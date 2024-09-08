@@ -533,12 +533,12 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 				
 				if(pMsg->hdr.status == bleProcedureComplete)
 				{
+					centralDiscState = BLE_DISC_STATE_SVC;
 					LOG("    BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_SVC 状态\r\n");
 					uint8_t uuid[ATT_BT_UUID_SIZE] = {LO_UINT16(UUID_SRV_BTT), HI_UINT16(UUID_SRV_BTT)};
 					// uint8_t *uuid = &UUID_SRV_BTT;
 					// Initialize cached handles
 					centralSvcStartHdl = centralSvcEndHdl = centralCharHdl = 0;
-					centralDiscState = BLE_DISC_STATE_SVC;
 					GATT_DiscPrimaryServiceByUUID(centralConnHandle, uuid, ATT_BT_UUID_SIZE, centralTaskId);
 				}
 			}
@@ -565,8 +565,8 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 				}
 				if(pMsg->hdr.status == bleProcedureComplete)
 				{
-					LOG("    BLE_DISC_STATE_SVC 结束. 进入 BLE_DISC_STATE_CHAR_ALL 状态\r\n");
 					centralDiscState = BLE_DISC_STATE_CHAR_ALL;
+					LOG("    BLE_DISC_STATE_SVC 结束. 进入 BLE_DISC_STATE_CHAR_ALL 状态\r\n");
 					// Discover characteristic
 					req.startHandle = centralSvcStartHdl;
 					req.endHandle = centralSvcEndHdl;
@@ -597,18 +597,20 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 				uint8_t *pDataList = pMsg->msg.readByTypeRsp.pDataList;
 				for(uint16_t i = 0; i < numPairs; ++i)
 				{
+					GATT_PROP_WRITE;
 					uint8_t* u = pDataList + len * i;
 					uint16_t declareHandle = BUILD_UINT16(*(u+0), *(u+1));	// 属性声明句柄
-					uint8_t readWrite = *(u + 2);		// 读写权限
+					uint8_t readWrite = *(u + 2);		// 读写权限 GATT_PROP_WRITE
 					uint16_t handle = BUILD_UINT16(*(u+3), *(u+4));
 					uint16_t uuid = BUILD_UINT16(*(u+5), *(u+6));
 					uint8_t uuid_len = len - 5;
-					LOG("declareHandle 0x%04X readWrite %d handle 0x%04X uuid 0x%04X\r\n", declareHandle, readWrite, handle, uuid);
+					LOG("    DeclareHandle 0x%04X readWrite %d handle 0x%04X uuid 0x%04X\r\n", declareHandle, readWrite, handle, uuid);
 				}
 			}
 			if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->hdr.status == bleProcedureComplete)
 			{
 				centralDiscState = BLE_DISC_STATE_CHAR;
+					LOG("    BLE_DISC_STATE_CHAR_ALL 结束. 进入 BLE_DISC_STATE_CHAR 状态\r\n");
 				// Discover characteristic
 				req.startHandle = centralSvcStartHdl;
 				req.endHandle = centralSvcEndHdl;
@@ -638,6 +640,7 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 			{
 				// 此处有问题 没有对error处理 todo
 				centralDiscState = BLE_DISC_STATE_CCCD;
+				LOG("    BLE_DISC_STATE_CHAR 结束. 进入 BLE_DISC_STATE_CCCD 状态\r\n");
 				// 订阅通知：获取 CCCD 句柄
 				// Discover characteristic
 				req.startHandle = centralSvcStartHdl;
@@ -666,6 +669,7 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 			}
 			// 此处没有对 pMsg->hdr.status == bleProcedureComplete 的处理 todo
 			centralDiscState = BLE_DISC_STATE_IDLE;
+			LOG("    BLE_DISC_STATE_CCCD 结束. 进入 BLE_DISC_STATE_IDLE 状态\r\n");
 		}
 	}
 	GATT_bm_free(&pMsg->msg, pMsg->method);
