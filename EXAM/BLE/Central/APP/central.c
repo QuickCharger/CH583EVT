@@ -347,37 +347,38 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 	if(events & START_READ_OR_WRITE_EVT)
 	{
 		LOG("主回调 START_READ_OR_WRITE_EVT 主机写数据给从机，一秒一次\r\n");
-		if(centralProcedureInProgress == FALSE)
+		// if(centralProcedureInProgress == FALSE)
 		{
-			if(centralDoWrite)
-			{
-				// Do a write
-				attWriteReq_t req;
-				req.cmd = FALSE;
-				req.sig = FALSE;
-				req.handle = centralCharHdl;
-				req.len = 1;
-				req.pValue = GATT_bm_alloc(centralConnHandle, ATT_WRITE_REQ, req.len, NULL, 0);
-				if(req.pValue != NULL)
-				{
-					*req.pValue = centralCharVal;
-					if(GATT_WriteCharValue(centralConnHandle, &req, centralTaskId) == SUCCESS)
-					{
-						centralProcedureInProgress = TRUE;
-						centralDoWrite = !centralDoWrite;
-						tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
-					}
-					else
-					{
-						GATT_bm_free((gattMsg_t *)&req, ATT_WRITE_REQ);
-					}
-				}
-			}
-			else
+			// if(centralDoWrite)
+			// {
+			// 	// Do a write
+			// 	attWriteReq_t req;
+			// 	req.cmd = FALSE;
+			// 	req.sig = FALSE;
+			// 	req.handle = centralCharHdl;
+			// 	req.len = 1;
+			// 	req.pValue = GATT_bm_alloc(centralConnHandle, ATT_WRITE_REQ, req.len, NULL, 0);
+			// 	if(req.pValue != NULL)
+			// 	{
+			// 		*req.pValue = centralCharVal;
+			// 		if(GATT_WriteCharValue(centralConnHandle, &req, centralTaskId) == SUCCESS)
+			// 		{
+			// 			centralProcedureInProgress = TRUE;
+			// 			centralDoWrite = !centralDoWrite;
+			// 			tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
+			// 		}
+			// 		else
+			// 		{
+			// 			GATT_bm_free((gattMsg_t *)&req, ATT_WRITE_REQ);
+			// 		}
+			// 	}
+			// }
+			// else
 			{
 				// Do a read
 				attReadReq_t req;
 				req.handle = centralCharHdl;
+				// 调用后收到 ATT_READ_RSP 消息
 				if(GATT_ReadCharValue(centralConnHandle, &req, centralTaskId) == SUCCESS)
 				{
 					centralProcedureInProgress = TRUE;
@@ -575,6 +576,8 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 					req.type.uuid[1] = HI_UINT16(UUID_char_BTT);
 					// GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
 					GATT_DiscAllChars(centralConnHandle, centralSvcStartHdl, centralSvcEndHdl, centralTaskId);
+					// 使用GATT_DiscAllChars函数或者蓝牙分析仪抓包获取到的noti/indi的handle值需要+1才可以使能成功，write/read没有这方面的限制。
+					// 使用GATT_ReadUsingCharUUID获取到的handle值直接使能填写使能就可以。
 				}
 			}
 			else if(pMsg->method == ATT_ERROR_RSP)
@@ -634,7 +637,7 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 				// 开启读写任务
 				tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);	
 				// Display Characteristic 1 handle
-				LOG("    Found Characteristic 1 handle : %x \r\n", centralCharHdl);
+				LOG("    Found Characteristic 1 handle : 0x%4x \r\n", centralCharHdl);
 			}
 			if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->hdr.status == bleProcedureComplete)
 			{
@@ -863,7 +866,7 @@ static void gapCentralEventCB(gapRoleEvent_t *pEvent)
 		}
 		case GAP_LINK_PARAM_UPDATE_EVENT:
 		{
-			LOG(" 事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功\r\n");
+			LOG("事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功\r\n");
 			break;
 		}
 		case GAP_PHY_UPDATE_EVENT:
@@ -873,14 +876,14 @@ static void gapCentralEventCB(gapRoleEvent_t *pEvent)
 		}
 		case GAP_EXT_ADV_DEVICE_INFO_EVENT:
 		{
-			LOG(" 事件 GAP_EXT_ADV_DEVICE_INFO_EVENT Recv ext adv \r\n");
+			LOG("事件 GAP_EXT_ADV_DEVICE_INFO_EVENT Recv ext adv \r\n");
 			// Add device to list
 			centralAddDeviceInfo(pEvent->deviceExtAdvInfo.addr, pEvent->deviceExtAdvInfo.addrType, pEvent->deviceExtAdvInfo.rssi);
 			break;
 		}
 		case GAP_DIRECT_DEVICE_INFO_EVENT:
 		{
-			LOG(" 事件 GAP_DIRECT_DEVICE_INFO_EVENT\r\n");
+			LOG("事件 GAP_DIRECT_DEVICE_INFO_EVENT\r\n");
 			// Display device addr
 			LOG("Recv direct adv \r\n");
 			// Add device to list
@@ -888,7 +891,7 @@ static void gapCentralEventCB(gapRoleEvent_t *pEvent)
 			break;
 		}
 		default:
-			LOG(" 事件 未知事件 id %02x\r\n", pEvent->gap.opcode);
+			LOG("事件 未知事件 id %02x\r\n", pEvent->gap.opcode);
 			break;
 	}
 }

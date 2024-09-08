@@ -1,101 +1,93 @@
 H58x_BLE_LIB_V2.10
 [Central_ProcessEvent:308] Ö÷»Øµ÷ START_DEVICE_EVT Éè±¸³õÊ¼»¯Íê³É
-[gapCentralEventCB   :735] ÊÂ¼ş GAP_DEVICE_INIT_DONE_EVENT ³õÊ¼»¯½áÊø ¿ªÊ¼Ì½²âÉè±¸
-[gapCentralEventCB   :746] ÊÂ¼ş GAP_DEVICE_INFO_EVENT ·¢ÏÖÉè±¸
-[gapCentralEventCB   :752] ¹ã²¥Êı¾İ°ü02 01 05 03 19 c2 03 0a 09 48 49 44 20 4d 6f 75 73 65 [gapCentralEventCB   :754] 
-¹ã²¥Ãû³Æ ?
-	HID Mouse[centralAddDeviceInfo:998]   ·¢ÏÖĞÂÉè±¸ ¼ÇÂ¼ MAC 6e-98-69-a7-14-d4, RSSI -34 dBm
-[gapCentralEventCB   :746] ÊÂ¼ş GAP_DEVICE_INFO_EVENT ·¢ÏÖÉè±¸
-[gapCentralEventCB   :758] É¨ÃèÓ¦´ğ°ü05 12 08 00 08 00 05 02 12 18 0f 18 02 0a 00 [gapCentralEventCB   :760] 
-¹ã²¥Ãû³Æ [gapCentralEventCB   :769] ÊÂ¼ş GAP_DEVICE_DISCOVERY_EVENT Ì½²âÉè±¸ ½áÊø
-[gapCentralEventCB   :790]   ÕÒµ½Éè±¸ MAC 6e-98-69-a7-14-d4 ³¢ÊÔÁ¬½Ó
-[gapCentralEventCB   :804] ÊÂ¼ş GAP_LINK_ESTABLISHED_EVENT MAC 6e-98-69-a7-14-d4 Á¬½Ó³É¹¦
+[gapCentralEventCB   :738] ÊÂ¼ş GAP_DEVICE_INIT_DONE_EVENT ³õÊ¼»¯½áÊø ¿ªÊ¼Ì½²âÉè±¸
+[gapCentralEventCB   :749] ÊÂ¼ş GAP_DEVICE_INFO_EVENT ·¢ÏÖÉè±¸
+[gapCentralEventCB   :755] ¹ã²¥Êı¾İ°ü02 01 05 03 19 c2 03 03 03 12 18 0f 09 4d 37 32 30 20 54 72 69 61 74 68 6c 6f 6e [gapCentralEventCB   :757] 
+¹ã²¥Ãû³Æ ?	M720 Triathlon[centralAddDeviceInfo:1001]   ·¢ÏÖĞÂÉè±¸ ¼ÇÂ¼ MAC 51-a1-86-52-e4-c3, RSSI -21 dBm
+[gapCentralEventCB   :749] ÊÂ¼ş GAP_DEVICE_INFO_EVENT ·¢ÏÖÉè±¸
+[gapCentralEventCB   :761] É¨ÃèÓ¦´ğ°ü02 0a 04 [gapCentralEventCB   :763] 
+¹ã²¥Ãû³Æ 
+[gapCentralEventCB   :772] ÊÂ¼ş GAP_DEVICE_DISCOVERY_EVENT Ì½²âÉè±¸ ½áÊø
+[gapCentralEventCB   :793]   ÕÒµ½Éè±¸ MAC 51-a1-86-52-e4-c3 ³¢ÊÔÁ¬½Ó
+[gapCentralEventCB   :807] ÊÂ¼ş GAP_LINK_ESTABLISHED_EVENT MAC 51-a1-86-52-e4-c3 Á¬½Ó³É¹¦
 [Central_ProcessEvent:289] Ö÷»Øµ÷ SYS_EVENT_MSG
 GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_EXCHANGE_MTU_RSP, {clientRxMTU:23}
-[gattCentralMsg      :457]   Negotiated MTU: 23
+[gattCentralMsg      :458]   Negotiated MTU: 23
 [Central_ProcessEvent:321] Ö÷»Øµ÷ START_SVC_DISCOVERY_EVT ËÑË÷Ã¶¾Ù·şÎñÈÎÎñ ¿ªÊ¼
 [Central_ProcessEvent:289] Ö÷»Øµ÷ SYS_EVENT_MSG
-GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:2, len:6, pDataList:0x01 00 09 00 00 18 }
-[gattCentralMsg      :519]     µ±Ç°×´Ì¬ BLE_DISC_STATE_ALL_SVC
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:3, len:6, pDataList:0x01 00 07 00 00 18 }}
+[gattCentralMsg      :520]     µ±Ç°×´Ì¬ BLE_DISC_STATE_ALL_SVC
 Service 1:
   Handle: 0x0001
-  End Group Handle: 0x0009
+  End Group Handle: 0x0007
   UUID: 0x1800 UUID Service Í¨ÓÃ·ÃÎÊ
 Service 2:
-  Handle: 0x000A
-  End Group Handle: 0x000D
+  Handle: 0x0008
+  End Group Handle: 0x000B
   UUID: 0x1801 UUID Service Í¨ÓÃÊôĞÔ
-[Central_ProcessEvent:289] Ö÷»Øµ÷ SYS_EVENT_MSG
-GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:2, len:6, pDataList:0x0e 00 20 00 0a 18 }
-[gattCentralMsg      :519]     µ±Ç°×´Ì¬ BLE_DISC_STATE_ALL_SVC
-Service 1:
-  Handle: 0x000E
-  End Group Handle: 0x0020
+Service 3:
+  Handle: 0x000C
+  End Group Handle: 0x001A
   UUID: 0x180A UUID Service Éè±¸ĞÅÏ¢
-Service 2:
-  Handle: 0x0021
-  End Group Handle: 0x0025
-  UUID: 0x180F UUID Service µç³ØÊı¾İ
 [Central_ProcessEvent:289] Ö÷»Øµ÷ SYS_EVENT_MSG
-GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:2, len:6, pDataList:0x26 00 2b 00 13 18 }
-[gattCentralMsg      :519]     µ±Ç°×´Ì¬ BLE_DISC_STATE_ALL_SVC
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:2, len:6, pDataList:0x1b 00 1d 00 0f 18 }}
+[gattCentralMsg      :520]     µ±Ç°×´Ì¬ BLE_DISC_STATE_ALL_SVC
 Service 1:
-  Handle: 0x0026
-  End Group Handle: 0x002B
-  UUID: 0x1813 UUID Service É¨Ãè²ÎÊı
+  Handle: 0x001B
+  End Group Handle: 0x001D
+  UUID: 0x180F UUID Service µç³ØÊı¾İ
 Service 2:
-  Handle: 0x002C
-  End Group Handle: 0xFFFF
+  Handle: 0x001E
+  End Group Handle: 0x003D
   UUID: 0x1812 UUID Service HIDÉè±¸
 [Central_ProcessEvent:289] Ö÷»Øµ÷ SYS_EVENT_MSG
-GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:0, len:0, pDataList:0x}
-[gattCentralMsg      :519]     µ±Ç°×´Ì¬ BLE_DISC_STATE_ALL_SVC
-[gattCentralMsg      :537]     BLE_DISC_STATE_ALL_SVC ½áÊø. ½øÈë BLE_DISC_STATE_SVC ×´Ì¬
-[gapCentralRssiCB    :692] RSSI : -38 dB 
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:1, len:20, pDataList:0x3e 00 ff ff 6d 04 00 20 1f 01 00 80 00 10 00 00 00 00 01 00 }}
+[gattCentralMsg      :520]     µ±Ç°×´Ì¬ BLE_DISC_STATE_ALL_SVC
+Service 1:
+  Handle: 0x003E
+  End Group Handle: 0xFFFF
+  UUID: 0x046D UUIDÎ´Öª 046d
 [Central_ProcessEvent:289] Ö÷»Øµ÷ SYS_EVENT_MSG
-GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_FIND_BY_TYPE_VALUE_RSP, {numInfo:1, pHandlesInfo:0x200027e3}
-[gattCentralMsg      :557]     µ±Ç°×´Ì¬ BLE_DISC_STATE_SVC
-[gattCentralMsg      :564]     Found UUID 0x0000 Profile Service handle : 0021 ~ 0025 
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:0, len:0, pDataList:0x}}
+[gattCentralMsg      :520]     µ±Ç°×´Ì¬ BLE_DISC_STATE_ALL_SVC
+[gattCentralMsg      :538]     BLE_DISC_STATE_ALL_SVC ½áÊø. ½øÈë BLE_DISC_STATE_SVC ×´Ì¬
+[gapCentralRssiCB    :695] RSSI : -28 dB 
 [Central_ProcessEvent:289] Ö÷»Øµ÷ SYS_EVENT_MSG
-GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_FIND_BY_TYPE_VALUE_RSP, {numInfo:0, pHandlesInfo:0x00}
-[gattCentralMsg      :557]     µ±Ç°×´Ì¬ BLE_DISC_STATE_SVC
-[gattCentralMsg      :569]     BLE_DISC_STATE_SVC ½áÊø. ½øÈë BLE_DISC_STATE_CHAR_ALL ×´Ì¬
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_FIND_BY_TYPE_VALUE_RSP, {numInfo:1, pHandlesInfo:0x200027e3}}
+[gattCentralMsg      :558]     µ±Ç°×´Ì¬ BLE_DISC_STATE_SVC
+[gattCentralMsg      :565]     Found UUID 0x0000 Profile Service handle : 001b ~ 001d 
 [Central_ProcessEvent:289] Ö÷»Øµ÷ SYS_EVENT_MSG
-GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 1, len:7, pDataList:0x22 00 12 23 00 19 2a }
-[gattCentralMsg      :592]     µ±Ç°×´Ì¬ BLE_DISC_STATE_CHAR_ALL
-[gattCentralMsg      :607]     DeclareHandle 0x0022 readWrite 18 handle 0x0023 uuid 0x2A19
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_FIND_BY_TYPE_VALUE_RSP, {numInfo:0, pHandlesInfo:0x00}}
+[gattCentralMsg      :558]     µ±Ç°×´Ì¬ BLE_DISC_STATE_SVC
+[gattCentralMsg      :570]     BLE_DISC_STATE_SVC ½áÊø. ½øÈë BLE_DISC_STATE_CHAR_ALL ×´Ì¬
+[Central_ProcessEvent:289] Ö÷»Øµ÷ SYS_EVENT_MSG
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 1, len:7, pDataList:0x1c 00 02 1d 00 19 2a }}
+[gattCentralMsg      :595]     µ±Ç°×´Ì¬ BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :610]     DeclareHandle 0x001C readWrite 2 handle 0x001D uuid 0x2A19
 [Central_ProcessEvent:331] Ö÷»Øµ÷ START_PARAM_UPDATE_EVT
 [Central_ProcessEvent:289] Ö÷»Øµ÷ SYS_EVENT_MSG
-GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 0, len:0, pDataList:0x}
-[gattCentralMsg      :592]     µ±Ç°×´Ì¬ BLE_DISC_STATE_CHAR_ALL
-[gattCentralMsg      :613]     BLE_DISC_STATE_CHAR_ALL ½áÊø. ½øÈë BLE_DISC_STATE_CHAR ×´Ì¬
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 0, len:0, pDataList:0x}}
+[gattCentralMsg      :595]     µ±Ç°×´Ì¬ BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :616]     BLE_DISC_STATE_CHAR_ALL ½áÊø. ½øÈë BLE_DISC_STATE_CHAR ×´Ì¬
 [Central_ProcessEvent:289] Ö÷»Øµ÷ SYS_EVENT_MSG
-GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 1, len:3, pDataList:0x23 00 14 }
-[gattCentralMsg      :630]     µ±Ç°×´Ì¬ BLE_DISC_STATE_CHAR
-[gattCentralMsg      :637]     Found Characteristic 1 handle : 23 
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 1, len:3, pDataList:0x1d 00 64 }}
+[gattCentralMsg      :633]     µ±Ç°×´Ì¬ BLE_DISC_STATE_CHAR
+[gattCentralMsg      :640]     Found Characteristic 1 handle : 0x  1d 
 [Central_ProcessEvent:289] Ö÷»Øµ÷ SYS_EVENT_MSG
-GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 0, len:0, pDataList:0x}
-[gattCentralMsg      :630]     µ±Ç°×´Ì¬ BLE_DISC_STATE_CHAR
-[gattCentralMsg      :643]     BLE_DISC_STATE_CHAR ½áÊø. ½øÈë BLE_DISC_STATE_CCCD ×´Ì¬
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 0, len:0, pDataList:0x}}
+[gattCentralMsg      :633]     µ±Ç°×´Ì¬ BLE_DISC_STATE_CHAR
+[gattCentralMsg      :646]     BLE_DISC_STATE_CHAR ½áÊø. ½øÈë BLE_DISC_STATE_CCCD ×´Ì¬
 [Central_ProcessEvent:289] Ö÷»Øµ÷ SYS_EVENT_MSG
-GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 1, len:4, pDataList:0x24 00 00 00 }
-[gattCentralMsg      :661]     µ±Ç°×´Ì¬ BLE_DISC_STATE_CCCD
-[gattCentralMsg      :668]     Found client characteristic configuration handle : 24 
-[gattCentralMsg      :672]     BLE_DISC_STATE_CCCD ½áÊø. ½øÈë BLE_DISC_STATE_IDLE ×´Ì¬
-[gapCentralEventCB   :866]  ÊÂ¼ş GAP_LINK_PARAM_UPDATE_EVENT ¸üĞÂ³É¹¦
-[Central_ProcessEvent:289] Ö÷»Øµ÷ SYS_EVENT_MSG
-GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 0, len:0, pDataList:0x}
-[gapCentralRssiCB    :692] RSSI : -39 dB 
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_ERROR_RSP, {reqOpcode:ATT_READ_BY_TYPE_REQ, errCode:0x0a}}
+[gattCentralMsg      :664]     µ±Ç°×´Ì¬ BLE_DISC_STATE_CCCD
+[gattCentralMsg      :675]     BLE_DISC_STATE_CCCD ½áÊø. ½øÈë BLE_DISC_STATE_IDLE ×´Ì¬
+[gapCentralEventCB   :869]  ÊÂ¼ş GAP_LINK_PARAM_UPDATE_EVENT ¸üĞÂ³É¹¦
+[gapCentralRssiCB    :695] RSSI : -27 dB 
 [Central_ProcessEvent:349] Ö÷»Øµ÷ START_READ_OR_WRITE_EVT Ö÷»úĞ´Êı¾İ¸ø´Ó»ú£¬Ò»ÃëÒ»´Î
 [Central_ProcessEvent:289] Ö÷»Øµ÷ SYS_EVENT_MSG
-GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_ERROR_RSP, {reqOpcode:ATT_WRITE_REQ, errCode:0x03}}
-[gattCentralMsg      :497]   ATT_ERROR_RSP Write Error: 3
-[Central_ProcessEvent:392] Ö÷»Øµ÷ START_WRITE_CCCD_EVT
-[Central_ProcessEvent:289] Ö÷»Øµ÷ SYS_EVENT_MSG
-GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_WRITE_RSP}
-[gattCentralMsg      :502]   ATT_WRITE_RSP Write success
-[Central_ProcessEvent:349] Ö÷»Øµ÷ START_READ_OR_WRITE_EVT Ö÷»úĞ´Êı¾İ¸ø´Ó»ú£¬Ò»ÃëÒ»´Î
-[gapCentralRssiCB    :692] RSSI : -38 dB 
-[Central_ProcessEvent:289] Ö÷»Øµ÷ SYS_EVENT_MSG
-GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_RSP}
-[gattCentralMsg      :486]   ATT_READ_RSP Read rsp: 14
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_RSP, {len:1, pDataList:0x64 }}
+[gattCentralMsg      :487]   ATT_READ_RSP Read rsp: 64
+[gapCentralRssiCB    :695] RSSI : -26 dB 
+[gapCentralEventCB   :869]  ÊÂ¼ş GAP_LINK_PARAM_UPDATE_EVENT ¸üĞÂ³É¹¦
+[gapCentralRssiCB    :695] RSSI : -27 dB 
+[gapCentralRssiCB    :695] RSSI : -24 dB 

@@ -395,17 +395,19 @@ void BLE_GATT_MSG_DESC(gattMsgEvent_t *m)
 		// PRINT("GATT: method ATT_FIND_BY_TYPE_VALUE_REQ, {numInfo %d, pHandlesInfo 0x%02x}", msg.findByTypeValueReq.numInfo, *(msg.findByTypeValueReq.pHandlesInfo));
 		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
 	} else if(m->method == ATT_FIND_BY_TYPE_VALUE_RSP) {
-		PRINT("GATT {method:%s, {numInfo:%d, pHandlesInfo:0x%02x}", BLE_Opcode2str(m->method), msg.findByTypeValueRsp.numInfo, msg.findByTypeValueRsp.pHandlesInfo);
+		PRINT("GATT {method:%s, {numInfo:%d, pHandlesInfo:0x%02x}}", BLE_Opcode2str(m->method), msg.findByTypeValueRsp.numInfo, msg.findByTypeValueRsp.pHandlesInfo);
 	} else if(m->method == ATT_READ_BY_TYPE_REQ) {
 		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
 	} else if(m->method == ATT_READ_BY_TYPE_RSP) {
 		PRINT("GATT {method:%s, {numPairs %d, len:%d, pDataList:0x", BLE_Opcode2str(m->method), msg.readByTypeRsp.numPairs, msg.readByTypeRsp.len);
 		Print_Memory(msg.readByTypeRsp.pDataList, msg.readByTypeRsp.len * msg.readByTypeRsp.numPairs);
-		PRINT("}");
+		PRINT("}}");
 	} else if(m->method == ATT_READ_REQ) {
 		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
 	} else if(m->method == ATT_READ_RSP) {
-		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
+		PRINT("GATT {method:%s, {len:%d, pDataList:0x", BLE_Opcode2str(m->method), m->msg.readRsp.len);
+		Print_Memory(m->msg.readRsp.pValue, m->msg.readRsp.len);
+		PRINT("}}");
 	} else if(m->method == ATT_READ_BLOB_REQ) {
 		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
 	} else if(m->method == ATT_READ_BLOB_RSP) {
@@ -419,7 +421,7 @@ void BLE_GATT_MSG_DESC(gattMsgEvent_t *m)
 	} else if(m->method == ATT_READ_BY_GRP_TYPE_RSP) {
 		PRINT("GATT {method:%s, {numGrps:%d, len:%d, pDataList:0x", BLE_Opcode2str(m->method), msg.readByGrpTypeRsp.numGrps, msg.readByGrpTypeRsp.len);
 		Print_Memory(msg.readByGrpTypeRsp.pDataList, msg.readByGrpTypeRsp.len);
-		PRINT("}");
+		PRINT("}}");
 	} else if(m->method == ATT_WRITE_REQ) {
 		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
 	} else if(m->method == ATT_WRITE_RSP) {
