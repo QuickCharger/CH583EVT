@@ -384,13 +384,14 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 					centralProcedureInProgress = TRUE;
 					centralDoWrite = !centralDoWrite;
 				}
+				tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
 			}
 		}
 		return (events ^ START_READ_OR_WRITE_EVT);
 	}
 	if(events & START_WRITE_CCCD_EVT)
 	{
-		LOG("主回调 START_WRITE_CCCD_EVT\r\n");
+		LOG("主回调 START_WRITE_CCCD_EVT 尝试使能 CCCD\r\n");
 		if(centralProcedureInProgress == FALSE)
 		{
 			// Do a write
@@ -569,11 +570,11 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 					centralDiscState = BLE_DISC_STATE_CHAR_ALL;
 					LOG("    BLE_DISC_STATE_SVC 结束. 进入 BLE_DISC_STATE_CHAR_ALL 状态\r\n");
 					// Discover characteristic
-					req.startHandle = centralSvcStartHdl;
-					req.endHandle = centralSvcEndHdl;
-					req.type.len = ATT_BT_UUID_SIZE;
-					req.type.uuid[0] = LO_UINT16(UUID_char_BTT);
-					req.type.uuid[1] = HI_UINT16(UUID_char_BTT);
+					// req.startHandle = centralSvcStartHdl;
+					// req.endHandle = centralSvcEndHdl;
+					// req.type.len = ATT_BT_UUID_SIZE;
+					// req.type.uuid[0] = LO_UINT16(UUID_char_BTT);
+					// req.type.uuid[1] = HI_UINT16(UUID_char_BTT);
 					// GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
 					GATT_DiscAllChars(centralConnHandle, centralSvcStartHdl, centralSvcEndHdl, centralTaskId);
 					// 使用GATT_DiscAllChars函数或者蓝牙分析仪抓包获取到的noti/indi的handle值需要+1才可以使能成功，write/read没有这方面的限制。
@@ -601,6 +602,7 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 				for(uint16_t i = 0; i < numPairs; ++i)
 				{
 					GATT_PROP_WRITE;
+					// 12 = GATT_PROP_READ | GATT_PROP_NOTIFY
 					uint8_t* u = pDataList + len * i;
 					uint16_t declareHandle = BUILD_UINT16(*(u+0), *(u+1));	// 属性声明句柄
 					uint8_t readWrite = *(u + 2);		// 读写权限 GATT_PROP_WRITE
@@ -667,8 +669,8 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 				centralCCCDHdl = BUILD_UINT16(pMsg->msg.readByTypeRsp.pDataList[0], pMsg->msg.readByTypeRsp.pDataList[1]);
 				centralProcedureInProgress = FALSE;
 				// Start do write CCCD
-				tmos_start_task(centralTaskId, START_WRITE_CCCD_EVT, DEFAULT_WRITE_CCCD_DELAY);	
-				LOG("    Found client characteristic configuration handle : %x \r\n", 	centralCCCDHdl);
+				tmos_start_task(centralTaskId, START_WRITE_CCCD_EVT, DEFAULT_WRITE_CCCD_DELAY);
+				LOG("    Found client characteristic configuration handle : 0x%4X \r\n", centralCCCDHdl);
 			}
 			// 此处没有对 pMsg->hdr.status == bleProcedureComplete 的处理 todo
 			centralDiscState = BLE_DISC_STATE_IDLE;
