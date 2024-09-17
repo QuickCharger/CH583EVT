@@ -136,6 +136,7 @@ enum
  *  GATT_ReadUsingCharUUID			ATT_READ_BY_TYPE_RSP
  *  GATT_ReadUsingCharUUID			ATT_READ_BY_TYPE_RSP
 */
+uint16_t UUID_SRV_INFO = 0x180A;	// 设备信息
 uint16_t UUID_SRV_HID = 0x1812;		// HID设备
 uint16_t UUID_SRV_BTT = 0x180F;		// 电池数据
 uint16_t UUID_char_MOUSE_IN = 0x2A33;	// HID鼠标输入
@@ -194,6 +195,9 @@ static uint8_t centralDoWrite = TRUE;
 
 // GATT read/write procedure state
 static uint8_t centralProcedureInProgress = FALSE;
+
+static uint16_t jobHandle[10] = {0};
+uint8_t curHandle = 0;
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
@@ -241,6 +245,9 @@ void Central_Init()
 {
 	centralTaskId = TMOS_ProcessEventRegister(Central_ProcessEvent);
 
+	for(uint8_t i = 0; i < 10; ++i)
+		jobHandle[i] = 0;
+
 	// Setup GAP
 	GAP_SetParamValue(TGAP_DISC_SCAN, DEFAULT_SCAN_DURATION);	// 单次扫描时长
 	GAP_SetParamValue(TGAP_CONN_EST_INT_MIN, DEFAULT_MIN_CONNECTION_INTERVAL);
@@ -252,7 +259,7 @@ void Central_Init()
 		uint8_t  pairMode = DEFAULT_PAIRING_MODE;
 		uint8_t  mitm = DEFAULT_MITM_MODE;
 		uint8_t  ioCap = DEFAULT_IO_CAPABILITIES;
-		uint8_t  bonding = DEFAULT_BONDING_MODE;
+		uint8_t  bonding = DEFAULT_BONDING_MODE; 
 		GAPBondMgr_SetParameter(GAPBOND_CENT_DEFAULT_PASSCODE, sizeof(uint32_t), &passkey);
 		GAPBondMgr_SetParameter(GAPBOND_CENT_PAIRING_MODE, sizeof(uint8_t), &pairMode);
 		GAPBondMgr_SetParameter(GAPBOND_CENT_MITM_PROTECTION, sizeof(uint8_t), &mitm);
@@ -376,15 +383,31 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 			// else
 			{
 				// Do a read
-				attReadReq_t req;
-				req.handle = centralCharHdl;
-				// 调用后收到 GATT_MSG_EVENT 事件，ATT_READ_RSP 消息
-				if(GATT_ReadCharValue(centralConnHandle, &req, centralTaskId) == SUCCESS)
+				// LOG("0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X \r\n", jobHandle[0], jobHandle[1], jobHandle[2], jobHandle[3], jobHandle[4], jobHandle[5], jobHandle[6], jobHandle[7], jobHandle[8], jobHandle[9]);
+				uint16_t hdl = 0;
+				for(uint8_t i = 0; i < 10; ++i)
 				{
-					centralProcedureInProgress = TRUE;
-					centralDoWrite = !centralDoWrite;
+					if(jobHandle[i] != 0)
+					{
+						hdl = jobHandle[i];
+						jobHandle[i] = 0;
+						curHandle = hdl;
+						break;
+					}
 				}
-				tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
+				if(hdl != 0)
+				{
+					attReadReq_t req;
+					req.handle = hdl;
+					// 调用后收到 GATT_MSG_EVENT 事件， ATT_READ_RSP 消息
+					LOG("    开启一个读写任务 handle 0x%04X\r\n", hdl);
+					if(GATT_ReadCharValue(centralConnHandle, &req, centralTaskId) == SUCCESS)
+					{
+						centralProcedureInProgress = TRUE;
+						centralDoWrite = !centralDoWrite;
+					}
+					tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
+				}
 			}
 		}
 		return (events ^ START_READ_OR_WRITE_EVT);
@@ -537,7 +560,8 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 						uint16_t startHandle = BUILD_UINT16(*(u+0), *(u+1));
 						uint16_t endHandle = BUILD_UINT16(*(u+2), *(u+3));
 						uint16_t uuid = BUILD_UINT16(*(u+4), *(u+5));
-						if(uuid == UUID_SRV_BTT)
+						// if(uuid == UUID_SRV_BTT)
+						if(uuid == 0x180A)
 						{
 							centralSvcStartHdl = startHandle;
 							centralSvcEndHdl = endHandle;
@@ -554,37 +578,9 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 					centralDiscState = BLE_DISC_STATE_CHAR_ALL;
 					LOG("    BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_CHAR_ALL 状态\r\n");
 					GATT_DiscAllChars(centralConnHandle, centralSvcStartHdl, centralSvcEndHdl, centralTaskId);
-					// centralDiscState = BLE_DISC_STATE_SVC;
-					// LOG("    BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_SVC 状态\r\n");
-					// uint8_t uuid[ATT_BT_UUID_SIZE] = {LO_UINT16(UUID_SRV_BTT), HI_UINT16(UUID_SRV_BTT)};
-					// uint8_t *uuid = &UUID_SRV_BTT;
-					// Initialize cached handles
-					// centralSvcStartHdl = centralSvcEndHdl = centralCharHdl = 0;
-					// GATT_DiscPrimaryServiceByUUID(centralConnHandle, uuid, ATT_BT_UUID_SIZE, centralTaskId);
 				}
 			}
 		}
-		// else if(centralDiscState == BLE_DISC_STATE_SVC)
-		// {
-		// 	LOG("    当前状态 BLE_DISC_STATE_SVC\r\n");
-		// 	if(pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP)
-		// 	{
-		// 		for (uint16_t i = 0; i < pMsg->msg.findByTypeValueRsp.numInfo; i++)
-		// 		{
-		// 			centralSvcStartHdl = ATT_ATTR_HANDLE(pMsg->msg.findByTypeValueRsp.pHandlesInfo, 0);
-		// 			centralSvcEndHdl = ATT_GRP_END_HANDLE(pMsg->msg.findByTypeValueRsp.pHandlesInfo, 0);
-		// 			LOG("    Found UUID 0x%04x Profile Service handle : 0x%04x ~ 0x%04x \r\n", 0, centralSvcStartHdl, centralSvcEndHdl);
-		// 		}
-		// 		if(pMsg->hdr.status == bleProcedureComplete)
-		// 		{
-		// 			centralDiscState = BLE_DISC_STATE_CHAR_ALL;
-		// 			LOG("    BLE_DISC_STATE_SVC 结束. 进入 BLE_DISC_STATE_CHAR_ALL 状态\r\n");
-		// 			GATT_DiscAllChars(centralConnHandle, centralSvcStartHdl, centralSvcEndHdl, centralTaskId);
-		// 			// 使用GATT_DiscAllChars函数或者蓝牙分析仪抓包获取到的noti/indi的handle值需要+1才可以使能成功，write/read没有这方面的限制。
-		// 			// 使用GATT_ReadUsingCharUUID获取到的handle值直接使能填写使能就可以。
-		// 		}
-		// 	}
-		// }
 		else if(centralDiscState == BLE_DISC_STATE_CHAR_ALL)
 		{
 			LOG("    当前状态 BLE_DISC_STATE_CHAR_ALL\r\n");
@@ -603,75 +599,74 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 					uint16_t handle = BUILD_UINT16(*(u+3), *(u+4));
 					uint16_t uuid = BUILD_UINT16(*(u+5), *(u+6));
 					uint8_t uuid_len = len - 5;
-					LOG("    DeclareHandle 0x%04X readWrite %d handle 0x%04X uuid 0x%04X\r\n", declareHandle, readWrite, handle, uuid);
+					LOG("    DeclareHandle 0x%04X readWrite 0x%02X handle 0x%04X uuid 0x%04X %s\r\n", declareHandle, readWrite, handle, uuid, BLE_UUID2str(uuid));
 					
-					centralCharHdl = handle;
-					// 开启读写任务
-					LOG("    开启一个读写任务 handle 0x%04X\r\n", centralCharHdl);
-					tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
+					for(uint8_t i = 0; i < 10; ++i)
+					{
+						if(jobHandle[i] == 0)
+						{
+							jobHandle[i] = handle;
+							LOG("    push handle 0x%04X\r\n", handle);
+							break;
+						}
+					}
+
+					// 0x180A
+					// if(uuid == 0x2A23)	// GATT 消息总体描述. GATT {method:ATT_READ_RSP, {len:8, pDataList:0x00 00 00 00 00 00 00 00 }} readRsp: ""
+					// if(uuid == 0x2A24)	// GATT 消息总体描述. GATT {method:ATT_READ_RSP, {len:12, pDataList:0x4d 6f 64 65 6c 20 4e 75 6d 62 65 72 }} readRsp: "Model Number"
+					// if(uuid == 0x2A25)	// GATT 消息总体描述. GATT {method:ATT_READ_RSP, {len:13, pDataList:0x53 65 72 69 61 6c 20 4e 75 6d 62 65 72 }} readRsp: "Serial Number"
+					// if(uuid == 0x2A26)	// GATT 消息总体描述. GATT {method:ATT_READ_RSP, {len:17, pDataList:0x46 69 72 6d 77 61 72 65 20 52 65 76 69 73 69 6f 6e }} readRsp: "Firmware Revision"
+					// if(uuid == 0x2A27)	// GATT 消息总体描述. GATT {method:ATT_READ_RSP, {len:17, pDataList:0x48 61 72 64 77 61 72 65 20 52 65 76 69 73 69 6f 6e }} readRsp: "Hardware Revision"
+					// if(uuid == 0x2A28)	// GATT 消息总体描述. GATT {method:ATT_READ_RSP, {len:17, pDataList:0x53 6f 66 74 77 61 72 65 20 52 65 76 69 73 69 6f 6e }} readRsp: "Software Revision"
+					// if(uuid == 0x2A29)	// GATT 消息总体描述. GATT {method:ATT_READ_RSP, {len:17, pDataList:0x4d 61 6e 75 66 61 63 74 75 72 65 72 20 4e 61 6d 65 }} readRsp: "Manufacturer Name"
+					// if(uuid == 0x2A2A)	// GATT 消息总体描述. GATT {method:ATT_READ_RSP, {len:14, pDataList:0xfe 00 65 78 70 65 72 69 6d 65 6e 74 61 6c }} readRsp: "xperimental"
+					// if(uuid == 0x2A50)	// GATT 消息总体描述. GATT {method:ATT_READ_RSP, {len:7, pDataList:0x01 d7 07 00 00 10 01 }} readRsp: "乱码"
+
+					// 0x1812
+					// if(uuid == 0x2A4A)
+					// {
+					// 	centralCharHdl = handle;
+					// 	// 开启读写任务
+					// 	LOG("    开启一个读写任务 handle 0x%04X\r\n", centralCharHdl);
+					// 	tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
+					// }
 				}
 			}
 			if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->hdr.status == bleProcedureComplete)
 			{
-				// centralDiscState = BLE_DISC_STATE_CHAR;
-				// LOG("    BLE_DISC_STATE_CHAR_ALL 结束. 进入 BLE_DISC_STATE_CHAR 状态\r\n");
+				centralDiscState = BLE_DISC_STATE_IDLE;
+				LOG("    BLE_DISC_STATE_CHAR_ALL 结束. 进入 BLE_DISC_STATE_IDLE 状态\r\n");
+				// centralDiscState = BLE_DISC_STATE_CCCD;
+				// LOG("    BLE_DISC_STATE_CHAR_ALL 结束. 进入 BLE_DISC_STATE_CCCD 状态\r\n");
+				// // 订阅通知：获取 CCCD 句柄
 				// // Discover characteristic
 				// req.startHandle = centralSvcStartHdl;
 				// req.endHandle = centralSvcEndHdl;
 				// req.type.len = ATT_BT_UUID_SIZE;
-				// req.type.uuid[0] = LO_UINT16(UUID_char_BTT);
-				// req.type.uuid[1] = HI_UINT16(UUID_char_BTT);
+				// req.type.uuid[0] = LO_UINT16(GATT_CLIENT_CHAR_CFG_UUID);
+				// req.type.uuid[1] = HI_UINT16(GATT_CLIENT_CHAR_CFG_UUID);
 				// GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
-
-				centralDiscState = BLE_DISC_STATE_CCCD;
-				LOG("    BLE_DISC_STATE_CHAR_ALL 结束. 进入 BLE_DISC_STATE_CCCD 状态\r\n");
-				// 订阅通知：获取 CCCD 句柄
-				// Discover characteristic
-				req.startHandle = centralSvcStartHdl;
-				req.endHandle = centralSvcEndHdl;
-				req.type.len = ATT_BT_UUID_SIZE;
-				req.type.uuid[0] = LO_UINT16(GATT_CLIENT_CHAR_CFG_UUID);
-				req.type.uuid[1] = HI_UINT16(GATT_CLIENT_CHAR_CFG_UUID);
-				GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
+				LOG("    开启一个读写任务 handle\r\n");
+				tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
 			}
 		}
-		// else if(centralDiscState == BLE_DISC_STATE_CHAR)
-		// {
-		// 	LOG("    当前状态 BLE_DISC_STATE_CHAR\r\n");
-		// 	if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->msg.readByTypeRsp.numPairs > 0)
-		// 	{
-		// 		// 此处没有循环 todo
-		// 		centralCharHdl = BUILD_UINT16(pMsg->msg.readByTypeRsp.pDataList[0], pMsg->msg.readByTypeRsp.pDataList[1]);	
-		// 		// 开启读写任务
-		// 		tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
-		// 		// Display Characteristic 1 handle
-		// 		LOG("    Found Characteristic 1 handle : 0x%04x \r\n", centralCharHdl);
-		// 	}
-		// 	if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->hdr.status == bleProcedureComplete)
-		// 	{
-		// 		// 此处有问题 没有对error处理 todo
-		// 		centralDiscState = BLE_DISC_STATE_CCCD;
-		// 		LOG("    BLE_DISC_STATE_CHAR 结束. 进入 BLE_DISC_STATE_CCCD 状态\r\n");
-		// 		// 订阅通知：获取 CCCD 句柄
-		// 		// Discover characteristic
-		// 		req.startHandle = centralSvcStartHdl;
-		// 		req.endHandle = centralSvcEndHdl;
-		// 		req.type.len = ATT_BT_UUID_SIZE;
-		// 		req.type.uuid[0] = LO_UINT16(GATT_CLIENT_CHAR_CFG_UUID);
-		// 		req.type.uuid[1] = HI_UINT16(GATT_CLIENT_CHAR_CFG_UUID);
-		// 		GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
-		// 	}
-		// }
 		else if(centralDiscState == BLE_DISC_STATE_CCCD)
 		{
 			LOG("    当前状态 BLE_DISC_STATE_CCCD\r\n");
 			if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->msg.readByTypeRsp.numPairs > 0)
 			{
-				centralCCCDHdl = BUILD_UINT16(pMsg->msg.readByTypeRsp.pDataList[0], pMsg->msg.readByTypeRsp.pDataList[1]);
+				uint16_t numPairs = pMsg->msg.readByTypeRsp.numPairs;
+				uint16_t len = pMsg->msg.readByTypeRsp.len;
+				uint8_t *pDataList = pMsg->msg.readByTypeRsp.pDataList;
+				for(uint16_t i = 0; i < numPairs; i++)
+				{
+					uint16_t handle = BUILD_UINT16(pDataList[len * i], pDataList[len * i+1]);
+					LOG("    CCCD handle 0x%04X\r\n", handle);
+					centralCCCDHdl = handle;
+				}
 				centralProcedureInProgress = FALSE;
 				// Start do write CCCD
 				tmos_start_task(centralTaskId, START_WRITE_CCCD_EVT, DEFAULT_WRITE_CCCD_DELAY);
-				LOG("    Found client characteristic configuration handle : 0x%04X \r\n", centralCCCDHdl);
 			}
 			// 此处没有对 pMsg->hdr.status == bleProcedureComplete 的处理 todo
 			centralDiscState = BLE_DISC_STATE_IDLE;
