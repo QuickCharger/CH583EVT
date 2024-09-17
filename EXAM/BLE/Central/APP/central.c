@@ -346,7 +346,7 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 	}
 	if(events & START_READ_OR_WRITE_EVT)
 	{
-		LOG("主回调 START_READ_OR_WRITE_EVT 主机写数据给从机，一秒一次\r\n");
+		LOG("主回调 START_READ_OR_WRITE_EVT 主机读数据从从机，一秒一次\r\n");
 		// if(centralProcedureInProgress == FALSE)
 		{
 			// if(centralDoWrite)
@@ -378,7 +378,7 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 				// Do a read
 				attReadReq_t req;
 				req.handle = centralCharHdl;
-				// 调用后收到 ATT_READ_RSP 消息
+				// 调用后收到 GATT_MSG_EVENT 事件，ATT_READ_RSP 消息
 				if(GATT_ReadCharValue(centralConnHandle, &req, centralTaskId) == SUCCESS)
 				{
 					centralProcedureInProgress = TRUE;
@@ -404,7 +404,7 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 			if(req.pValue != NULL)
 			{
 				req.pValue[0] = 1;
-				req.pValue[1] = 0;	
+				req.pValue[1] = 0;
 				if(GATT_WriteCharValue(centralConnHandle, &req, centralTaskId) == SUCCESS)
 				{
 					centralProcedureInProgress = TRUE;
@@ -516,7 +516,11 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 		// 处于发送UUID查找功能的状态
 		// 期间会收到多个数据返回 根据 pMsg->hdr.status == bleProcedureComplete 判断数据接收完毕
 		attReadByTypeReq_t req;
-		if(centralDiscState == BLE_DISC_STATE_ALL_SVC)
+		if(pMsg->method == ATT_ERROR_RSP)
+		{
+			LOG("    Error response todo\r\n");
+		}
+		else if(centralDiscState == BLE_DISC_STATE_ALL_SVC)
 		{
 			LOG("    当前状态 BLE_DISC_STATE_ALL_SVC\r\n");
 			if(pMsg->method == ATT_READ_BY_GRP_TYPE_RSP)
@@ -527,6 +531,18 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 				if(numGrps >= 0)
 				{
 					BLE_UUID_DESC(l, numGrps);
+					for (uint16_t i = 0; i < numGrps; i++)
+					{
+						uint8_t* u = l + i * 6;
+						uint16_t startHandle = BUILD_UINT16(*(u+0), *(u+1));
+						uint16_t endHandle = BUILD_UINT16(*(u+2), *(u+3));
+						uint16_t uuid = BUILD_UINT16(*(u+4), *(u+5));
+						if(uuid == UUID_SRV_BTT)
+						{
+							centralSvcStartHdl = startHandle;
+							centralSvcEndHdl = endHandle;
+						}
+					}
 				}
 				else if(len != 6)
 				{
@@ -535,62 +551,40 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 				
 				if(pMsg->hdr.status == bleProcedureComplete)
 				{
-					centralDiscState = BLE_DISC_STATE_SVC;
-					LOG("    BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_SVC 状态\r\n");
-					uint8_t uuid[ATT_BT_UUID_SIZE] = {LO_UINT16(UUID_SRV_BTT), HI_UINT16(UUID_SRV_BTT)};
+					centralDiscState = BLE_DISC_STATE_CHAR_ALL;
+					LOG("    BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_CHAR_ALL 状态\r\n");
+					GATT_DiscAllChars(centralConnHandle, centralSvcStartHdl, centralSvcEndHdl, centralTaskId);
+					// centralDiscState = BLE_DISC_STATE_SVC;
+					// LOG("    BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_SVC 状态\r\n");
+					// uint8_t uuid[ATT_BT_UUID_SIZE] = {LO_UINT16(UUID_SRV_BTT), HI_UINT16(UUID_SRV_BTT)};
 					// uint8_t *uuid = &UUID_SRV_BTT;
 					// Initialize cached handles
-					centralSvcStartHdl = centralSvcEndHdl = centralCharHdl = 0;
-					GATT_DiscPrimaryServiceByUUID(centralConnHandle, uuid, ATT_BT_UUID_SIZE, centralTaskId);
+					// centralSvcStartHdl = centralSvcEndHdl = centralCharHdl = 0;
+					// GATT_DiscPrimaryServiceByUUID(centralConnHandle, uuid, ATT_BT_UUID_SIZE, centralTaskId);
 				}
-			}
-			else if(pMsg->method == ATT_ERROR_RSP)
-			{
-				LOG("    Error response todo\r\n");
-				// todo
-			}
-			else
-			{
-				LOG("    未知错误 todo\r\n");
 			}
 		}
-		else if(centralDiscState == BLE_DISC_STATE_SVC)
-		{
-			LOG("    当前状态 BLE_DISC_STATE_SVC\r\n");
-			if(pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP)
-			{
-				for (uint16_t i = 0; i < pMsg->msg.findByTypeValueRsp.numInfo; i++)
-				{
-					centralSvcStartHdl = ATT_ATTR_HANDLE(pMsg->msg.findByTypeValueRsp.pHandlesInfo, 0);
-					centralSvcEndHdl = ATT_GRP_END_HANDLE(pMsg->msg.findByTypeValueRsp.pHandlesInfo, 0);
-					LOG("    Found UUID 0x%04x Profile Service handle : %04x ~ %04x \r\n", 0, centralSvcStartHdl, centralSvcEndHdl);
-				}
-				if(pMsg->hdr.status == bleProcedureComplete)
-				{
-					centralDiscState = BLE_DISC_STATE_CHAR_ALL;
-					LOG("    BLE_DISC_STATE_SVC 结束. 进入 BLE_DISC_STATE_CHAR_ALL 状态\r\n");
-					// Discover characteristic
-					// req.startHandle = centralSvcStartHdl;
-					// req.endHandle = centralSvcEndHdl;
-					// req.type.len = ATT_BT_UUID_SIZE;
-					// req.type.uuid[0] = LO_UINT16(UUID_char_BTT);
-					// req.type.uuid[1] = HI_UINT16(UUID_char_BTT);
-					// GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
-					GATT_DiscAllChars(centralConnHandle, centralSvcStartHdl, centralSvcEndHdl, centralTaskId);
-					// 使用GATT_DiscAllChars函数或者蓝牙分析仪抓包获取到的noti/indi的handle值需要+1才可以使能成功，write/read没有这方面的限制。
-					// 使用GATT_ReadUsingCharUUID获取到的handle值直接使能填写使能就可以。
-				}
-			}
-			else if(pMsg->method == ATT_ERROR_RSP)
-			{
-				LOG("    Error response todo\r\n");
-				// todo
-			}
-			else
-			{
-				LOG("    未知错误 todo\r\n");
-			}
-		}
+		// else if(centralDiscState == BLE_DISC_STATE_SVC)
+		// {
+		// 	LOG("    当前状态 BLE_DISC_STATE_SVC\r\n");
+		// 	if(pMsg->method == ATT_FIND_BY_TYPE_VALUE_RSP)
+		// 	{
+		// 		for (uint16_t i = 0; i < pMsg->msg.findByTypeValueRsp.numInfo; i++)
+		// 		{
+		// 			centralSvcStartHdl = ATT_ATTR_HANDLE(pMsg->msg.findByTypeValueRsp.pHandlesInfo, 0);
+		// 			centralSvcEndHdl = ATT_GRP_END_HANDLE(pMsg->msg.findByTypeValueRsp.pHandlesInfo, 0);
+		// 			LOG("    Found UUID 0x%04x Profile Service handle : 0x%04x ~ 0x%04x \r\n", 0, centralSvcStartHdl, centralSvcEndHdl);
+		// 		}
+		// 		if(pMsg->hdr.status == bleProcedureComplete)
+		// 		{
+		// 			centralDiscState = BLE_DISC_STATE_CHAR_ALL;
+		// 			LOG("    BLE_DISC_STATE_SVC 结束. 进入 BLE_DISC_STATE_CHAR_ALL 状态\r\n");
+		// 			GATT_DiscAllChars(centralConnHandle, centralSvcStartHdl, centralSvcEndHdl, centralTaskId);
+		// 			// 使用GATT_DiscAllChars函数或者蓝牙分析仪抓包获取到的noti/indi的handle值需要+1才可以使能成功，write/read没有这方面的限制。
+		// 			// 使用GATT_ReadUsingCharUUID获取到的handle值直接使能填写使能就可以。
+		// 		}
+		// 	}
+		// }
 		else if(centralDiscState == BLE_DISC_STATE_CHAR_ALL)
 		{
 			LOG("    当前状态 BLE_DISC_STATE_CHAR_ALL\r\n");
@@ -610,42 +604,27 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 					uint16_t uuid = BUILD_UINT16(*(u+5), *(u+6));
 					uint8_t uuid_len = len - 5;
 					LOG("    DeclareHandle 0x%04X readWrite %d handle 0x%04X uuid 0x%04X\r\n", declareHandle, readWrite, handle, uuid);
+					
+					centralCharHdl = handle;
+					// 开启读写任务
+					LOG("    开启一个读写任务 handle 0x%04X\r\n", centralCharHdl);
+					tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
 				}
 			}
 			if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->hdr.status == bleProcedureComplete)
 			{
-				centralDiscState = BLE_DISC_STATE_CHAR;
-					LOG("    BLE_DISC_STATE_CHAR_ALL 结束. 进入 BLE_DISC_STATE_CHAR 状态\r\n");
-				// Discover characteristic
-				req.startHandle = centralSvcStartHdl;
-				req.endHandle = centralSvcEndHdl;
-				req.type.len = ATT_BT_UUID_SIZE;
-				req.type.uuid[0] = LO_UINT16(UUID_char_BTT);
-				req.type.uuid[1] = HI_UINT16(UUID_char_BTT);
-				GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
-			}
-			if(pMsg->method == ATT_ERROR_RSP)
-			{
-				LOG("    Error response todo\r\n");
-				// todo
-			}
-		}
-		else if(centralDiscState == BLE_DISC_STATE_CHAR)
-		{
-			LOG("    当前状态 BLE_DISC_STATE_CHAR\r\n");
-			if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->msg.readByTypeRsp.numPairs > 0)
-			{
-				centralCharHdl = BUILD_UINT16(pMsg->msg.readByTypeRsp.pDataList[0], pMsg->msg.readByTypeRsp.pDataList[1]);	
-				// 开启读写任务
-				tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);	
-				// Display Characteristic 1 handle
-				LOG("    Found Characteristic 1 handle : 0x%4x \r\n", centralCharHdl);
-			}
-			if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->hdr.status == bleProcedureComplete)
-			{
-				// 此处有问题 没有对error处理 todo
+				// centralDiscState = BLE_DISC_STATE_CHAR;
+				// LOG("    BLE_DISC_STATE_CHAR_ALL 结束. 进入 BLE_DISC_STATE_CHAR 状态\r\n");
+				// // Discover characteristic
+				// req.startHandle = centralSvcStartHdl;
+				// req.endHandle = centralSvcEndHdl;
+				// req.type.len = ATT_BT_UUID_SIZE;
+				// req.type.uuid[0] = LO_UINT16(UUID_char_BTT);
+				// req.type.uuid[1] = HI_UINT16(UUID_char_BTT);
+				// GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
+
 				centralDiscState = BLE_DISC_STATE_CCCD;
-				LOG("    BLE_DISC_STATE_CHAR 结束. 进入 BLE_DISC_STATE_CCCD 状态\r\n");
+				LOG("    BLE_DISC_STATE_CHAR_ALL 结束. 进入 BLE_DISC_STATE_CCCD 状态\r\n");
 				// 订阅通知：获取 CCCD 句柄
 				// Discover characteristic
 				req.startHandle = centralSvcStartHdl;
@@ -655,12 +634,34 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 				req.type.uuid[1] = HI_UINT16(GATT_CLIENT_CHAR_CFG_UUID);
 				GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
 			}
-			if(pMsg->method == ATT_ERROR_RSP)
-			{
-				LOG("    Error response todo\r\n");
-				// todo
-			}
 		}
+		// else if(centralDiscState == BLE_DISC_STATE_CHAR)
+		// {
+		// 	LOG("    当前状态 BLE_DISC_STATE_CHAR\r\n");
+		// 	if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->msg.readByTypeRsp.numPairs > 0)
+		// 	{
+		// 		// 此处没有循环 todo
+		// 		centralCharHdl = BUILD_UINT16(pMsg->msg.readByTypeRsp.pDataList[0], pMsg->msg.readByTypeRsp.pDataList[1]);	
+		// 		// 开启读写任务
+		// 		tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
+		// 		// Display Characteristic 1 handle
+		// 		LOG("    Found Characteristic 1 handle : 0x%04x \r\n", centralCharHdl);
+		// 	}
+		// 	if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->hdr.status == bleProcedureComplete)
+		// 	{
+		// 		// 此处有问题 没有对error处理 todo
+		// 		centralDiscState = BLE_DISC_STATE_CCCD;
+		// 		LOG("    BLE_DISC_STATE_CHAR 结束. 进入 BLE_DISC_STATE_CCCD 状态\r\n");
+		// 		// 订阅通知：获取 CCCD 句柄
+		// 		// Discover characteristic
+		// 		req.startHandle = centralSvcStartHdl;
+		// 		req.endHandle = centralSvcEndHdl;
+		// 		req.type.len = ATT_BT_UUID_SIZE;
+		// 		req.type.uuid[0] = LO_UINT16(GATT_CLIENT_CHAR_CFG_UUID);
+		// 		req.type.uuid[1] = HI_UINT16(GATT_CLIENT_CHAR_CFG_UUID);
+		// 		GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
+		// 	}
+		// }
 		else if(centralDiscState == BLE_DISC_STATE_CCCD)
 		{
 			LOG("    当前状态 BLE_DISC_STATE_CCCD\r\n");
@@ -670,11 +671,15 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 				centralProcedureInProgress = FALSE;
 				// Start do write CCCD
 				tmos_start_task(centralTaskId, START_WRITE_CCCD_EVT, DEFAULT_WRITE_CCCD_DELAY);
-				LOG("    Found client characteristic configuration handle : 0x%4X \r\n", centralCCCDHdl);
+				LOG("    Found client characteristic configuration handle : 0x%04X \r\n", centralCCCDHdl);
 			}
 			// 此处没有对 pMsg->hdr.status == bleProcedureComplete 的处理 todo
 			centralDiscState = BLE_DISC_STATE_IDLE;
 			LOG("    BLE_DISC_STATE_CCCD 结束. 进入 BLE_DISC_STATE_IDLE 状态\r\n");
+		}
+		else
+		{
+			LOG("    未知错误 todo\r\n");
 		}
 	}
 	GATT_bm_free(&pMsg->msg, pMsg->method);
@@ -754,15 +759,15 @@ static void gapCentralEventCB(gapRoleEvent_t *pEvent)
 				uint8_t eventType = pEvent->deviceInfo.eventType;
 				if(eventType == GAP_ADRPT_ADV_IND)	// 广播包
 				{
-					LOG("广播数据包");
-					Print_Memory(pEvent->deviceInfo.pEvtData, pEvent->deviceInfo.dataLen);
-					LOG("\r\n广播名称 %s", pEvent->deviceInfo.pEvtData);
+					LOG("广播数据包 ");
+					Print_Memory(pEvent->deviceInfo.pEvtData, pEvent->deviceInfo.dataLen, 1);
+					LOG("广播名称 %s\r\n", pEvent->deviceInfo.pEvtData);
 				}
-				else if(GAP_ADRPT_SCAN_RSP == 4)	// 扫描应答数据
+				else if(eventType == GAP_ADRPT_SCAN_RSP)	// 扫描应答数据
 				{
-					LOG("扫描应答包");
-					Print_Memory(pEvent->deviceInfo.pEvtData, pEvent->deviceInfo.dataLen);
-					LOG("\r\n广播名称 %s", pEvent->deviceInfo.pEvtData);
+					LOG("扫描应答包 ");
+					Print_Memory(pEvent->deviceInfo.pEvtData, pEvent->deviceInfo.dataLen, 1);
+					LOG("广播名称 %s\r\n", pEvent->deviceInfo.pEvtData);
 				}
 				centralAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo.addrType, pEvent->deviceInfo.rssi);
 			}

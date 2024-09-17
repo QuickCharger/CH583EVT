@@ -1,9 +1,11 @@
 #include "./inc/easy.h"
 
-void Print_Memory(uint8_t *p, uint16_t len) {
+void Print_Memory(uint8_t *p, uint16_t len, uint8_t rn) {
 	for (uint16_t i = 0; i < len; i++) {
 		PRINT("%02x ",*(p+i));
 	}
+	if(rn != 0)
+		PRINT("\r\n");
 }
 void DoPRINT(const char* file, int line, const char* date, const char* time, const char* func,  const char* format, ...)
 {
@@ -400,13 +402,13 @@ void BLE_GATT_MSG_DESC(gattMsgEvent_t *m)
 		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
 	} else if(m->method == ATT_READ_BY_TYPE_RSP) {
 		PRINT("GATT {method:%s, {numPairs %d, len:%d, pDataList:0x", BLE_Opcode2str(m->method), msg.readByTypeRsp.numPairs, msg.readByTypeRsp.len);
-		Print_Memory(msg.readByTypeRsp.pDataList, msg.readByTypeRsp.len * msg.readByTypeRsp.numPairs);
+		Print_Memory(msg.readByTypeRsp.pDataList, msg.readByTypeRsp.len * msg.readByTypeRsp.numPairs, 0);
 		PRINT("}}");
 	} else if(m->method == ATT_READ_REQ) {
 		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
 	} else if(m->method == ATT_READ_RSP) {
 		PRINT("GATT {method:%s, {len:%d, pDataList:0x", BLE_Opcode2str(m->method), m->msg.readRsp.len);
-		Print_Memory(m->msg.readRsp.pValue, m->msg.readRsp.len);
+		Print_Memory(m->msg.readRsp.pValue, m->msg.readRsp.len, 0);
 		PRINT("}}");
 	} else if(m->method == ATT_READ_BLOB_REQ) {
 		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
@@ -420,7 +422,7 @@ void BLE_GATT_MSG_DESC(gattMsgEvent_t *m)
 		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
 	} else if(m->method == ATT_READ_BY_GRP_TYPE_RSP) {
 		PRINT("GATT {method:%s, {numGrps:%d, len:%d, pDataList:0x", BLE_Opcode2str(m->method), msg.readByGrpTypeRsp.numGrps, msg.readByGrpTypeRsp.len);
-		Print_Memory(msg.readByGrpTypeRsp.pDataList, msg.readByGrpTypeRsp.len);
+		Print_Memory(msg.readByGrpTypeRsp.pDataList, msg.readByGrpTypeRsp.len, 0);
 		PRINT("}}");
 	} else if(m->method == ATT_WRITE_REQ) {
 		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));

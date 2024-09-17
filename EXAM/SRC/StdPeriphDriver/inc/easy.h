@@ -12,7 +12,7 @@ extern "C" {
 /**
  * ¥Ú”°
 */
-extern void Print_Memory(uint8_t *p, uint16_t len);
+extern void Print_Memory(uint8_t *p, uint16_t len, uint8_t rn);
 extern void DoPRINT(const char* file, int line, const char* date, const char* time, const char* func,  const char* format, ...);
 #define LOG(format, ...) DoPRINT(__FILE__, __LINE__, __DATE__, __TIME__, __func__, format, ##__VA_ARGS__)
 
