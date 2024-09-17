@@ -1,0 +1,136 @@
+CH58x_BLE_LIB_V2.10
+[Central_ProcessEvent:315] Ö÷»Øµ÷ START_DEVICE_EVT Éè±¸³õÊ¼»¯Íê³É
+[gapCentralEventCB   :740] ÊÂ¼ş GAP_DEVICE_INIT_DONE_EVENT ³õÊ¼»¯½áÊø ¿ªÊ¼Ì½²âÉè±¸
+[gapCentralEventCB   :751] ÊÂ¼ş GAP_DEVICE_INFO_EVENT ·¢ÏÖÉè±¸
+[gapCentralEventCB   :757] ¹ã²¥Êı¾İ°ü 02 01 04 03 19 c2 03 03 03 12 18 0f 09 4d 37 32 30 20 54 72 69 61 74 68 6c 6f 6e 
+[gapCentralEventCB   :759] ¹ã²¥Ãû³Æ ?	M720 Triathlon
+[centralAddDeviceInfo:1003]   ·¢ÏÖĞÂÉè±¸ ¼ÇÂ¼ MAC 4e-a1-86-52-e4-c3, RSSI -27 dBm
+[gapCentralEventCB   :751] ÊÂ¼ş GAP_DEVICE_INFO_EVENT ·¢ÏÖÉè±¸
+[gapCentralEventCB   :757] ¹ã²¥Êı¾İ°ü 02 01 05 03 19 c2 03 03 03 12 18 0f 09 4d 37 32 30 20 54 72 69 61 74 68 6c 6f 6e 
+[gapCentralEventCB   :759] ¹ã²¥Ãû³Æ ?	M720 Triathlon
+[centralAddDeviceInfo:1003]   ·¢ÏÖĞÂÉè±¸ ¼ÇÂ¼ MAC 51-a1-86-52-e4-c3, RSSI -31 dBm
+[gapCentralEventCB   :751] ÊÂ¼ş GAP_DEVICE_INFO_EVENT ·¢ÏÖÉè±¸
+[gapCentralEventCB   :763] É¨ÃèÓ¦´ğ°ü 02 0a 04 
+[gapCentralEventCB   :765] ¹ã²¥Ãû³Æ 
+
+[gapCentralEventCB   :774] ÊÂ¼ş GAP_DEVICE_DISCOVERY_EVENT Ì½²âÉè±¸ ½áÊø
+[gapCentralEventCB   :795]   ÕÒµ½Éè±¸ MAC 51-a1-86-52-e4-c3 ³¢ÊÔÁ¬½Ó
+[gapCentralEventCB   :809] ÊÂ¼ş GAP_LINK_ESTABLISHED_EVENT MAC 51-a1-86-52-e4-c3 Á¬½Ó³É¹¦
+[Central_ProcessEvent:296] Ö÷»Øµ÷ SYS_EVENT_MSG
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_EXCHANGE_MTU_RSP, {clientRxMTU:23}
+[gattCentralMsg      :482]   Negotiated MTU: 23
+[Central_ProcessEvent:328] Ö÷»Øµ÷ START_SVC_DISCOVERY_EVT ËÑË÷Ã¶¾Ù·şÎñÈÎÎñ ¿ªÊ¼
+[Central_ProcessEvent:296] Ö÷»Øµ÷ SYS_EVENT_MSG
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:3, len:6, pDataList:0x01 00 07 00 00 18 }}
+[gattCentralMsg      :548]     µ±Ç°×´Ì¬ BLE_DISC_STATE_ALL_SVC
+Service 1:
+  Handle: 0x0001 ~ 0x0007
+  UUID: 0x1800 UUID Service Í¨ÓÃ·ÃÎÊ
+Service 2:
+  Handle: 0x0008 ~ 0x000B
+  UUID: 0x1801 UUID Service Í¨ÓÃÊôĞÔ
+Service 3:
+  Handle: 0x000C ~ 0x001A
+  UUID: 0x180A UUID Service Éè±¸ĞÅÏ¢
+[Central_ProcessEvent:296] Ö÷»Øµ÷ SYS_EVENT_MSG
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:2, len:6, pDataList:0x1b 00 1d 00 0f 18 }}
+[gattCentralMsg      :548]     µ±Ç°×´Ì¬ BLE_DISC_STATE_ALL_SVC
+Service 1:
+  Handle: 0x001B ~ 0x001D
+  UUID: 0x180F UUID Service µç³ØÊı¾İ
+Service 2:
+  Handle: 0x001E ~ 0x003D
+  UUID: 0x1812 UUID Service HIDÉè±¸
+[Central_ProcessEvent:296] Ö÷»Øµ÷ SYS_EVENT_MSG
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:1, len:20, pDataList:0x3e 00 ff ff 6d 04 00 20 1f 01 00 80 00 10 00 00 00 00 01 00 }}
+[gattCentralMsg      :548]     µ±Ç°×´Ì¬ BLE_DISC_STATE_ALL_SVC
+Service 1:
+  Handle: 0x003E ~ 0xFFFF
+  UUID: 0x046D UUIDÎ´Öª 046d
+[Central_ProcessEvent:296] Ö÷»Øµ÷ SYS_EVENT_MSG
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:0, len:0, pDataList:0x}}
+[gattCentralMsg      :548]     µ±Ç°×´Ì¬ BLE_DISC_STATE_ALL_SVC
+[gattCentralMsg      :579]     BLE_DISC_STATE_ALL_SVC ½áÊø. ½øÈë BLE_DISC_STATE_CHAR_ALL ×´Ì¬
+[gapCentralRssiCB    :697] RSSI : -32 dB 
+[Central_ProcessEvent:296] Ö÷»Øµ÷ SYS_EVENT_MSG
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 3, len:7, pDataList:0x0d 00 02 0e 00 29 2a 0f 00 02 10 00 24 2a 11 00 02 12 00 25 2a }}
+[gattCentralMsg      :586]     µ±Ç°×´Ì¬ BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :602]     DeclareHandle 0x000D readWrite 0x02 handle 0x000E uuid 0x2A29 UUID Characteristic ÖÆÔìÉÌÃû³Æ×Ö·û
+[gattCentralMsg      :609]     push handle 0x000E
+[gattCentralMsg      :602]     DeclareHandle 0x000F readWrite 0x02 handle 0x0010 uuid 0x2A24 UUID Characteristic ĞÍºÅ×Ö·û
+[gattCentralMsg      :609]     push handle 0x0010
+[gattCentralMsg      :602]     DeclareHandle 0x0011 readWrite 0x02 handle 0x0012 uuid 0x2A25 UUID Characteristic ĞòÁĞºÅ×Ö·û
+[gattCentralMsg      :609]     push handle 0x0012
+[Central_ProcessEvent:296] Ö÷»Øµ÷ SYS_EVENT_MSG
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 3, len:7, pDataList:0x13 00 02 14 00 27 2a 15 00 02 16 00 26 2a 17 00 02 18 00 28 2a }}
+[gattCentralMsg      :586]     µ±Ç°×´Ì¬ BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :602]     DeclareHandle 0x0013 readWrite 0x02 handle 0x0014 uuid 0x2A27 UUID Characteristic Ó²¼şĞŞ¶©×Ö·û
+[gattCentralMsg      :609]     push handle 0x0014
+[gattCentralMsg      :602]     DeclareHandle 0x0015 readWrite 0x02 handle 0x0016 uuid 0x2A26 UUID Characteristic ¹Ì¼şĞŞ¶©×Ö·û
+[gattCentralMsg      :609]     push handle 0x0016
+[gattCentralMsg      :602]     DeclareHandle 0x0017 readWrite 0x02 handle 0x0018 uuid 0x2A28 UUID Characteristic Èí¼şĞŞ¶©°æ×Ö·û
+[gattCentralMsg      :609]     push handle 0x0018
+[Central_ProcessEvent:296] Ö÷»Øµ÷ SYS_EVENT_MSG
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 1, len:7, pDataList:0x19 00 02 1a 00 50 2a }}
+[gattCentralMsg      :586]     µ±Ç°×´Ì¬ BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :602]     DeclareHandle 0x0019 readWrite 0x02 handle 0x001A uuid 0x2A50 UUID Characteristic ¼´²å¼´ÓÃID
+[gattCentralMsg      :609]     push handle 0x001A
+[Central_ProcessEvent:338] Ö÷»Øµ÷ START_PARAM_UPDATE_EVT
+[Central_ProcessEvent:296] Ö÷»Øµ÷ SYS_EVENT_MSG
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 0, len:0, pDataList:0x}}
+[gattCentralMsg      :586]     µ±Ç°×´Ì¬ BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :638]     BLE_DISC_STATE_CHAR_ALL ½áÊø. ½øÈë BLE_DISC_STATE_IDLE ×´Ì¬
+[gattCentralMsg      :649]     ¿ªÆôÒ»¸ö¶ÁĞ´ÈÎÎñ handle
+[gapCentralEventCB   :871] ÊÂ¼ş GAP_LINK_PARAM_UPDATE_EVENT ¸üĞÂ³É¹¦
+[gapCentralRssiCB    :697] RSSI : -29 dB 
+[Central_ProcessEvent:356] Ö÷»Øµ÷ START_READ_OR_WRITE_EVT Ö÷»ú¶ÁÊı¾İ´Ó´Ó»ú£¬Ò»ÃëÒ»´Î
+[Central_ProcessEvent:386] 0x000E 0x0010 0x0012 0x0014 0x0016 0x0018 0x001A 0x0000 0x0000 0x0000 
+[Central_ProcessEvent:403]     ¿ªÆôÒ»¸ö¶ÁĞ´ÈÎÎñ handle 0x000E
+[Central_ProcessEvent:296] Ö÷»Øµ÷ SYS_EVENT_MSG
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_RSP, {len:8, pDataList:0x4c 6f 67 69 74 65 63 68 }} readRsp: "Logitech"
+[gattCentralMsg      :511]   ATT_READ_RSP Read rsp: 4c
+[Central_ProcessEvent:356] Ö÷»Øµ÷ START_READ_OR_WRITE_EVT Ö÷»ú¶ÁÊı¾İ´Ó´Ó»ú£¬Ò»ÃëÒ»´Î
+[Central_ProcessEvent:386] 0x0000 0x0010 0x0012 0x0014 0x0016 0x0018 0x001A 0x0000 0x0000 0x0000 
+[Central_ProcessEvent:403]     ¿ªÆôÒ»¸ö¶ÁĞ´ÈÎÎñ handle 0x0010
+[Central_ProcessEvent:296] Ö÷»Øµ÷ SYS_EVENT_MSG
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_RSP, {len:14, pDataList:0x4d 37 32 30 20 54 72 69 61 74 68 6c 6f 6e }} readRsp: "M720 Triathlon"
+[gattCentralMsg      :511]   ATT_READ_RSP Read rsp: 4d
+[gapCentralRssiCB    :697] RSSI : -31 dB 
+[Central_ProcessEvent:356] Ö÷»Øµ÷ START_READ_OR_WRITE_EVT Ö÷»ú¶ÁÊı¾İ´Ó´Ó»ú£¬Ò»ÃëÒ»´Î
+[Central_ProcessEvent:386] 0x0000 0x0000 0x0012 0x0014 0x0016 0x0018 0x001A 0x0000 0x0000 0x0000 
+[Central_ProcessEvent:403]     ¿ªÆôÒ»¸ö¶ÁĞ´ÈÎÎñ handle 0x0012
+[Central_ProcessEvent:296] Ö÷»Øµ÷ SYS_EVENT_MSG
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_RSP, {len:16, pDataList:0x34 41 31 35 46 39 45 42 37 33 46 32 39 46 44 38 }} readRsp: "4A15F9EB73F29FD8"
+[gattCentralMsg      :511]   ATT_READ_RSP Read rsp: 34
+[gapCentralEventCB   :871] ÊÂ¼ş GAP_LINK_PARAM_UPDATE_EVENT ¸üĞÂ³É¹¦
+[gapCentralRssiCB    :697] RSSI : -31 dB 
+[Central_ProcessEvent:356] Ö÷»Øµ÷ START_READ_OR_WRITE_EVT Ö÷»ú¶ÁÊı¾İ´Ó´Ó»ú£¬Ò»ÃëÒ»´Î
+[Central_ProcessEvent:386] 0x0000 0x0000 0x0000 0x0014 0x0016 0x0018 0x001A 0x0000 0x0000 0x0000 
+[Central_ProcessEvent:403]     ¿ªÆôÒ»¸ö¶ÁĞ´ÈÎÎñ handle 0x0014
+[Central_ProcessEvent:296] Ö÷»Øµ÷ SYS_EVENT_MSG
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_RSP, {len:3, pDataList:0x31 2e 30 }} readRsp: "1.0"
+[gattCentralMsg      :511]   ATT_READ_RSP Read rsp: 31
+[Central_ProcessEvent:356] Ö÷»Øµ÷ START_READ_OR_WRITE_EVT Ö÷»ú¶ÁÊı¾İ´Ó´Ó»ú£¬Ò»ÃëÒ»´Î
+[Central_ProcessEvent:386] 0x0000 0x0000 0x0000 0x0000 0x0016 0x0018 0x001A 0x0000 0x0000 0x0000 
+[Central_ProcessEvent:403]     ¿ªÆôÒ»¸ö¶ÁĞ´ÈÎÎñ handle 0x0016
+[gapCentralRssiCB    :697] RSSI : -32 dB 
+[Central_ProcessEvent:296] Ö÷»Øµ÷ SYS_EVENT_MSG
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_RSP, {len:13, pDataList:0x4d 50 4d 30 34 2e 31 30 5f 30 30 31 33 }} readRsp: "MPM04.10_0013"
+[gattCentralMsg      :511]   ATT_READ_RSP Read rsp: 4d
+[Central_ProcessEvent:356] Ö÷»Øµ÷ START_READ_OR_WRITE_EVT Ö÷»ú¶ÁÊı¾İ´Ó´Ó»ú£¬Ò»ÃëÒ»´Î
+[Central_ProcessEvent:386] 0x0000 0x0000 0x0000 0x0000 0x0000 0x0018 0x001A 0x0000 0x0000 0x0000 
+[Central_ProcessEvent:403]     ¿ªÆôÒ»¸ö¶ÁĞ´ÈÎÎñ handle 0x0018
+[Central_ProcessEvent:296] Ö÷»Øµ÷ SYS_EVENT_MSG
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_RSP, {len:10, pDataList:0x30 30 35 39 30 37 30 30 35 41 }} readRsp: "005907005A"
+[gattCentralMsg      :511]   ATT_READ_RSP Read rsp: 30
+[gapCentralRssiCB    :697] RSSI : -32 dB 
+[Central_ProcessEvent:356] Ö÷»Øµ÷ START_READ_OR_WRITE_EVT Ö÷»ú¶ÁÊı¾İ´Ó´Ó»ú£¬Ò»ÃëÒ»´Î
+[Central_ProcessEvent:386] 0x0000 0x0000 0x0000 0x0000 0x0000 0x0000 0x001A 0x0000 0x0000 0x0000 
+[Central_ProcessEvent:403]     ¿ªÆôÒ»¸ö¶ÁĞ´ÈÎÎñ handle 0x001A
+[Central_ProcessEvent:296] Ö÷»Øµ÷ SYS_EVENT_MSG
+GATT ÏûÏ¢×ÜÌåÃèÊö. GATT {method:ATT_READ_RSP, {len:7, pDataList:0x02 6d 04 15 b0 13 00 }} readRsp: "m?"
+[gattCentralMsg      :511]   ATT_READ_RSP Read rsp: 2
+[Central_ProcessEvent:356] Ö÷»Øµ÷ START_READ_OR_WRITE_EVT Ö÷»ú¶ÁÊı¾İ´Ó´Ó»ú£¬Ò»ÃëÒ»´Î
+[Central_ProcessEvent:386] 0x0000 0x0000 0x0000 0x0000 0x0000 0x0000 0x0000 0x0000 0x0000 0x0000 
+[gapCentralRssiCB    :697] RSSI : -30 dB 
+[gapCentralRssiCB    :697] RSSI : -31 dB 
