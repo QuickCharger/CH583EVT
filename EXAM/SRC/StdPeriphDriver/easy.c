@@ -409,7 +409,10 @@ void BLE_GATT_MSG_DESC(gattMsgEvent_t *m)
 	} else if(m->method == ATT_READ_RSP) {
 		PRINT("GATT {method:%s, {len:%d, pDataList:0x", BLE_Opcode2str(m->method), m->msg.readRsp.len);
 		Print_Memory(m->msg.readRsp.pValue, m->msg.readRsp.len, 0);
-		PRINT("}}");
+		PRINT("}} readRsp: \"");
+		for(int i = 0; i < m->msg.readRsp.len; ++i)
+			PRINT("%c", *(m->msg.readRsp.pValue + i));
+		PRINT("\"");
 	} else if(m->method == ATT_READ_BLOB_REQ) {
 		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
 	} else if(m->method == ATT_READ_BLOB_RSP) {
@@ -452,16 +455,11 @@ void BLE_UUID_DESC(uint8_t *pDataList, uint16_t numGrps)
 	for (uint16_t i = 0; i < numGrps; i++)
 	{
 		uint8_t* u = pDataList + i * 6;
-		// 解析属性句柄
-		uint16_t handle = BUILD_UINT16(*(u+0), *(u+1));
-		// 解析结束组句柄
-		uint16_t endGroupHandle = BUILD_UINT16(*(u+2), *(u+3));
-		// 解析 UUID
+		uint16_t startHandle = BUILD_UINT16(*(u+0), *(u+1));
+		uint16_t endHandle = BUILD_UINT16(*(u+2), *(u+3));
 		uint16_t uuid = BUILD_UINT16(*(u+4), *(u+5));
-		// 输出解析结果
 		PRINT("Service %d:\r\n", i + 1);
-		PRINT("  Handle: 0x%04X\r\n", handle);
-		PRINT("  End Group Handle: 0x%04X\r\n", endGroupHandle);
+		PRINT("  Handle: 0x%04X ~ 0x%04X\r\n", startHandle, endHandle);
 		PRINT("  UUID: 0x%04X %s\r\n", uuid, BLE_UUID2str(uuid));
 	}
 }
