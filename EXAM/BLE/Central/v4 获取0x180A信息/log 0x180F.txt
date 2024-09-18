@@ -1,0 +1,76 @@
+CH58x_BLE_LIB_V2.10
+[Central_ProcessEvent:315] 主回调 START_DEVICE_EVT 设备初始化完成
+[gapCentralEventCB   :740] 事件 GAP_DEVICE_INIT_DONE_EVENT 初始化结束 开始探测设备
+[gapCentralEventCB   :751] 事件 GAP_DEVICE_INFO_EVENT 发现设备
+[gapCentralEventCB   :759] 扫描广播包 02 01 05 03 19 c2 03 03 03 12 18 0f 09 4d 37 32 30 20 54 72 69 61 74 68 6c 6f 6e 
+[gapCentralEventCB   :779] 未知数据类型 key 0x01 value 05 
+[gapCentralEventCB   :779] 未知数据类型 key 0x19 value c2 03 
+[gapCentralEventCB   :775] UUID 0x1812
+[gapCentralEventCB   :771] 设备名称 "M720 Triathlon"
+[centralAddDeviceInfo:1027]   发现新设备 记录 MAC 51-a1-86-52-e4-c3, RSSI -34 dBm
+[gapCentralEventCB   :751] 事件 GAP_DEVICE_INFO_EVENT 发现设备
+[gapCentralEventCB   :787] 扫描应答包 02 0a 04 
+[gapCentralEventCB   :789] 广播名称 
+
+[gapCentralEventCB   :798] 事件 GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
+[gapCentralEventCB   :819]   找到设备 MAC 51-a1-86-52-e4-c3 尝试连接
+[gapCentralEventCB   :833] 事件 GAP_LINK_ESTABLISHED_EVENT MAC 51-a1-86-52-e4-c3 连接成功
+[Central_ProcessEvent:296] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_EXCHANGE_MTU_RSP, {clientRxMTU:23}
+[gattCentralMsg      :482]   Negotiated MTU: 23
+[Central_ProcessEvent:328] 主回调 START_SVC_DISCOVERY_EVT 搜索枚举服务任务 开始
+[Central_ProcessEvent:296] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:3, len:6, pDataList:0x01 00 07 00 00 18 }}
+[gattCentralMsg      :548]     当前状态 BLE_DISC_STATE_ALL_SVC
+Service 1:
+  Handle: 0x0001 ~ 0x0007
+  UUID: 0x1800 UUID Service 通用访问
+Service 2:
+  Handle: 0x0008 ~ 0x000B
+  UUID: 0x1801 UUID Service 通用属性
+Service 3:
+  Handle: 0x000C ~ 0x001A
+  UUID: 0x180A UUID Service 设备信息
+[Central_ProcessEvent:296] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:2, len:6, pDataList:0x1b 00 1d 00 0f 18 }}
+[gattCentralMsg      :548]     当前状态 BLE_DISC_STATE_ALL_SVC
+Service 1:
+  Handle: 0x001B ~ 0x001D
+  UUID: 0x180F UUID Service 电池数据
+Service 2:
+  Handle: 0x001E ~ 0x003D
+  UUID: 0x1812 UUID Service HID设备
+[Central_ProcessEvent:296] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:1, len:20, pDataList:0x3e 00 ff ff 6d 04 00 20 1f 01 00 80 00 10 00 00 00 00 01 00 }}
+[gattCentralMsg      :548]     当前状态 BLE_DISC_STATE_ALL_SVC
+Service 1:
+  Handle: 0x003E ~ 0xFFFF
+  UUID: 0x046D UUID未知 046d
+[Central_ProcessEvent:296] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_READ_BY_GRP_TYPE_RSP, {numGrps:0, len:0, pDataList:0x}}
+[gattCentralMsg      :548]     当前状态 BLE_DISC_STATE_ALL_SVC
+[gattCentralMsg      :579]     BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_CHAR_ALL 状态
+[gapCentralRssiCB    :697] RSSI : -36 dB 
+[Central_ProcessEvent:296] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 1, len:7, pDataList:0x1c 00 02 1d 00 19 2a }}
+[gattCentralMsg      :586]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :602]     DeclareHandle 0x001C readWrite 0x02 handle 0x001D uuid 0x2A19 UUID Characteristic 电池电量
+[gattCentralMsg      :609]     push handle 0x001D
+[Central_ProcessEvent:296] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_READ_BY_TYPE_RSP, {numPairs 0, len:0, pDataList:0x}}
+[gattCentralMsg      :586]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :638]     BLE_DISC_STATE_CHAR_ALL 结束. 进入 BLE_DISC_STATE_IDLE 状态
+[gattCentralMsg      :649]     开启一个读写任务 handle
+[Central_ProcessEvent:338] 主回调 START_PARAM_UPDATE_EVT
+[Central_ProcessEvent:356] 主回调 START_READ_OR_WRITE_EVT 主机读数据从从机，一秒一次
+[Central_ProcessEvent:403]     开启一个读写任务 handle 0x001D
+[gapCentralEventCB   :895] 事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功
+[Central_ProcessEvent:296] 主回调 SYS_EVENT_MSG
+GATT 消息总体描述. GATT {method:ATT_READ_RSP, {len:1, pDataList:0x64 }} readRsp: "d"
+[gattCentralMsg      :511]   ATT_READ_RSP Read rsp: 64
+[gapCentralRssiCB    :697] RSSI : -37 dB 
+[Central_ProcessEvent:356] 主回调 START_READ_OR_WRITE_EVT 主机读数据从从机，一秒一次
+[gapCentralRssiCB    :697] RSSI : -35 dB 
+[gapCentralEventCB   :895] 事件 GAP_LINK_PARAM_UPDATE_EVENT 更新成功
+[gapCentralRssiCB    :697] RSSI : -34 dB 
+[gapCentralRssiCB    :697] RSSI : -37 dB 
