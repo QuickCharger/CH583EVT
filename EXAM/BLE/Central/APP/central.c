@@ -758,7 +758,7 @@ static void gapCentralEventCB(gapRoleEvent_t *pEvent)
 				{
 					LOG("扫描广播包 ");
 					Print_Memory(p, l, 1);
-					for(uint8_t i = 0; i < l; ++i)
+					for(uint8_t i = 0; i < l; i)
 					{
 						uint8_t siz = p[i];
 						uint8_t type = p[i+1];
@@ -766,19 +766,20 @@ static void gapCentralEventCB(gapRoleEvent_t *pEvent)
 						if(type == GAP_ADTYPE_LOCAL_NAME_COMPLETE)
 						{
 							uint8_t v[siz];
-							memset(v, 0, siz);
-							memcpy(pVal, v, siz - 1);
+							memcpy(v, pVal, siz - 1);
+							v[siz] = '\0';
 							LOG("设备名称 \"%s\"\r\n", v);
 						}
 						else if(type == GAP_ADTYPE_16BIT_COMPLETE)
 						{
-							LOG("UUID 0x%04X", BUILD_UINT16(*(pVal+0), *(pVal+1)));
+							LOG("UUID 0x%04X\r\n", BUILD_UINT16(*(pVal+0), *(pVal+1)));
 						}
 						else
 						{
-							LOG("未知数据类型 key 0x%02X value ");
+							LOG("未知数据类型 key 0x%02X value ", type);
 							Print_Memory(pVal, siz - 1, 1);
 						}
+						i += 1 + siz;
 					}
 				}
 				else if(eventType == GAP_ADRPT_SCAN_RSP)	// 扫描应答数据

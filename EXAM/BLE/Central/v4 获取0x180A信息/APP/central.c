@@ -752,11 +752,35 @@ static void gapCentralEventCB(gapRoleEvent_t *pEvent)
 				int8_t rssi = pEvent->deviceInfo.rssi;
 				uint8_t addrType =  pEvent->deviceInfo.addrType;
 				uint8_t eventType = pEvent->deviceInfo.eventType;
+				uint8_t *p = pEvent->deviceInfo.pEvtData;
+				uint8_t l = pEvent->deviceInfo.dataLen;
 				if(eventType == GAP_ADRPT_ADV_IND)	// 广播包
 				{
-					LOG("广播数据包 ");
-					Print_Memory(pEvent->deviceInfo.pEvtData, pEvent->deviceInfo.dataLen, 1);
-					LOG("广播名称 %s\r\n", pEvent->deviceInfo.pEvtData);
+					LOG("扫描广播包 ");
+					Print_Memory(p, l, 1);
+					for(uint8_t i = 0; i < l; i)
+					{
+						uint8_t siz = p[i];
+						uint8_t type = p[i+1];
+						uint8_t* pVal = p + i + 2;
+						if(type == GAP_ADTYPE_LOCAL_NAME_COMPLETE)
+						{
+							uint8_t v[siz];
+							memcpy(v, pVal, siz - 1);
+							v[siz] = '\0';
+							LOG("设备名称 \"%s\"\r\n", v);
+						}
+						else if(type == GAP_ADTYPE_16BIT_COMPLETE)
+						{
+							LOG("UUID 0x%04X\r\n", BUILD_UINT16(*(pVal+0), *(pVal+1)));
+						}
+						else
+						{
+							LOG("未知数据类型 key 0x%02X value ", type);
+							Print_Memory(pVal, siz - 1, 1);
+						}
+						i += 1 + siz;
+					}
 				}
 				else if(eventType == GAP_ADRPT_SCAN_RSP)	// 扫描应答数据
 				{
