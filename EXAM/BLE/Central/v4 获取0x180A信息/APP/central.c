@@ -136,6 +136,19 @@ enum
  *  GATT_ReadUsingCharUUID			ATT_READ_BY_TYPE_RSP
  *  GATT_ReadUsingCharUUID			ATT_READ_BY_TYPE_RSP
 */
+
+/**
+ * BLE的属性类型是有限的，有四个大类：
+ * Primary Service（首要服务项）
+ * Secondary Service（次要服务项）
+ * Include（包含服务项）
+ * Characteristic（特征值）
+ * 0x1800 – 0x26FF ：服务项类型
+ * 0x2700 – 0x27FF ：单位
+ * 0x2800 – 0x28FF ：属性类型
+ * 0x2900 – 0x29FF ：描述符类型
+ * 0x2A00 – 0x7FFF ：特征值类型
+*/
 uint16_t UUID_SRV_INFO = 0x180A;	// 设备信息
 uint16_t UUID_SRV_HID = 0x1812;		// HID设备
 uint16_t UUID_SRV_BTT = 0x180F;		// 电池数据
@@ -561,7 +574,7 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 						uint16_t endHandle = BUILD_UINT16(*(u+2), *(u+3));
 						uint16_t uuid = BUILD_UINT16(*(u+4), *(u+5));
 						// if(uuid == UUID_SRV_BTT)
-						if(uuid == 0x180A)
+						if(uuid == UUID_SRV_INFO)
 						{
 							centralSvcStartHdl = startHandle;
 							centralSvcEndHdl = endHandle;
@@ -619,7 +632,7 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 					// if(uuid == 0x2A27)	// GATT 消息总体描述. GATT {method:ATT_READ_RSP, {len:17, pDataList:0x48 61 72 64 77 61 72 65 20 52 65 76 69 73 69 6f 6e }} readRsp: "Hardware Revision"
 					// if(uuid == 0x2A28)	// GATT 消息总体描述. GATT {method:ATT_READ_RSP, {len:17, pDataList:0x53 6f 66 74 77 61 72 65 20 52 65 76 69 73 69 6f 6e }} readRsp: "Software Revision"
 					// if(uuid == 0x2A29)	// GATT 消息总体描述. GATT {method:ATT_READ_RSP, {len:17, pDataList:0x4d 61 6e 75 66 61 63 74 75 72 65 72 20 4e 61 6d 65 }} readRsp: "Manufacturer Name"
-					// if(uuid == 0x2A2A)	// GATT 消息总体描述. GATT {method:ATT_READ_RSP, {len:14, pDataList:0xfe 00 65 78 70 65 72 69 6d 65 6e 74 61 6c }} readRsp: "xperimental"
+					// if(uuid == 0x2A2A)	// GATT 消息总体描述. GATT {method:ATT_READ_RSP, {len:14, pDataList:0xfe 00 65 78 70 65 72 69 6d 65 6e 74 61 6c }} readRsp: "xperimental"
 					// if(uuid == 0x2A50)	// GATT 消息总体描述. GATT {method:ATT_READ_RSP, {len:7, pDataList:0x01 d7 07 00 00 10 01 }} readRsp: "乱码"
 
 					// 0x1812
