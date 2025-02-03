@@ -834,7 +834,7 @@ extern const uint8_t VER_LIB[];  // LIB version
 #define TGAP_AUTH_TASK_ID                       24  //!< Task ID override for Task Authentication control (for stack internal use only)
 
 // v5.x
-#define TGAP_ADV_TX_POWER                       25  //!< Indicates the maximum power level Range: -127 鈮� N 鈮� +126 Units: dBm.Default 127(Host has no preference).
+#define TGAP_ADV_TX_POWER                       25  //!< Indicates the maximum power level Range: -127 鈮?1?7 N 鈮?1?7 +126 Units: dBm.Default 127(Host has no preference).
 #define TGAP_ADV_PRIMARY_PHY                    26  //!< Indicates the PHY on which the advertising packets are transmitted on the primary advertising channel.LE 1M/LE Coded.Default GAP_PHY_VAL_LE_1M.
 #define TGAP_ADV_SECONDARY_PHY                  27  //!< LE 1M/LE 2M/LE Coded. Default GAP_PHY_VAL_LE_1M.
 #define TGAP_ADV_SECONDARY_MAX_SKIP             28  //!< Maximum advertising events the Controller can skip before sending the AUX_ADV_IND packets on the secondary advertising channel. Default 0.
@@ -2589,40 +2589,40 @@ typedef struct tag_rf_config
 /**
  * GATT Services
  */
-extern const uint8_t gapServiceUUID[];
-extern const uint8_t gattServiceUUID[];
+extern const uint8_t gapServiceUUID[];		// 0x1800 GAP 服务
+extern const uint8_t gattServiceUUID[];		// 0x1801 GATT 服务
 
 /**
  * GATT Attribute Types
  */
-extern const uint8_t primaryServiceUUID[];
-extern const uint8_t secondaryServiceUUID[];
-extern const uint8_t includeUUID[];
-extern const uint8_t characterUUID[];
+extern const uint8_t primaryServiceUUID[];		// 0x2800 主要服务
+extern const uint8_t secondaryServiceUUID[];	// 0x2801 次要服务
+extern const uint8_t includeUUID[];				// 0x2802 包含
+extern const uint8_t characterUUID[];			// 0x2803 特征
 
 /**
  * GATT Characteristic Descriptors
  */
-extern const uint8_t charExtPropsUUID[];
-extern const uint8_t charUserDescUUID[];
-extern const uint8_t clientCharCfgUUID[];
-extern const uint8_t servCharCfgUUID[];
-extern const uint8_t charFormatUUID[];
-extern const uint8_t charAggFormatUUID[];
-extern const uint8_t validRangeUUID[];
-extern const uint8_t extReportRefUUID[];
-extern const uint8_t reportRefUUID[];
+extern const uint8_t charExtPropsUUID[];	// 0x2900 扩展属性
+extern const uint8_t charUserDescUUID[];	// 0x2901 用户描述			用户可读的文字描述
+extern const uint8_t clientCharCfgUUID[];	// 0x2902 客户端特征配置	CCCD
+extern const uint8_t servCharCfgUUID[];		// 0x2903 服务特征配置		服务端设备通过一个标志参数，设置该特征值是否在广播中发出。如果该标志参数为0x0001，则广播消息中应该包含该特征值；如果该标志参数为0x0000，则广播消息中不包含该特征值。
+extern const uint8_t charFormatUUID[];		// 0x2904 特征格式			用于提供特征值的数据格式。可选的数据类型包括：Boolean、1/4字节、1/2字节、1字节、2字节、3字节、4字节、8字节、16字节、带符号整数、无符号整数、浮点数、字符串、结构体等。还可以指定数据的指数、单位、名字空间、描述信息等
+extern const uint8_t charAggFormatUUID[];	// 0x2905 聚合格式
+extern const uint8_t validRangeUUID[];		// 0x2906 有效范围
+extern const uint8_t extReportRefUUID[];	// 0x2908 扩展报告引用
+extern const uint8_t reportRefUUID[];		// 0x2908 报告引用
 
 /**
  * GATT Characteristic Types
  */
-extern const uint8_t deviceNameUUID[];
-extern const uint8_t appearanceUUID[];
-extern const uint8_t periPrivacyFlagUUID[];
-extern const uint8_t reconnectAddrUUID[];
-extern const uint8_t periConnParamUUID[];
-extern const uint8_t serviceChangedUUID[];
-extern const uint8_t centAddrResUUID[];
+extern const uint8_t deviceNameUUID[];		// 0x2A00 设备名称
+extern const uint8_t appearanceUUID[];		// 0x2A01 外观
+extern const uint8_t periPrivacyFlagUUID[];	// 0x2A02 外设隐私标志
+extern const uint8_t reconnectAddrUUID[];	// 0x2A03 重连地址
+extern const uint8_t periConnParamUUID[];	// 0x2A04 外设连接参数
+extern const uint8_t serviceChangedUUID[];	// 0x2A05 服务变更
+extern const uint8_t centAddrResUUID[];		// 0x2AA6 中心地址解析
 
 /*******************************************************************************
  * PUBLIC FUNCTIONS
