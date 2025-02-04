@@ -92,7 +92,7 @@ static const gattAttrType_t devInfoService = {ATT_BT_UUID_SIZE, devInfoServUUID}
 
 // System ID characteristic
 static uint8_t devInfoSystemIdProps = GATT_PROP_READ;
-static uint8_t devInfoSystemId[DEVINFO_SYSTEM_ID_LEN] = {0, 0, 0, 0, 0, 0, 0, 0};
+static uint8_t devInfoSystemId[DEVINFO_SYSTEM_ID_LEN] = {'a','b','c','d','e','f','g','h'};
 
 // Model Number String characteristic
 static uint8_t       devInfoModelNumberProps = GATT_PROP_READ;
@@ -157,7 +157,7 @@ static gattAttribute_t devInfoAttrTbl[] = {
 
     // System ID Value
     {
-        {ATT_BT_UUID_SIZE, devInfoSystemIdUUID},
+        {ATT_BT_UUID_SIZE, devInfoSystemIdUUID},	// 0x2a23
         GATT_PERMIT_READ,
         0,
         (uint8_t *)devInfoSystemId},
@@ -171,7 +171,7 @@ static gattAttribute_t devInfoAttrTbl[] = {
 
     // Model Number Value
     {
-        {ATT_BT_UUID_SIZE, devInfoModelNumberUUID},
+        {ATT_BT_UUID_SIZE, devInfoModelNumberUUID},	// 0x2a24
         GATT_PERMIT_READ,
         0,
         (uint8_t *)devInfoModelNumber},
@@ -185,7 +185,7 @@ static gattAttribute_t devInfoAttrTbl[] = {
 
     // Serial Number Value
     {
-        {ATT_BT_UUID_SIZE, devInfoSerialNumberUUID},
+        {ATT_BT_UUID_SIZE, devInfoSerialNumberUUID},	// 0x2a25
         GATT_PERMIT_READ,
         0,
         (uint8_t *)devInfoSerialNumber},
@@ -199,7 +199,7 @@ static gattAttribute_t devInfoAttrTbl[] = {
 
     // Firmware Revision Value
     {
-        {ATT_BT_UUID_SIZE, devInfoFirmwareRevUUID},
+        {ATT_BT_UUID_SIZE, devInfoFirmwareRevUUID},	// 0x2a26
         GATT_PERMIT_READ,
         0,
         (uint8_t *)devInfoFirmwareRev},
@@ -213,7 +213,7 @@ static gattAttribute_t devInfoAttrTbl[] = {
 
     // Hardware Revision Value
     {
-        {ATT_BT_UUID_SIZE, devInfoHardwareRevUUID},
+        {ATT_BT_UUID_SIZE, devInfoHardwareRevUUID},	// 0x2a27
         GATT_PERMIT_READ,
         0,
         (uint8_t *)devInfoHardwareRev},
@@ -227,7 +227,7 @@ static gattAttribute_t devInfoAttrTbl[] = {
 
     // Software Revision Value
     {
-        {ATT_BT_UUID_SIZE, devInfoSoftwareRevUUID},
+        {ATT_BT_UUID_SIZE, devInfoSoftwareRevUUID},	// 0x2a28
         GATT_PERMIT_READ,
         0,
         (uint8_t *)devInfoSoftwareRev},
@@ -241,7 +241,7 @@ static gattAttribute_t devInfoAttrTbl[] = {
 
     // Manufacturer Name Value
     {
-        {ATT_BT_UUID_SIZE, devInfoMfrNameUUID},
+        {ATT_BT_UUID_SIZE, devInfoMfrNameUUID},	// 0x2a29
         GATT_PERMIT_READ,
         0,
         (uint8_t *)devInfoMfrName},
@@ -255,7 +255,7 @@ static gattAttribute_t devInfoAttrTbl[] = {
 
     // IEEE 11073-20601 Regulatory Certification Data List Value
     {
-        {ATT_BT_UUID_SIZE, devInfo11073CertUUID},
+        {ATT_BT_UUID_SIZE, devInfo11073CertUUID},	// 0x2a2a
         GATT_PERMIT_READ,
         0,
         (uint8_t *)devInfo11073Cert},
@@ -269,7 +269,7 @@ static gattAttribute_t devInfoAttrTbl[] = {
 
     // PnP ID Value
     {
-        {ATT_BT_UUID_SIZE, devInfoPnpIdUUID},
+        {ATT_BT_UUID_SIZE, devInfoPnpIdUUID},	// 0x2a50
         GATT_PERMIT_READ,
         0,
         (uint8_t *)devInfoPnpId}

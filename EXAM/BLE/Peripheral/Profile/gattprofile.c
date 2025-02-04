@@ -154,7 +154,7 @@ static gattAttribute_t simpleProfileAttrTbl[] = {
 
     // Characteristic Value 1
     {
-        {ATT_BT_UUID_SIZE, simpleProfilechar1UUID},
+        {ATT_BT_UUID_SIZE, simpleProfilechar1UUID},	// 0xFFE1
         GATT_PERMIT_READ | GATT_PERMIT_WRITE,
         0,
         simpleProfileChar1},
@@ -175,7 +175,7 @@ static gattAttribute_t simpleProfileAttrTbl[] = {
 
     // Characteristic Value 2
     {
-        {ATT_BT_UUID_SIZE, simpleProfilechar2UUID},
+        {ATT_BT_UUID_SIZE, simpleProfilechar2UUID},	// 0xFFE2
         GATT_PERMIT_READ,
         0,
         simpleProfileChar2},
@@ -196,7 +196,7 @@ static gattAttribute_t simpleProfileAttrTbl[] = {
 
     // Characteristic Value 3
     {
-        {ATT_BT_UUID_SIZE, simpleProfilechar3UUID},
+        {ATT_BT_UUID_SIZE, simpleProfilechar3UUID},	// 0xFFE3
         GATT_PERMIT_WRITE,
         0,
         simpleProfileChar3},
@@ -217,7 +217,7 @@ static gattAttribute_t simpleProfileAttrTbl[] = {
 
     // Characteristic Value 4
     {
-        {ATT_BT_UUID_SIZE, simpleProfilechar4UUID},
+        {ATT_BT_UUID_SIZE, simpleProfilechar4UUID},	// 0xFFE4
         0,
         0,
         simpleProfileChar4},
@@ -245,7 +245,7 @@ static gattAttribute_t simpleProfileAttrTbl[] = {
 
     // Characteristic Value 5
     {
-        {ATT_BT_UUID_SIZE, simpleProfilechar5UUID},
+        {ATT_BT_UUID_SIZE, simpleProfilechar5UUID},	// 0xFFE5
         GATT_PERMIT_AUTHEN_READ,
         0,
         simpleProfileChar5},
