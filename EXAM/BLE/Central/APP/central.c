@@ -82,13 +82,13 @@
 #define DEFAULT_PAIRING_MODE                GAPBOND_PAIRING_MODE_WAIT_FOR_REQ
 
 // Default MITM mode (TRUE to require passcode or OOB when pairing)
-#define DEFAULT_MITM_MODE                   TRUE
+#define DEFAULT_MITM_MODE                   FALSE
 
 // Default bonding mode, TRUE to bond, max bonding 6 devices
 #define DEFAULT_BONDING_MODE                TRUE
 
 // Default GAP bonding I/O capabilities
-#define DEFAULT_IO_CAPABILITIES             GAPBOND_IO_CAP_NO_INPUT_NO_OUTPUT
+#define DEFAULT_IO_CAPABILITIES             GAPBOND_IO_CAP_KEYBOARD_DISPLAY
 
 // Default service discovery timer delay in 0.625ms
 #define DEFAULT_SVC_DISCOVERY_DELAY         1600
@@ -217,8 +217,6 @@ static uint8_t centralDoWrite = TRUE;
 // 忙
 static uint8_t 	centralProcedureInProgress = FALSE;
 
-static uint16_t jobHandle[10] = {0};
-uint8_t curHandle = 0;
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
@@ -387,6 +385,36 @@ void clearPeerDev(gapDevRec_t* peerDev)
 {
 	memset(peerDev, 0, sizeof(gapDevRec_t));
 }
+
+#define MAX_READ_HANDLE 20
+static uint16_t lReadHandle[MAX_READ_HANDLE] = {0};
+
+void addReadHandle(uint16_t handle)
+{
+	for(uint8_t i = 0; i < MAX_READ_HANDLE; ++i)
+	{
+		if(lReadHandle[i] == 0)
+		{
+			lReadHandle[i] = handle;
+			break;
+		}
+	}
+}
+
+uint16_t getReadHandle(uint8_t remove)
+{
+	for(uint8_t i = 0; i < MAX_READ_HANDLE; ++i)
+	{
+		if(lReadHandle[i] != 0)
+		{
+			uint16_t hdl = lReadHandle[i];
+			if(remove > 0)
+				lReadHandle[i] = 0;
+			return hdl;
+		}
+	}
+	return 0;
+}
 // 自定义函数 end ////////////////////////////////////////////////////////////////////////////
 
 
@@ -415,8 +443,8 @@ void Central_Init()
 	for(uint8_t i = 0; i < DEFAULT_MAX_SCAN_RES; ++i)
 		clearPeerDev(&centralDevList[i]);
 
-	for(uint8_t i = 0; i < 10; ++i)
-		jobHandle[i] = 0;
+	for(uint8_t i = 0; i < MAX_READ_HANDLE; ++i)
+		lReadHandle[i] = 0;
 
 	// Setup GAP
 	GAP_SetParamValue(TGAP_DISC_SCAN, DEFAULT_SCAN_DURATION);	// 单次扫描时长
@@ -554,17 +582,7 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 			{
 				// Do a read
 				// LOG("0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X \r\n", jobHandle[0], jobHandle[1], jobHandle[2], jobHandle[3], jobHandle[4], jobHandle[5], jobHandle[6], jobHandle[7], jobHandle[8], jobHandle[9]);
-				uint16_t hdl = 0;
-				for(uint8_t i = 0; i < 10; ++i)
-				{
-					if(jobHandle[i] != 0)
-					{
-						hdl = jobHandle[i];
-						jobHandle[i] = 0;
-						curHandle = hdl;
-						break;
-					}
-				}
+				uint16_t hdl = getReadHandle(1);
 				if(hdl != 0)
 				{
 					attReadReq_t req;
@@ -691,7 +709,7 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 		else
 		{
 			// After a successful read, display the read value
-			LOG("  ATT_READ_RSP Read rsp: %x\r\n", *pMsg->msg.readRsp.pValue);
+			LOG("  ATT_READ_RSP Read rsp: %s\r\n", *pMsg->msg.readRsp.pValue);
 		}
 		centralProcedureInProgress = FALSE;
 	}
@@ -730,6 +748,7 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 		centralProcedureInProgress = FALSE;
 	}
 	// 通知，则打印接收到的通知值。
+	// 鼠标会走这！！！
 	else if(pMsg->method == ATT_HANDLE_VALUE_NOTI)
 	{
 		// 接收到 数据 通知 指示
@@ -818,11 +837,16 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 					(readWrite & GATT_PROP_EXTENDED) ? "扩展,":"", \
 					handle, uuid, BLE_UUID2str(uuid));
 
+					if(readWrite & GATT_PROP_READ)
+					{
+						addReadHandle(handle);
+					}
+
 					// for(uint8_t i = 0; i < 10; ++i)
 					// {
-					// 	if(jobHandle[i] == 0)
+					// 	if(lReadHandle[i] == 0)
 					// 	{
-					// 		jobHandle[i] = handle;
+					// 		lReadHandle[i] = handle;
 					// 		LOG("    push handle 0x%04X\r\n", handle);
 					// 		break;
 					// 	}
@@ -840,14 +864,14 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 					// if(uuid == 0x2A50)	// GATT 消息总体描述. GATT {method:ATT_READ_RSP, {len:7, pDataList:0x01 d7 07 00 00 10 01 }} readRsp: "乱码"
 
 					// 0x2A4D
-					if (uuid == guessUUID) // HID mouse input report characteristic
-					{
-						// centralCharHdl = handle;
-						mouseCCCD = handle + 1; // CCCD 通常是特性句柄 + 1
-						// 开启读写任务
-						// LOG("    开启一个读写任务 handle 0x%04X\r\n", centralCharHdl);
-						// tmos_sartt_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
-					}
+					// if (uuid == guessUUID) // HID mouse input report characteristic
+					// {
+					// 	// centralCharHdl = handle;
+					// 	mouseCCCD = handle + 1; // CCCD 通常是特性句柄 + 1
+					// 	// 开启读写任务
+					// 	// LOG("    开启一个读写任务 handle 0x%04X\r\n", centralCharHdl);
+					// 	// tmos_sartt_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
+					// }
 				}
 			}
 			if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->hdr.status == bleProcedureComplete)
@@ -861,26 +885,14 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 				else
 				{
 					centralDiscState = BLE_DISC_STATE_IDLE;
+					GAPBondMgr_SlaveReqSecurity(centralConnHandle);
 					LOG("    BLE_DISC_STATE_CHAR_ALL 结束. 进入 BLE_DISC_STATE_IDLE 状态\r\n");
-					if(mouseCCCD > 0)
-					{
-						centralProcedureInProgress = FALSE;
-						// tmos_start_task(centralTaskId, START_WRITE_CCCD_EVT, DEFAULT_PARAM_UPDATE_DELAY);
-
-				centralDiscState = BLE_DISC_STATE_CCCD;
-				LOG("    BLE_DISC_STATE_CHAR_ALL 结束. 进入 BLE_DISC_STATE_CCCD 状态\r\n");
-				// 订阅通知：获取 CCCD 句柄
-				// Discover characteristic
-				req.startHandle = 0x001E;
-				req.endHandle = 0x003D;
-				req.type.len = ATT_BT_UUID_SIZE;
-				req.type.uuid[0] = LO_UINT16(guessUUID);
-				req.type.uuid[1] = HI_UINT16(guessUUID);
-				GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
-				LOG("    开启一个读写任务 handle\r\n");
-				tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
-
-					}
+					tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
+					// if(mouseCCCD > 0)
+					// {
+					// 	centralProcedureInProgress = FALSE;
+					// 	// tmos_start_task(centralTaskId, START_WRITE_CCCD_EVT, DEFAULT_PARAM_UPDATE_DELAY);
+					// }
 				}
 				// centralDiscState = BLE_DISC_STATE_CCCD;
 				// LOG("    BLE_DISC_STATE_CHAR_ALL 结束. 进入 BLE_DISC_STATE_CCCD 状态\r\n");
@@ -1101,6 +1113,8 @@ static void  gapCentralEventCB(gapRoleEvent_t *pEvent)
 			centralScanRes = 0;
 			centralProcedureInProgress = FALSE;
 			tmos_stop_task(centralTaskId, START_READ_RSSI_EVT);
+			// https://blog.csdn.net/xiaoshideyuxiang/article/details/115075257
+			// 0x13 remote user terminated connection
 			LOG("  Disconnected...Reason:0x%x\r\n", pEvent->linkTerminate.reason);
 			LOG("  探测设备 开始\r\n");
 			GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
@@ -1147,12 +1161,12 @@ static void  gapCentralEventCB(gapRoleEvent_t *pEvent)
  * 当配对过程的状态发生变化时，会调用这个回调函数。
  * 这个回调函数允许应用程序处理不同的配对状态，例如配对成功或失败。
  * 应用程序可以根据配对状态和结果采取相应的措施，例如显示配对状态或执行后续操作。
- *
+ * GAPBondMgr_SlaveReqSecurity 会触发这个回调函数
  * @return  none
  */
 static void gapCentralPairStateCB(uint16_t connHandle, uint8_t state, uint8_t status)
 {
-	LOG("gapCentralPairStateCB\r\n");
+	LOG("gapCentralPairStateCB %d %d\r\n", state, status);
 	if(state == GAPBOND_PAIRING_STATE_STARTED)
 	{
 		LOG("Pairing started:%d\r\n", status);
