@@ -244,6 +244,7 @@ void HidEmu_Init()
     tmos_set_event(hidEmuTaskId, START_DEVICE_EVT);
 }
 
+uint8_t x = 0, y = 0;
 /*********************************************************************
  * @fn      HidEmu_ProcessEvent
  *
@@ -304,7 +305,13 @@ uint16_t HidEmu_ProcessEvent(uint8_t task_id, uint16_t events)
 
     if(events & START_REPORT_EVT)
     {
-        hidEmuSendMouseReport(MOUSE_BUTTON_NONE, 2, 2);
+		x += 1;
+		y += 2;
+		if(x > 100)
+			x = 0;
+		if(y > 100)
+			y = 0;
+        hidEmuSendMouseReport(MOUSE_BUTTON_NONE, x, y);
         tmos_start_task(hidEmuTaskId, START_REPORT_EVT, 800);
         return (events ^ START_REPORT_EVT);
     }
