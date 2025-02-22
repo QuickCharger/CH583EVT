@@ -1152,17 +1152,17 @@ extern const uint8_t VER_LIB[];  // LIB version
 
 // GAPBOND_PAIRING_MODE_DEFINES GAP Bond Manager Pairing Modes
 /**
- * 配对不被允许
+ * 配对不被允许 不允许配对
  * 在这种模式下，设备不允许进行任何配对操作。这意味着设备不会发起配对请求，也不会响应来自其他设备的配对请求。这种模式适用于不需要安全连接的设备，或者设备的安全性由其他机制（如物理安全）来保证
 */
 #define GAPBOND_PAIRING_MODE_NO_PAIRING         0x00  //!< Pairing is not allowed
 /**
- * 等待配对请求或从设备安全请求
+ * 等待配对请求或从设备安全请求 通常用于从设备
  * 设备会等待其他设备发起配对请求或从设备安全请求。设备本身不会主动发起配对请求，而是被动地等待其他设备的配对请求。这种模式适用于中央设备或从设备，它们希望在建立安全连接之前等待其他设备的配对请求。
 */
 #define GAPBOND_PAIRING_MODE_WAIT_FOR_REQ       0x01  //!< Wait for a pairing request or slave security request
 /**
- * 不等待，发起配对请求或从设备安全请求
+ * 不等待，发起配对请求或从设备安全请求 通常用于主设备
  * 设备会主动发起配对请求或从设备安全请求。这意味着设备在连接建立后会立即尝试进行配对，而不需要等待其他设备的配对请求。这种模式适用于需要快速建立安全连接的设备，或者设备需要在连接建立后立即进行安全认证的情况。
 */
 #define GAPBOND_PAIRING_MODE_INITIATE           0x02  //!< Don't wait, initiate a pairing request or slave security request
@@ -1186,9 +1186,9 @@ extern const uint8_t VER_LIB[];  // LIB version
 
 // GAPBOND_PAIRING_STATE_DEFINES GAP Bond Manager Pairing States
 #define GAPBOND_PAIRING_STATE_STARTED           0x00  //!< Pairing started
-#define GAPBOND_PAIRING_STATE_COMPLETE          0x01  //!< Pairing complete
-#define GAPBOND_PAIRING_STATE_BONDED            0x02  //!< Devices bonded
-#define GAPBOND_PAIRING_STATE_BOND_SAVED        0x03  //!< Bonding record saved in NV
+#define GAPBOND_PAIRING_STATE_COMPLETE          0x01  //!< Pairing complete	配对已完成
+#define GAPBOND_PAIRING_STATE_BONDED            0x02  //!< Devices bonded	设备已绑定
+#define GAPBOND_PAIRING_STATE_BOND_SAVED        0x03  //!< Bonding record saved in NV	绑定记录已保存到非易失性存储器（NV）。
 
 // SMP_PAIRING_FAILED_DEFINES Pairing failure status values
 #define SMP_PAIRING_FAILED_PASSKEY_ENTRY_FAILED 0x01 //!< The user input of the passkey failed, for example, the user cancelled the operation.

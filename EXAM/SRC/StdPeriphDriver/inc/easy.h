@@ -25,6 +25,20 @@ extern const char* BLE_UUID2str(uint16_t m);
 extern void BLE_GATT_MSG_DESC(gattMsgEvent_t* m);
 extern void BLE_UUID_DESC(uint8_t *pDataList, uint16_t numGrps);
 
+// // Á´±í
+// typedef struct Node {
+//     uint8_t type;
+// 	uint8_t v8;
+// 	uint8_t v8_2;
+// 	uint16_t v16;
+// 	uint16_t v16_2;
+//     struct Node* next;
+// } Node;
+// extern Node* node_new();
+// extern void node_insert(Node* node, int index);
+// extern void node_delete(int index);
+// extern void node_at(int index);
+
 #ifdef __cplusplus
 }
 #endif

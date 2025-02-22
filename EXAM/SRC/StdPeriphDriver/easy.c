@@ -440,7 +440,9 @@ void BLE_GATT_MSG_DESC(gattMsgEvent_t *m)
 	} else if(m->method == ATT_EXECUTE_WRITE_RSP) {
 		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
 	} else if(m->method == ATT_HANDLE_VALUE_NOTI) {
-		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
+		PRINT("GATT {method:%s, {len:%d, pDataList:0x", BLE_Opcode2str(m->method), msg.handleValueNoti.len);
+		Print_Memory(msg.handleValueNoti.pValue, msg.handleValueNoti.len , 0);
+		PRINT("}}");
 	} else if(m->method == ATT_HANDLE_VALUE_IND) {
 		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
 	} else if(m->method == ATT_HANDLE_VALUE_CFM) {
@@ -463,3 +465,29 @@ void BLE_UUID_DESC(uint8_t *pDataList, uint16_t numGrps)
 		PRINT("  UUID: 0x%04X %s\r\n", uuid, BLE_UUID2str(uuid));
 	}
 }
+
+// Node* node_new()
+// {
+// 	Node *n = (Node*)malloc(sizeof(Node));
+// 	if(n == NULL) {
+// 		PRINT("node_new malloc failed\r\n");
+// 		return NULL;
+// 	}
+// 	memset(n, 0, sizeof(Node));
+// 	return n;
+// }
+
+// void node_insert(Node* node, int index)
+// {
+
+// }
+
+// void node_delete(int index)
+// {
+
+// }
+
+// void node_at(int index)
+// {
+
+// }
