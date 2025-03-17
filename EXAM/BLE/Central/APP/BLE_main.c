@@ -12,6 +12,7 @@
 
 /******************************************************************************/
 /* 头文件包含 */
+#include "BLE_main.h"
 #include "CONFIG.h"
 #include "hal.h"
 #include "central.h"
@@ -49,7 +50,7 @@ void Main_Circulation()
  *
  * @return  none
  */
-int main(void)
+int BLE_main(void)
 {
 #if(defined(DCDC_ENABLE)) && (DCDC_ENABLE == TRUE)
     PWR_DCDCCfg(ENABLE);
