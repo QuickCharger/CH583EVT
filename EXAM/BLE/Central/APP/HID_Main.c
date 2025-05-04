@@ -599,11 +599,14 @@ void USB_DevTransProcess(void)
  *
  * @return  none
  */
-void DevHIDMouseReport(uint8_t mouse)
+void DevHIDMouseReport(uint8_t mouse, int8_t x, int8_t y, int8_t wheel)
 {
-    HIDMouse[0] = mouse;
-    memcpy(pEP2_IN_DataBuf, HIDMouse, sizeof(HIDMouse));
-    DevEP2_IN_Deal(sizeof(HIDMouse));
+	HIDMouse[0] = mouse;
+	HIDMouse[1] = x;
+	HIDMouse[2] = y;
+	HIDMouse[3] = wheel;
+	memcpy(pEP2_IN_DataBuf, HIDMouse, sizeof(HIDMouse));
+	DevEP2_IN_Deal(sizeof(HIDMouse));
 }
 
 /*********************************************************************

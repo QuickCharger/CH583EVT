@@ -6,4 +6,8 @@ void main()
 {
 	HID_main();
 	BLE_main();
+	
+	while(1) {
+		TMOS_SystemProcess();
+	}
 }
