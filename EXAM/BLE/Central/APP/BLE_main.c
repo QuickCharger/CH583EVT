@@ -255,10 +255,6 @@ static uint8_t centralCharVal = 0x5A;
 // Value read/write toggle
 static uint8_t centralDoWrite = TRUE;
 
-// GATT read/write procedure state
-// 忙
-static uint8_t centralProcedureInProgress = FALSE;
-
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
@@ -344,7 +340,6 @@ struct GATTService* getBlankGATTSvc()
 }
 
 uint16_t guessUUID=0x2A33;	// 2A33 鼠标输入 2A4D 鼠标输出
-uint16_t mouseCCCD = 0;
 /// @GATTINFO end //////////////////////////////////////////////////////////////////////
 
 // 自定义函数 begin //////////////////////////////////////////////////////////////////////////
@@ -741,7 +736,6 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 	if(events & START_READ_OR_WRITE_EVT)
 	{
 		LOG("主回调 START_READ_OR_WRITE_EVT 主机读数据从从机，一秒一次\r\n");
-		// if(centralProcedureInProgress == FALSE)
 		{
 			// if(centralDoWrite)
 			// {
@@ -757,7 +751,6 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 			// 		*req.pValue = centralCharVal;
 			// 		if(GATT_WriteCharValue(centralConnHandle, &req, centralTaskId) == SUCCESS)
 			// 		{
-			// 			centralProcedureInProgress = TRUE;
 			// 			centralDoWrite = !centralDoWrite;
 			// 			tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
 			// 		}
@@ -780,7 +773,6 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 					LOG("    开启一个读写任务 handle 0x%04X\r\n", hdl);
 					if(GATT_ReadCharValue(centralConnHandle, &req, centralTaskId) == SUCCESS)
 					{
-						centralProcedureInProgress = TRUE;
 						centralDoWrite = !centralDoWrite;
 					}
 					tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
@@ -792,14 +784,12 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 	if(events & START_WRITE_CCCD_EVT)
 	{
 		LOG("主回调 START_WRITE_CCCD_EVT 尝试使能 CCCD\r\n");
-		if(centralProcedureInProgress == FALSE)
 		{
 			// Do a write
 			attWriteReq_t req;
 			req.cmd = FALSE;
 			req.sig = FALSE;
-			req.handle = mouseCCCD;
-			mouseCCCD = 0;
+			req.handle = 0;
 			req.len = 2;
 			req.pValue = GATT_bm_alloc(centralConnHandle, ATT_WRITE_REQ, req.len, NULL, 0);
 			if(req.pValue != NULL)
@@ -809,7 +799,6 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 				if(GATT_WriteCharValue(centralConnHandle, &req, centralTaskId) == SUCCESS)
 				{
 					LOG("主回调 START_WRITE_CCCD_EVT 尝试使能 CCCD 2\r\n");
-					centralProcedureInProgress = TRUE;
 				}
 				GATT_bm_free((gattMsg_t *)&req, ATT_WRITE_REQ);
 			}
@@ -864,7 +853,6 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 				uint8_t status = pMsg->msg.errorRsp.errCode;
 				LOG("  Exchange MTU Error: %x\r\n", status);
 			}
-			centralProcedureInProgress = FALSE;
 		}
 	}
 	// 如果消息是MTU更新事件，则打印新的MTU值。
@@ -898,7 +886,6 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 			// After a successful read, display the read value
 			LOG("  ATT_READ_RSP Read rsp: %s\r\n", *pMsg->msg.readRsp.pValue);
 		}
-		centralProcedureInProgress = FALSE;
 	}
 	// 如果消息是写入响应 或 写入请求的错误响应，则处理写入结果。
 	else if((pMsg->method == ATT_WRITE_RSP)
@@ -929,7 +916,6 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 			// Write success
 			LOG("  ATT_WRITE_RSP Write success\r\n");
 		}
-		centralProcedureInProgress = FALSE;
 	}
 	// 通知，则打印接收到的通知值。
 	// 鼠标会走这！！！
@@ -1092,7 +1078,6 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 					if(CCCD_Hdl == 0)
 						CCCD_Hdl = handle;
 				}
-				//centralProcedureInProgress = FALSE;
 				// Start do write CCCD
 				//tmos_start_task(centralTaskId, START_WRITE_CCCD_EVT, DEFAULT_WRITE_CCCD_DELAY);
 			}
@@ -1151,7 +1136,6 @@ static void gapCentralRssiCB(uint16_t connHandle, int8_t rssi)
 static void gapCentralHciMTUChangeCB(uint16_t connHandle, uint16_t maxTxOctets, uint16_t maxRxOctets)
 {
 	LOG("HCI data length changed, Tx: %d, Rx: %d\r\n", maxTxOctets, maxRxOctets);
-	centralProcedureInProgress = TRUE;
 }
 
 
@@ -1194,6 +1178,7 @@ static void  gapCentralEventCB(gapRoleEvent_t *pEvent)
 				uint8_t eventType = pEvent->deviceInfo.eventType;
 				uint8_t *p = pEvent->deviceInfo.pEvtData;
 				uint8_t l = pEvent->deviceInfo.dataLen;
+				// 要加入的是广播包还是扫描应答包 todo
 				if(eventType == GAP_ADRPT_ADV_IND)	// 广播包
 				{
 					LOG("  扫描广播包 ");
@@ -1241,7 +1226,6 @@ static void  gapCentralEventCB(gapRoleEvent_t *pEvent)
 				LOG("  MAC %x-%x-%x-%x-%x-%x 连接成功\r\n", peerDev.addr[0], peerDev.addr[1], peerDev.addr[2], peerDev.addr[3], peerDev.addr[4], peerDev.addr[5]);
 				centralState = BLE_STATE_CONNECTED;
 				centralConnHandle = pEvent->linkCmpl.connectionHandle;
-				centralProcedureInProgress = TRUE;
 
 				// Update MTU
 				attExchangeMTUReq_t req = {
@@ -1279,7 +1263,6 @@ static void  gapCentralEventCB(gapRoleEvent_t *pEvent)
 			centralConnHandle = GAP_CONNHANDLE_INIT;
 			centralDiscState = BLE_DISC_STATE_IDLE;
 			centralCharHdl = 0;
-			centralProcedureInProgress = FALSE;
 			tmos_stop_task(centralTaskId, START_READ_RSSI_EVT);
 			// https://blog.csdn.net/xiaoshideyuxiang/article/details/115075257
 			// 0x13 remote user terminated connection
