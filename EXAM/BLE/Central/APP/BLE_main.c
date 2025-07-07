@@ -23,10 +23,6 @@
  */
 __attribute__((aligned(4))) uint32_t MEM_BUF[BLE_MEMHEAP_SIZE / 4];
 
-#if(defined(BLE_MAC)) && (BLE_MAC == TRUE)
-const uint8_t MacAddr[6] = {0x84, 0xC2, 0xE4, 0x03, 0x02, 0x02};
-#endif
-
 /*********************************************************************
  * @fn      Main_Circulation
  *
@@ -53,19 +49,6 @@ const uint8_t MacAddr[6] = {0x84, 0xC2, 0xE4, 0x03, 0x02, 0x02};
  */
 int BLE_main(void)
 {
-#if(defined(DCDC_ENABLE)) && (DCDC_ENABLE == TRUE)
-    PWR_DCDCCfg(ENABLE);
-#endif
-    SetSysClock(CLK_SOURCE_PLL_60MHz);
-#if(defined(HAL_SLEEP)) && (HAL_SLEEP == TRUE)
-    GPIOA_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
-    GPIOB_ModeCfg(GPIO_Pin_All, GPIO_ModeIN_PU);
-#endif
-#ifdef DEBUG
-    GPIOA_SetBits(bTXD1);
-    GPIOA_ModeCfg(bTXD1, GPIO_ModeOut_PP_5mA);
-    UART1_DefInit();
-#endif
     PRINT("%s\n", VER_LIB);
     CH58X_BLEInit();
     HAL_Init();
@@ -98,9 +81,6 @@ int BLE_main(void)
 #include "CONFIG.h"
 #include "gattprofile.h"
 #include "central.h"
-
-// Length of bd addr as a string
-#define B_ADDR_STR_LEN                      15
 
 // Maximum number of scan responses
 #define DEFAULT_MAX_SCAN_RES                10
@@ -180,14 +160,8 @@ int BLE_main(void)
 // Default parameter update delay in 0.625ms
 #define DEFAULT_PARAM_UPDATE_DELAY          3200
 
-// Default phy update delay in 0.625ms
-#define DEFAULT_PHY_UPDATE_DELAY            2400
-
 // Default read or write timer delay in 0.625ms
 #define DEFAULT_READ_OR_WRITE_DELAY         1600
-
-// Default write CCCD delay in 0.625ms
-#define DEFAULT_WRITE_CCCD_DELAY            1600
 
 // Establish link timeout in 0.625ms
 #define ESTABLISH_LINK_TIMEOUT              3200
@@ -247,9 +221,6 @@ uint16_t UUID_char_BTT = 0x2A19;	// 电池数据
 // Task ID for internal task/event processing
 static uint8_t centralTaskId;
 
-// Number of scan results
-static uint8_t centralScanRes;
-
 // Scan result list
 static gapDevRec_t centralDevList[DEFAULT_MAX_SCAN_RES];
 
@@ -262,14 +233,8 @@ const static int8_t requireRSSI = -40;
 // 自动连接的设备信息
 static gapDevRec_t peerDev;
 
-// RSSI polling state
-static uint8_t centralRssi = FALSE;
-
 // Parameter update state
 static uint8_t centralParamUpdate = TRUE;
-
-// Phy update state
-static uint8_t centralPhyUpdate = FALSE;
 
 // Connection handle of current connection
 // 设备句柄，GAP成功连接后置值
@@ -292,7 +257,7 @@ static uint8_t centralDoWrite = TRUE;
 
 // GATT read/write procedure state
 // 忙
-static uint8_t 	centralProcedureInProgress = FALSE;
+static uint8_t centralProcedureInProgress = FALSE;
 
 /*********************************************************************
  * LOCAL FUNCTIONS
@@ -698,7 +663,6 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 	}
 	if(events & START_DEVICE_EVT)
 	{
-		// Start the Device
 		LOG("主回调 START_DEVICE_EVT 设备初始化完成\r\n");
 		GAPRole_CentralStartDevice(centralTaskId, &centralBondCB, &centralRoleCB);
 		return (events ^ START_DEVICE_EVT);
@@ -1293,27 +1257,13 @@ static void  gapCentralEventCB(gapRoleEvent_t *pEvent)
 				// See if initiate connect parameter update
 				// 开启更新连接参数任务
 				if(centralParamUpdate)
-				// if(0)
 				{
 					tmos_start_task(centralTaskId, START_PARAM_UPDATE_EVT, DEFAULT_PARAM_UPDATE_DELAY);
-				}
-				// See if initiate phy update
-				// if(centralPhyUpdate)
-				if(0)
-				{
-					tmos_start_task(centralTaskId, START_PHY_UPDATE_EVT, DEFAULT_PHY_UPDATE_DELAY);
-				}
-				// See if start RSSI polling
-				// if(centralRssi)
-				if(0)
-				{
-					tmos_start_task(centralTaskId, START_READ_RSSI_EVT, DEFAULT_RSSI_PERIOD);
 				}
 			}
 			else
 			{
 				LOG("  MAC %x-%x-%x-%x-%x-%x 连接失败 Reason:%X. 开始探测设备\r\n", peerDev.addr[0], peerDev.addr[1], peerDev.addr[2], peerDev.addr[3], peerDev.addr[4], peerDev.addr[5],pEvent->gap.hdr.status);
-				centralScanRes = 0;
 				GAPRole_CentralStartDiscovery(DEFAULT_DISCOVERY_MODE,
 											DEFAULT_DISCOVERY_ACTIVE_SCAN,
 											DEFAULT_DISCOVERY_WHITE_LIST);
@@ -1329,7 +1279,6 @@ static void  gapCentralEventCB(gapRoleEvent_t *pEvent)
 			centralConnHandle = GAP_CONNHANDLE_INIT;
 			centralDiscState = BLE_DISC_STATE_IDLE;
 			centralCharHdl = 0;
-			centralScanRes = 0;
 			centralProcedureInProgress = FALSE;
 			tmos_stop_task(centralTaskId, START_READ_RSSI_EVT);
 			// https://blog.csdn.net/xiaoshideyuxiang/article/details/115075257
@@ -1351,22 +1300,22 @@ static void  gapCentralEventCB(gapRoleEvent_t *pEvent)
 			LOG("EventCB GAP_PHY_UPDATE_EVENT PHY Update...\r\n");
 			break;
 		}
-		case GAP_EXT_ADV_DEVICE_INFO_EVENT:
-		{
-			LOG("EventCB GAP_EXT_ADV_DEVICE_INFO_EVENT Recv ext adv \r\n");
-			// Add device to list
-			centralAddDeviceInfo(pEvent->deviceExtAdvInfo.addr, pEvent->deviceExtAdvInfo.addrType, pEvent->deviceExtAdvInfo.rssi);
-			break;
-		}
-		case GAP_DIRECT_DEVICE_INFO_EVENT:
-		{
-			LOG("EventCB GAP_DIRECT_DEVICE_INFO_EVENT\r\n");
-			// Display device addr
-			LOG("  Recv direct adv \r\n");
-			// Add device to list
-			centralAddDeviceInfo(pEvent->deviceDirectInfo.addr, pEvent->deviceDirectInfo.addrType, pEvent->deviceExtAdvInfo.rssi);
-			break;
-		}
+		// case GAP_EXT_ADV_DEVICE_INFO_EVENT:
+		// {
+		// 	LOG("EventCB GAP_EXT_ADV_DEVICE_INFO_EVENT Recv ext adv \r\n");
+		// 	// Add device to list
+		// 	centralAddDeviceInfo(pEvent->deviceExtAdvInfo.addr, pEvent->deviceExtAdvInfo.addrType, pEvent->deviceExtAdvInfo.rssi);
+		// 	break;
+		// }
+		// case GAP_DIRECT_DEVICE_INFO_EVENT:
+		// {
+		// 	LOG("EventCB GAP_DIRECT_DEVICE_INFO_EVENT\r\n");
+		// 	// Display device addr
+		// 	LOG("  Recv direct adv \r\n");
+		// 	// Add device to list
+		// 	centralAddDeviceInfo(pEvent->deviceDirectInfo.addr, pEvent->deviceDirectInfo.addrType, pEvent->deviceExtAdvInfo.rssi);
+		// 	break;
+		// }
 		default:
 			LOG("EventCB 未知事件 id %02x\r\n", pEvent->gap.opcode);
 			break;
