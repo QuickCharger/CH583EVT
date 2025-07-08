@@ -291,7 +291,7 @@ static gapBondCBs_t centralBondCB = {
 };
 
 /// @GATTINFO begin /////////////////////////////////////////////////////////////////
-#define MAX_GATT_INFO 10
+#define MAX_GATT_INFO 100
 struct GATTService
 {
 	uint16_t svcStartHandle;
@@ -931,9 +931,9 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 		int8_t y2 = *(p + 3);
 		int8_t y = (0xF0&(y1<<4)) + (0x0F & (y2>>4));
 		int8_t wheel = 0;
-    	// PRINT("y1=0x%x y2=0x%x \n", y1, y2);
-    	// PRINT("y1=0x%x y2=0x%x \n", 0xF0&(y1<<4), 0x0F & (y2>>4));
-    	// PRINT("x=0x%x y=0x%x \n", x, y);
+		// PRINT("y1=0x%x y2=0x%x \n", y1, y2);
+		// PRINT("y1=0x%x y2=0x%x \n", 0xF0&(y1<<4), 0x0F & (y2>>4));
+		// PRINT("x=0x%x y=0x%x \n", x, y);
 		DevHIDMouseReport(mouse, x, y, wheel);
 	}
 	// 指示，和通知不同的是，指示需要发送确认。
@@ -942,58 +942,54 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 		LOG("  ATT_HANDLE_VALUE_IND Receive ind: %x 接收到从机ind数据 \r\n", *pMsg->msg.handleValueInd.pValue);
 		ATT_HandleValueCfm(centralConnHandle);	// 发送确认
 	}
+	else if(pMsg->method == ATT_READ_BY_GRP_TYPE_RSP)
+	{
+		uint16_t numGrps = pMsg->msg.readByGrpTypeRsp.numGrps;
+		uint16_t len = pMsg->msg.readByGrpTypeRsp.len;
+		uint8_t* l = pMsg->msg.readByGrpTypeRsp.pDataList;
+		if(numGrps >= 0)
+		{
+			BLE_UUID_DESC(l, numGrps);
+			for (uint16_t i = 0; i < numGrps; i++)
+			{
+				uint8_t* u = l + i * 6;
+				uint16_t startHandle = BUILD_UINT16(*(u+0), *(u+1));
+				uint16_t endHandle = BUILD_UINT16(*(u+2), *(u+3));
+				uint16_t uuid = BUILD_UINT16(*(u+4), *(u+5));
+				
+				struct GATTService* s = getBlankGATTSvc();
+				if(s)
+				{
+					s->svcStartHandle = startHandle;
+					s->svcEndHandle = endHandle;
+					s->uuid = uuid;
+				}
+
+				if(uuid == CCCD_SvcUUID)
+				{
+					CCCD_SvcStartHdl = startHandle;
+					CCCD_SvcEndHdl = endHandle;
+					LOG("    找到HID设备, CCCD_SvcStartHdl 0x%04X CCCD_SvcEndHdl 0x%04X\r\n", CCCD_SvcStartHdl, CCCD_SvcEndHdl);
+				}
+			}
+		}
+		else if(len != 6)
+		{
+			LOG("    这个是128位的UUID 暂时不支持数据打印 todo\r\n");
+		}
+		
+		if(pMsg->hdr.status == bleProcedureComplete)
+		{
+			centralDiscState = BLE_DISC_STATE_CHAR_ALL;
+			LOG("    BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_CHAR_ALL 状态\r\n");
+			QueryServiceInfo(centralConnHandle, centralTaskId, 0);
+		}
+	}
 	else if(centralDiscState != BLE_DISC_STATE_IDLE)
 	{
 		// 处于发送UUID查找功能的状态
 		// 期间会收到多个数据返回 根据 pMsg->hdr.status == bleProcedureComplete 判断数据接收完毕
-		if(centralDiscState == BLE_DISC_STATE_ALL_SVC)
-		{
-			LOG("    当前状态 BLE_DISC_STATE_ALL_SVC\r\n");
-			if(pMsg->method == ATT_READ_BY_GRP_TYPE_RSP)
-			{
-				uint16_t numGrps = pMsg->msg.readByGrpTypeRsp.numGrps;
-				uint16_t len = pMsg->msg.readByGrpTypeRsp.len;
-				uint8_t* l = pMsg->msg.readByGrpTypeRsp.pDataList;
-				if(numGrps >= 0)
-				{
-					BLE_UUID_DESC(l, numGrps);
-					for (uint16_t i = 0; i < numGrps; i++)
-					{
-						uint8_t* u = l + i * 6;
-						uint16_t startHandle = BUILD_UINT16(*(u+0), *(u+1));
-						uint16_t endHandle = BUILD_UINT16(*(u+2), *(u+3));
-						uint16_t uuid = BUILD_UINT16(*(u+4), *(u+5));
-						
-						struct GATTService* s = getBlankGATTSvc();
-						if(s)
-						{
-							s->svcStartHandle = startHandle;
-							s->svcEndHandle = endHandle;
-							s->uuid = uuid;
-						}
-
-						if(uuid == CCCD_SvcUUID)
-						{
-							CCCD_SvcStartHdl = startHandle;
-							CCCD_SvcEndHdl = endHandle;
-							LOG("    找到HID设备, CCCD_SvcStartHdl 0x%04X CCCD_SvcEndHdl 0x%04X\r\n", CCCD_SvcStartHdl, CCCD_SvcEndHdl);
-						}
-					}
-				}
-				else if(len != 6)
-				{
-					LOG("    这个是128位的UUID 暂时不支持数据打印 todo\r\n");
-				}
-				
-				if(pMsg->hdr.status == bleProcedureComplete)
-				{
-					centralDiscState = BLE_DISC_STATE_CHAR_ALL;
-					LOG("    BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_CHAR_ALL 状态\r\n");
-					QueryServiceInfo(centralConnHandle, centralTaskId, 0);
-				}
-			}
-		}
-		else if(centralDiscState == BLE_DISC_STATE_CHAR_ALL)
+		if(centralDiscState == BLE_DISC_STATE_CHAR_ALL)
 		{
 			LOG("    当前状态 BLE_DISC_STATE_CHAR_ALL\r\n");
 			if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->msg.readByTypeRsp.numPairs > 0)
