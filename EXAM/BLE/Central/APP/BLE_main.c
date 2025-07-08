@@ -54,7 +54,6 @@ int BLE_main(void)
     HAL_Init();
     GAPRole_CentralInit();
     Central_Init();
-    // Main_Circulation();
 }
 
 /******************************** endfile @ main ******************************/
@@ -171,6 +170,13 @@ enum
 {
 	BLE_STATE_IDLE,
 	BLE_STATE_CONNECTED,
+};
+
+enum EDeviceType
+{
+	eUnknown,
+	eMouse,
+	eKeyboard,
 };
 
 ////////////////////////////////////////////// UUID BEGIN
@@ -343,8 +349,9 @@ uint16_t guessUUID=0x2A33;	// 2A33 鼠标输入 2A4D 鼠标输出
 /// @GATTINFO end //////////////////////////////////////////////////////////////////////
 
 // 自定义函数 begin //////////////////////////////////////////////////////////////////////////
-void parseDeviceInfo(gapDeviceInfoEvent_t* info)
+uint8_t parseDeviceInfo(gapDeviceInfoEvent_t* info)
 {
+	uint8_t ret = eUnknown;
 	uint8_t *p = info->pEvtData;
 	uint8_t l = info->dataLen;
 	for(uint8_t i = 0; i < l; i)
@@ -398,14 +405,17 @@ void parseDeviceInfo(gapDeviceInfoEvent_t* info)
 			uint16_t v = BUILD_UINT16(*(pVal+0), *(pVal+1));
 			if(v == 0x03c1)
 			{
+				ret = eKeyboard;
 				LOG("    Appearance 0x03c1 Keyboard\r\n");
 			}
 			else if (v == 0x03c2)
 			{
+				ret = eMouse;
 				LOG("    Appearance 0x03c2 Mouse\r\n");
 			}
 			else
 			{
+				ret = eUnknown;
 				LOG("    Appearance 0x%04X 未知\r\n", v);
 			}
 		}
@@ -416,6 +426,7 @@ void parseDeviceInfo(gapDeviceInfoEvent_t* info)
 		}
 		i += 1 + siz;
 	}
+	return ret;
 }
 
 void clearPeerDev(gapDevRec_t* peerDev)
@@ -1183,7 +1194,11 @@ static void  gapCentralEventCB(gapRoleEvent_t *pEvent)
 				{
 					LOG("  扫描广播包 ");
 					Print_Memory(p, l, 1);
-					parseDeviceInfo(&pEvent->deviceInfo);
+					uint8_t type = parseDeviceInfo(&pEvent->deviceInfo);
+					if(type == eMouse || type == eKeyboard)
+					{
+						centralAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo.addrType, pEvent->deviceInfo.rssi);
+					}
 				}
 				else if(eventType == GAP_ADRPT_SCAN_RSP)	// 扫描应答数据
 				{
@@ -1191,7 +1206,10 @@ static void  gapCentralEventCB(gapRoleEvent_t *pEvent)
 					Print_Memory(pEvent->deviceInfo.pEvtData, pEvent->deviceInfo.dataLen, 1);
 					parseDeviceInfo(&pEvent->deviceInfo);
 				}
-				centralAddDeviceInfo(pEvent->deviceInfo.addr, pEvent->deviceInfo.addrType, pEvent->deviceInfo.rssi);
+				else
+				{
+					LOG("  未知扫描包 !!!");
+				}
 			}
 			break;
 		}
