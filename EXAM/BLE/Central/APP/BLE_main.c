@@ -657,6 +657,7 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 			uint8_t e = ((gattMsgEvent_t *)pMsg)->hdr.event;
 			if(e == GATT_MSG_EVENT)
 			{
+				// GATT 消息
 				gattCentralMsg((gattMsgEvent_t *)pMsg);
 			}
 			else
@@ -847,24 +848,57 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 		GATT_bm_free(&pMsg->msg, pMsg->method);
 		return;
 	}
-	// 如果消息是MTU交换响应 或 MTU交换请求的错误响应，则处理MTU交换。
-	if((pMsg->method == ATT_EXCHANGE_MTU_RSP) ||
-		((pMsg->method == ATT_ERROR_RSP) && (pMsg->msg.errorRsp.reqOpcode == ATT_EXCHANGE_MTU_REQ)))
+	if(pMsg->method == ATT_ERROR_RSP)
 	{
-		if (pMsg->method == ATT_EXCHANGE_MTU_RSP)
+		uint8_t reqOpcode = pMsg->msg.errorRsp.reqOpcode;
+		uint8_t errCode = pMsg->msg.errorRsp.errCode;
+		if(reqOpcode == ATT_EXCHANGE_MTU_REQ)
 		{
-			// 获取实际协商的MTU大小
-			uint16_t negotiatedMTU = pMsg->msg.exchangeMTUReq.clientRxMTU;
-			LOG("  Negotiated MTU: %d\r\n", negotiatedMTU);
+			LOG("  Exchange MTU Error: %x\r\n", errCode);
+		}
+		else if(reqOpcode == ATT_READ_REQ)
+		{
+			if(errCode == ATT_ERR_INSUFFICIENT_AUTHEN)	// 需要发起安全请求
+			{
+				LOG("  ATT_ERROR_RSP Read Error: ATT_ERR_INSUFFICIENT_AUTHEN\r\n");
+			}
+			else if(errCode == ATT_ERR_INSUFFICIENT_ENCRYPT)	// 需要发起加密请求
+			{
+				LOG("  ATT_ERROR_RSP Read Error: ATT_ERR_INSUFFICIENT_ENCRYPT\r\n");
+			}
+			else
+			{
+				LOG("  ATT_ERROR_RSP Read Error: %x\r\n", errCode);
+			}
+		}
+		else if(reqOpcode == ATT_WRITE_REQ)
+		{
+			if(errCode == ATT_ERR_INSUFFICIENT_AUTHEN)	// 需要发起安全请求
+			{
+				LOG("  ATT_ERROR_RSP Write Error: ATT_ERR_INSUFFICIENT_AUTHEN\r\n");
+			}
+			else if(errCode == ATT_ERR_INSUFFICIENT_ENCRYPT)	// 需要发起加密请求
+			{
+				LOG("  ATT_ERROR_RSP Write Error: ATT_ERR_INSUFFICIENT_ENCRYPT\r\n");
+			}
+			else
+			{
+				LOG("  ATT_ERROR_RSP Write Error: %x\r\n", errCode);
+			}
 		}
 		else
 		{
-			if(pMsg->method == ATT_ERROR_RSP)
-			{
-				uint8_t status = pMsg->msg.errorRsp.errCode;
-				LOG("  Exchange MTU Error: %x\r\n", status);
-			}
+			LOG("  ATT ERROR: %x %x\r\n", reqOpcode, errCode);
 		}
+		return;
+	}
+
+	// 如果消息是MTU交换响应 或 MTU交换请求的错误响应，则处理MTU交换。
+	if(pMsg->method == ATT_EXCHANGE_MTU_RSP)
+	{
+		// 获取实际协商的MTU大小
+		uint16_t negotiatedMTU = pMsg->msg.exchangeMTUReq.clientRxMTU;
+		LOG("  Negotiated MTU: %d\r\n", negotiatedMTU);
 	}
 	// 如果消息是MTU更新事件，则打印新的MTU值。
 	if(pMsg->method == ATT_MTU_UPDATED_EVENT)
@@ -872,61 +906,16 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 		LOG("  ATT_MTU_UPDATED_EVENT MTU: %d\r\n", pMsg->msg.mtuEvt.MTU);
 	}
 	// 如果消息是读取响应 或 读取请求的错误响应，则处理读取结果。
-	if(	(pMsg->method == ATT_READ_RSP)
-		|| ((pMsg->method == ATT_ERROR_RSP) && (pMsg->msg.errorRsp.reqOpcode == ATT_READ_REQ)))
+	if(pMsg->method == ATT_READ_RSP)
 	{
-		if(pMsg->method == ATT_ERROR_RSP)
-		{
-			if(pMsg->msg.errorRsp.errCode == ATT_ERR_INSUFFICIENT_AUTHEN)	// 需要发起安全请求
-			{
-				LOG("  ATT_ERROR_RSP Read Error: ATT_ERR_INSUFFICIENT_AUTHEN\r\n");
-			}
-			else if(pMsg->msg.errorRsp.errCode == ATT_ERR_INSUFFICIENT_ENCRYPT)	// 需要发起加密请求
-			{
-				//todo
-				LOG("  ATT_ERROR_RSP Read Error: ATT_ERR_INSUFFICIENT_ENCRYPT\r\n");
-			}
-			else
-			{
-				uint8_t status = pMsg->msg.errorRsp.errCode;
-				LOG("  ATT_ERROR_RSP Read Error: %x\r\n", status);
-			}
-		}
-		else
-		{
-			// After a successful read, display the read value
-			LOG("  ATT_READ_RSP Read rsp: %s\r\n", *pMsg->msg.readRsp.pValue);
-		}
+		// After a successful read, display the read value
+		LOG("  ATT_READ_RSP Read rsp: %s\r\n", *pMsg->msg.readRsp.pValue);
 	}
 	// 如果消息是写入响应 或 写入请求的错误响应，则处理写入结果。
-	else if((pMsg->method == ATT_WRITE_RSP)
-		|| ((pMsg->method == ATT_ERROR_RSP) && (pMsg->msg.errorRsp.reqOpcode == ATT_WRITE_REQ)))
+	else if(pMsg->method == ATT_WRITE_RSP)
 	{
-		if(pMsg->method == ATT_ERROR_RSP)
-		{
-			if(pMsg->msg.errorRsp.errCode == ATT_ERR_INSUFFICIENT_AUTHEN)	// 需要发起安全请求
-			{
-				LOG("  ATT_ERROR_RSP Write Error: ATT_ERR_INSUFFICIENT_AUTHEN\r\n");
-			}
-			else if(pMsg->msg.errorRsp.errCode == ATT_ERR_INSUFFICIENT_ENCRYPT)	// 需要发起加密请求
-			{
-				//todo
-				LOG("  ATT_ERROR_RSP Write Error: ATT_ERR_INSUFFICIENT_ENCRYPT\r\n");
-			}
-			else
-			{
-				uint8_t status = pMsg->msg.errorRsp.errCode;
-				LOG("  ATT_ERROR_RSP Write Error: %x\r\n", status);
-			}
-
-			uint8_t status = pMsg->msg.errorRsp.errCode;
-			LOG("  ATT_ERROR_RSP Write Error: %x\r\n", status);
-		}
-		else
-		{
-			// Write success
-			LOG("  ATT_WRITE_RSP Write success\r\n");
-		}
+		// Write success
+		LOG("  ATT_WRITE_RSP Write success\r\n");
 	}
 	// 通知，则打印接收到的通知值。
 	// 鼠标会走这！！！
@@ -957,12 +946,7 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 	{
 		// 处于发送UUID查找功能的状态
 		// 期间会收到多个数据返回 根据 pMsg->hdr.status == bleProcedureComplete 判断数据接收完毕
-		attReadByTypeReq_t req;
-		if(pMsg->method == ATT_ERROR_RSP)
-		{
-			LOG("    Error response todo\r\n");
-		}
-		else if(centralDiscState == BLE_DISC_STATE_ALL_SVC)
+		if(centralDiscState == BLE_DISC_STATE_ALL_SVC)
 		{
 			LOG("    当前状态 BLE_DISC_STATE_ALL_SVC\r\n");
 			if(pMsg->method == ATT_READ_BY_GRP_TYPE_RSP)
@@ -1057,6 +1041,7 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 				{
 					centralDiscState = BLE_DISC_STATE_CCCD;
 					LOG("    BLE_DISC_STATE_CHAR_ALL 结束. 进入 BLE_DISC_STATE_CCCD 状态\r\n");
+					attReadByTypeReq_t req;
 					req.startHandle = CCCD_SvcStartHdl;
 					req.endHandle = CCCD_SvcEndHdl;
 					req.type.len = ATT_BT_UUID_SIZE;
