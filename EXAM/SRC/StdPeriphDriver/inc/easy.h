@@ -23,7 +23,7 @@ extern void DoPRINT(const char* file, int line, const char* date, const char* ti
 extern const char* BLE_Opcode2str(uint8_t m);
 extern const char* BLE_UUID2str(uint16_t m);
 extern void BLE_GATT_MSG_DESC(gattMsgEvent_t* m);
-extern void BLE_UUID_DESC(uint8_t *pDataList, uint16_t numGrps);
+extern void BLE_UUID_DESC(uint8_t *pDataList, uint16_t numGrps, uint16_t uuidSize);
 
 // // Á´±í
 // typedef struct Node {

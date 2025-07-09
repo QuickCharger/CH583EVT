@@ -68,7 +68,10 @@ const char* BLE_Opcode2str(uint8_t m)
 */
 const char* BLE_UUID2str(uint16_t m)
 {
+	// 0x2700 – 0x27FF ：单位
+
 	// GATT 声明
+	// 0x2800 – 0x28FF ：属性类型
 	if(m == 0x2800) return "UUID Declarations 主要服务";
 	if(m == 0x2801) return "UUID Declarations 次要服务";
 	if(m == 0x2802) return "UUID Declarations 包括";
@@ -76,6 +79,8 @@ const char* BLE_UUID2str(uint16_t m)
 
 	// Service
 	// GSS（Generic Access Profile Service）：用于设备的通用访问配置。
+	// 0x1800 ~ 0x18FF	标准服务UUID范围
+	// 0x1800 – 0x26FF ：服务项类型
 	if(m == 0x1800) return "UUID Service 通用访问";
 	if(m == 0x1801) return "UUID Service 通用属性";
 	if(m == 0x1802) return "UUID Service 即时闹钟";
@@ -116,13 +121,12 @@ const char* BLE_UUID2str(uint16_t m)
 	if(m == 0x1828) return "UUID Service 节点代理";
 	if(m == 0x1829) return "UUID Service 重连配置";
 	if(m == 0x183A) return "UUID Service 胰岛素给药";
-	// BSS（Battery Service）：用于电池相关信息的服务，例如电量水平。
 	if(m == 0x183B) return "UUID Service 二元传感器";
-	// EMCS（Environmental Monitoring Service）：用于环境监测的服务，例如温度、湿度等数据的传输。
 	if(m == 0x183C) return "UUID Service 应急配置";
 
 	// Characteristic
 	// GSS（Generic Access Profile Service）：用于设备的通用访问配置。
+	// 0x2A00 – 0x7FFF ：特征值类型
 	if(m == 0x2A00) return "UUID Characteristic 设备名称";
 	if(m == 0x2A01) return "UUID Characteristic 外观";
 	if(m == 0x2A02) return "UUID Characteristic 周边隐私标志";
@@ -349,16 +353,14 @@ const char* BLE_UUID2str(uint16_t m)
 	if(m == 0x2B26) return "UUID Characteristic IDD命令数据";
 	if(m == 0x2B27) return "UUID Characteristic IDD记录访问控制点";
 	if(m == 0x2B28) return "UUID Characteristic IDD历史数据";
-	// BSS（Battery Service）：用于电池相关信息的服务，例如电量水平。
 	if(m == 0x2B2B) return "UUID Characteristic BSS控制点";
 	if(m == 0x2B2C) return "UUID Characteristic BSS回应";
-	// EMCS（Environmental Monitoring Service）：用于环境监测的服务，例如温度、湿度等数据的传输。
 	if(m == 0x2B2D) return "UUID Characteristic 突发事件ID";
 	if(m == 0x2B2E) return "UUID Characteristic 突发事件内容";
-	// UUID
 	if(m == 0x2B37) return "UUID Characteristic 注册用户特征";
 
 	// Descriptors
+	// 0x2900 ~ 0x29FF	标准描述符UUID范围
 	if(m == 0x2900) return "UUID Descriptors 特性扩展属性";
 	if(m == 0x2901) return "UUID Descriptors 特征用户描述";
 	if(m == 0x2902) return "UUID Descriptors 客户端特征配置";
@@ -452,7 +454,7 @@ void BLE_GATT_MSG_DESC(gattMsgEvent_t *m)
 	}
 }
 
-void BLE_UUID_DESC(uint8_t *pDataList, uint16_t numGrps)
+void BLE_UUID_DESC(uint8_t *pDataList, uint16_t numGrps, uint16_t uuidSize)
 {
 	for (uint16_t i = 0; i < numGrps; i++)
 	{
@@ -462,7 +464,21 @@ void BLE_UUID_DESC(uint8_t *pDataList, uint16_t numGrps)
 		uint16_t uuid = BUILD_UINT16(*(u+4), *(u+5));
 		PRINT("Service %d:\r\n", i + 1);
 		PRINT("  Handle: 0x%04X ~ 0x%04X\r\n", startHandle, endHandle);
-		PRINT("  UUID: 0x%04X %s\r\n", uuid, BLE_UUID2str(uuid));
+		if(uuidSize == 2)
+		{
+			PRINT("  UUID: 0x%04X %s\r\n", uuid, BLE_UUID2str(uuid));
+		}
+		else // if uuidSize == 16
+		{
+			uint16_t uuid8 = BUILD_UINT16(*(u+18), *(u+19));
+			uint16_t uuid7 = BUILD_UINT16(*(u+16), *(u+17));
+			uint16_t uuid6 = BUILD_UINT16(*(u+14), *(u+15));
+			uint16_t uuid5 = BUILD_UINT16(*(u+12), *(u+13));
+			uint16_t uuid4 = BUILD_UINT16(*(u+10), *(u+11));
+			uint16_t uuid3 = BUILD_UINT16(*(u+8), *(u+9));
+			uint16_t uuid2 = BUILD_UINT16(*(u+6), *(u+7));
+			PRINT("  UUID: %04X%04X-%04X-%04X-%04X-%04X%04X%04X %s\r\n", uuid8, uuid7, uuid6, uuid5, uuid4, uuid3, uuid2, uuid);
+		}
 	}
 }
 

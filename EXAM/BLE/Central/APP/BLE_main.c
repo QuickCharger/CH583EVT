@@ -291,7 +291,8 @@ static gapBondCBs_t centralBondCB = {
 };
 
 /// @GATTINFO begin /////////////////////////////////////////////////////////////////
-#define MAX_GATT_INFO 100
+#define MAX_GATT_INFO 20
+// uuid可能是128位的，如此uuid强制置0x0128 方便处理
 struct GATTService
 {
 	uint16_t svcStartHandle;
@@ -949,14 +950,17 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 		uint8_t* l = pMsg->msg.readByGrpTypeRsp.pDataList;
 		if(numGrps >= 0)
 		{
-			BLE_UUID_DESC(l, numGrps);
+			BLE_UUID_DESC(l, numGrps, len-sizeof(uint16_t)-sizeof(uint16_t));
 			for (uint16_t i = 0; i < numGrps; i++)
 			{
-				uint8_t* u = l + i * 6;
+				uint8_t* u = l + i * len;
 				uint16_t startHandle = BUILD_UINT16(*(u+0), *(u+1));
 				uint16_t endHandle = BUILD_UINT16(*(u+2), *(u+3));
 				uint16_t uuid = BUILD_UINT16(*(u+4), *(u+5));
-				
+				if(len == 20)	// 如果是128位的，强制置uuid=0x0128
+				{
+					uuid = 0x0128;
+				}
 				struct GATTService* s = getBlankGATTSvc();
 				if(s)
 				{
@@ -972,10 +976,6 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 					LOG("    找到HID设备, CCCD_SvcStartHdl 0x%04X CCCD_SvcEndHdl 0x%04X\r\n", CCCD_SvcStartHdl, CCCD_SvcEndHdl);
 				}
 			}
-		}
-		else if(len != 6)
-		{
-			LOG("    这个是128位的UUID 暂时不支持数据打印 todo\r\n");
 		}
 		
 		if(pMsg->hdr.status == bleProcedureComplete)
