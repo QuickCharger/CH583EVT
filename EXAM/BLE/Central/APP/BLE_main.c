@@ -982,6 +982,7 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 		{
 			centralDiscState = BLE_DISC_STATE_CHAR_ALL;
 			LOG("    BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_CHAR_ALL 状态\r\n");
+			// 此处有问题 查询的应该是hid相关的 todo
 			QueryServiceInfo(centralConnHandle, centralTaskId, 0);
 		}
 	}
@@ -1089,7 +1090,7 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 		}
 		else
 		{
-			LOG("    未知错误 todo\r\n");
+			LOG("    未知错误 centralDiscState=%d\r\n", centralDiscState);
 		}
 	}
 	GATT_bm_free(&pMsg->msg, pMsg->method);
@@ -1170,7 +1171,6 @@ static void  gapCentralEventCB(gapRoleEvent_t *pEvent)
 				uint8_t eventType = pEvent->deviceInfo.eventType;
 				uint8_t *p = pEvent->deviceInfo.pEvtData;
 				uint8_t l = pEvent->deviceInfo.dataLen;
-				// 要加入的是广播包还是扫描应答包 todo
 				if(eventType == GAP_ADRPT_ADV_IND)	// 广播包
 				{
 					LOG("  扫描广播包 ");
