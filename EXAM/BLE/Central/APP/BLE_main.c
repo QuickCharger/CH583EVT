@@ -308,15 +308,15 @@ struct GATTService
 }gattInfo[MAX_GATT_INFO];
 
 uint8_t queryServiceIndex = 0;
-int8_t QueryServiceInfo(uint16_t centralConnHandle, uint8_t centralTaskId, uint8_t next)
+int8_t QueryServiceInfo(uint16_t centralConnHandle, uint8_t centralTaskId)
 {
 	if(queryServiceIndex >= MAX_GATT_INFO)
 	{
 		LOG("查询服务结束 over max\r\n");
 		return -1;
 	}
-	queryServiceIndex += next;
 	struct GATTService *s = &gattInfo[queryServiceIndex];
+	queryServiceIndex += 1;
 	if(s->uuid == 0)
 	{
 		LOG("查询服务结束\r\n");
@@ -328,6 +328,7 @@ int8_t QueryServiceInfo(uint16_t centralConnHandle, uint8_t centralTaskId, uint8
 
 void clearAllGATTSvc()
 {
+	queryServiceIndex = 0;
 	for(uint8_t i = 0; i < MAX_GATT_INFO; ++i)
 	{
 		gattInfo[i].svcStartHandle = 0;
@@ -983,52 +984,49 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 			centralDiscState = BLE_DISC_STATE_CHAR_ALL;
 			LOG("    BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_CHAR_ALL 状态\r\n");
 			// 此处有问题 查询的应该是hid相关的 todo
-			QueryServiceInfo(centralConnHandle, centralTaskId, 0);
+			QueryServiceInfo(centralConnHandle, centralTaskId);
 		}
 	}
-	else if(centralDiscState != BLE_DISC_STATE_IDLE)
+	else if(pMsg->method == ATT_READ_BY_TYPE_RSP)
 	{
 		// 处于发送UUID查找功能的状态
 		// 期间会收到多个数据返回 根据 pMsg->hdr.status == bleProcedureComplete 判断数据接收完毕
 		if(centralDiscState == BLE_DISC_STATE_CHAR_ALL)
 		{
 			LOG("    当前状态 BLE_DISC_STATE_CHAR_ALL\r\n");
-			if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->msg.readByTypeRsp.numPairs > 0)
+			uint16_t numPairs = pMsg->msg.readByTypeRsp.numPairs;
+			uint16_t len = pMsg->msg.readByTypeRsp.len;
+			uint8_t *pDataList = pMsg->msg.readByTypeRsp.pDataList;
+			for(uint16_t i = 0; i < numPairs; ++i)
 			{
-				uint16_t numPairs = pMsg->msg.readByTypeRsp.numPairs;
-				uint16_t len = pMsg->msg.readByTypeRsp.len;
-				uint8_t *pDataList = pMsg->msg.readByTypeRsp.pDataList;
-				for(uint16_t i = 0; i < numPairs; ++i)
-				{
-					// 12 = GATT_PROP_READ | GATT_PROP_NOTIFY
-					uint8_t* u = pDataList + len * i;
-					uint16_t declareHandle = BUILD_UINT16(*(u+0), *(u+1));	// 属性声明句柄 metadata
-					uint8_t readWrite = *(u + 2);		// 读写权限 GATT_PROP_WRITE
-					uint16_t handle = BUILD_UINT16(*(u+3), *(u+4));
-					uint16_t uuid = BUILD_UINT16(*(u+5), *(u+6));
-					
-					LOG("    DeclareHandle 0x%04X 权限 %s%s%s%s%s%s%s%s handle 0x%04X uuid 0x%04X %s\r\n", declareHandle, \
-					(readWrite & GATT_PROP_BCAST) ? "广播,":"", \
-					(readWrite & GATT_PROP_READ) ? "读,":"", \
-					(readWrite & GATT_PROP_WRITE_NO_RSP) ? "写无应答,":"", \
-					(readWrite & GATT_PROP_WRITE) ? "写,":"", \
-					(readWrite & GATT_PROP_NOTIFY) ? "通知,":"", \
-					(readWrite & GATT_PROP_INDICATE) ? "指示,":"", \
-					(readWrite & GATT_PROP_AUTHEN) ? "认证,":"", \
-					(readWrite & GATT_PROP_EXTENDED) ? "扩展,":"", \
-					handle, uuid, BLE_UUID2str(uuid));
+				// 12 = GATT_PROP_READ | GATT_PROP_NOTIFY
+				uint8_t* u = pDataList + len * i;
+				uint16_t declareHandle = BUILD_UINT16(*(u+0), *(u+1));	// 属性声明句柄 metadata
+				uint8_t readWrite = *(u + 2);		// 读写权限 GATT_PROP_WRITE
+				uint16_t handle = BUILD_UINT16(*(u+3), *(u+4));
+				uint16_t uuid = BUILD_UINT16(*(u+5), *(u+6));
+				
+				LOG("    DeclareHandle 0x%04X 权限 %s%s%s%s%s%s%s%s handle 0x%04X uuid 0x%04X %s\r\n", declareHandle, \
+				(readWrite & GATT_PROP_BCAST) ? "广播,":"", \
+				(readWrite & GATT_PROP_READ) ? "读,":"", \
+				(readWrite & GATT_PROP_WRITE_NO_RSP) ? "写无应答,":"", \
+				(readWrite & GATT_PROP_WRITE) ? "写,":"", \
+				(readWrite & GATT_PROP_NOTIFY) ? "通知,":"", \
+				(readWrite & GATT_PROP_INDICATE) ? "指示,":"", \
+				(readWrite & GATT_PROP_AUTHEN) ? "认证,":"", \
+				(readWrite & GATT_PROP_EXTENDED) ? "扩展,":"", \
+				handle, uuid, BLE_UUID2str(uuid));
 
-					if(readWrite & GATT_PROP_READ)
-					{
-						addReadHandle(handle);
-					}
+				if(readWrite & GATT_PROP_READ)
+				{
+					addReadHandle(handle);
 				}
 			}
 			// 0x2A4B 是 HID信息的UUID 需要获取数据否则解析不了数据
-			if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->hdr.status == bleProcedureComplete)
+			if(pMsg->hdr.status == bleProcedureComplete)
 			{
-				
-				int8_t r = QueryServiceInfo(centralConnHandle, centralTaskId, 1);
+
+				int8_t r = QueryServiceInfo(centralConnHandle, centralTaskId);
 				if(r >= 0)
 				{
 					LOG("    继续状态 BLE_DISC_STATE_CHAR_ALL\r\n");
@@ -1058,23 +1056,20 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 		else if(centralDiscState == BLE_DISC_STATE_CCCD)
 		{
 			LOG("    当前状态 BLE_DISC_STATE_CCCD\r\n");
-			if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->msg.readByTypeRsp.numPairs > 0)
+			uint16_t numPairs = pMsg->msg.readByTypeRsp.numPairs;
+			uint16_t len = pMsg->msg.readByTypeRsp.len;
+			uint8_t *pDataList = pMsg->msg.readByTypeRsp.pDataList;
+			// 此处假设只有一个CCCD！！！
+			for(uint16_t i = 3; i < numPairs; i++)
 			{
-				uint16_t numPairs = pMsg->msg.readByTypeRsp.numPairs;
-				uint16_t len = pMsg->msg.readByTypeRsp.len;
-				uint8_t *pDataList = pMsg->msg.readByTypeRsp.pDataList;
-				// 此处假设只有一个CCCD！！！
-				for(uint16_t i = 3; i < numPairs; i++)
-				{
-					uint16_t handle = BUILD_UINT16(pDataList[len * i], pDataList[len * i+1]);
-					LOG("    发现 CCCD handle 0x%04X\r\n", handle);
-					if(CCCD_Hdl == 0)
-						CCCD_Hdl = handle;
-				}
-				// Start do write CCCD
-				//tmos_start_task(centralTaskId, START_WRITE_CCCD_EVT, DEFAULT_WRITE_CCCD_DELAY);
+				uint16_t handle = BUILD_UINT16(pDataList[len * i], pDataList[len * i+1]);
+				LOG("    发现 CCCD handle 0x%04X\r\n", handle);
+				if(CCCD_Hdl == 0)
+					CCCD_Hdl = handle;
 			}
-			if(pMsg->method == ATT_READ_BY_TYPE_RSP && pMsg->hdr.status == bleProcedureComplete)
+			// Start do write CCCD
+			//tmos_start_task(centralTaskId, START_WRITE_CCCD_EVT, DEFAULT_WRITE_CCCD_DELAY);
+			if(pMsg->hdr.status == bleProcedureComplete)
 			{
 				if(CCCD_Hdl)
 				{
