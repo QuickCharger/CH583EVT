@@ -923,8 +923,9 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 	// 鼠标会走这！！！
 	else if(pMsg->method == ATT_HANDLE_VALUE_NOTI)
 	{
+		BLE_GATT_MSG_DESC(pMsg); PRINT("\r\n");
 		// 接收到 数据 通知 指示
-		//LOG("  ATT_HANDLE_VALUE_NOTI Receive noti: %x 接收到从机notify数据 \r\n", *pMsg->msg.handleValueNoti.pValue);
+		// LOG("  ATT_HANDLE_VALUE_NOTI Receive noti: %x 接收到从机notify数据 \r\n", *pMsg->msg.handleValueNoti.pValue);
 		uint8_t* p = pMsg->msg.handleValueNoti.pValue;
 		uint8_t mouse = *p;
 		int8_t x = *(p + 2);
@@ -1025,7 +1026,6 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 			// 0x2A4B 是 HID信息的UUID 需要获取数据否则解析不了数据
 			if(pMsg->hdr.status == bleProcedureComplete)
 			{
-
 				int8_t r = QueryServiceInfo(centralConnHandle, centralTaskId);
 				if(r >= 0)
 				{
@@ -1060,12 +1060,13 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 			uint16_t len = pMsg->msg.readByTypeRsp.len;
 			uint8_t *pDataList = pMsg->msg.readByTypeRsp.pDataList;
 			// 此处假设只有一个CCCD！！！
-			for(uint16_t i = 3; i < numPairs; i++)
+			for(uint16_t i = 0; i < numPairs; i++)
 			{
 				uint16_t handle = BUILD_UINT16(pDataList[len * i], pDataList[len * i+1]);
 				LOG("    发现 CCCD handle 0x%04X\r\n", handle);
-				if(CCCD_Hdl == 0)
+				if(i == 3 && CCCD_Hdl == 0)
 					CCCD_Hdl = handle;
+				// enableCCCD(handle);
 			}
 			// Start do write CCCD
 			//tmos_start_task(centralTaskId, START_WRITE_CCCD_EVT, DEFAULT_WRITE_CCCD_DELAY);

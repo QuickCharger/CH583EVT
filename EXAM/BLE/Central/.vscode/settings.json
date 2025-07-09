@@ -1,20 +1,25 @@
 {
-  "C_Cpp.default.includePath": [
-    "${workspaceFolder}/../../SRC/StdPeriphDriver",
-    "${workspaceFolder}/../../SRC/StdPeriphDriver/inc",
-    "${workspaceFolder}/../../SRC/RVMSIS",
-    "${workspaceFolder}/APP/include",
-    "${workspaceFolder}/Profile/include",
-    "${workspaceFolder}/../HAL/include",
-    "${workspaceFolder}/../LIB"
-  ],
-  "files.encoding": "gb18030",
-  "files.associations": {
-    "*.js": "javascript",
-    "*.json": "jsonc",
-    "*.cjson": "jsonc",
-    "*.wxss": "css",
-    "*.wxs": "javascript",
-    "config.h": "c"
-  }
+	"C_Cpp.default.includePath": [
+		"${workspaceFolder}/../../SRC/StdPeriphDriver",
+		"${workspaceFolder}/../../SRC/StdPeriphDriver/inc",
+		"${workspaceFolder}/../../SRC/RVMSIS",
+		"${workspaceFolder}/APP/include",
+		"${workspaceFolder}/Profile/include",
+		"${workspaceFolder}/../HAL/include",
+		"${workspaceFolder}/../LIB"
+	],
+	"files.encoding": "gb18030",
+	"files.associations": {
+		"*.js": "javascript",
+		"*.json": "jsonc",
+		"*.cjson": "jsonc",
+		"*.wxss": "css",
+		"*.wxs": "javascript",
+		"config.h": "c",
+		"central.h": "c",
+		"ble_main.h": "c",
+		"hid_main.h": "c",
+		"easy.h": "c",
+		"ch58x_common.h": "c"
+	}
 }
