@@ -348,6 +348,16 @@ struct GATTService* getBlankGATTSvc()
 	return NULL;
 }
 
+struct GATTService* findGATTSvc(uint16_t uuid)
+{
+	for(uint8_t i = 0; i < MAX_GATT_INFO; ++i)
+	{
+		if(gattInfo[i].uuid == uuid)
+			return &gattInfo[i];
+	}
+	return NULL;
+}
+
 uint16_t guessUUID=0x2A33;	// 2A33 鼠标输入 2A4D 鼠标输出
 /// @GATTINFO end //////////////////////////////////////////////////////////////////////
 
@@ -550,7 +560,7 @@ Node* job_pop()
 // 自定义函数 end ////////////////////////////////////////////////////////////////////////////
 
 // CCCD 相关 begin //////////////////////////////////////////////////////////////////////////
-uint16_t CCCD_SvcUUID=0x1812;	// 需要使能的CCCD的svc， 0x1812 HID设备
+uint16_t CCCD_HIDSvcUUID=0x1812;	// 需要使能的CCCD的svc， 0x1812 HID设备
 static uint16_t CCCD_SvcStartHdl = 0;
 static uint16_t CCCD_SvcEndHdl = 0;
 static uint16_t CCCD_Hdl = 0;
@@ -603,8 +613,8 @@ void Central_Init()
 	for(uint8_t i = 0; i < DEFAULT_MAX_SCAN_RES; ++i)
 		clearPeerDev(&centralDevList[i]);
 
-	for(uint8_t i = 0; i < MAX_READ_HANDLE; ++i)
-		lReadHandle[i] = 0;
+	// for(uint8_t i = 0; i < MAX_READ_HANDLE; ++i)
+	// 	lReadHandle[i] = 0;
 	
 	for(uint8_t i = 0; i < MAX_JOB; ++i)
 		job_clear_at(i);
@@ -971,13 +981,6 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 					s->svcEndHandle = endHandle;
 					s->uuid = uuid;
 				}
-
-				if(uuid == CCCD_SvcUUID)
-				{
-					CCCD_SvcStartHdl = startHandle;
-					CCCD_SvcEndHdl = endHandle;
-					LOG("    找到HID设备, CCCD_SvcStartHdl 0x%04X CCCD_SvcEndHdl 0x%04X\r\n", CCCD_SvcStartHdl, CCCD_SvcEndHdl);
-				}
 			}
 		}
 		
@@ -1033,18 +1036,20 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 					LOG("    继续状态 BLE_DISC_STATE_CHAR_ALL\r\n");
 					return;
 				}
-				if(CCCD_SvcStartHdl != 0)
+				struct GATTService* svc = findGATTSvc(CCCD_HIDSvcUUID);
+				if(svc)
 				{
 					centralDiscState = BLE_DISC_STATE_CCCD;
 					LOG("    BLE_DISC_STATE_CHAR_ALL 结束. 进入 BLE_DISC_STATE_CCCD 状态\r\n");
 					attReadByTypeReq_t req;
-					req.startHandle = CCCD_SvcStartHdl;
-					req.endHandle = CCCD_SvcEndHdl;
+					req.startHandle = svc->svcStartHandle;
+					req.endHandle = svc->svcEndHandle;
 					req.type.len = ATT_BT_UUID_SIZE;
 					// GATT_CLIENT_CHAR_CFG_UUID 是获取CCCD的UUID
 					req.type.uuid[0] = LO_UINT16(GATT_CLIENT_CHAR_CFG_UUID);
 					req.type.uuid[1] = HI_UINT16(GATT_CLIENT_CHAR_CFG_UUID);
 					GATT_ReadUsingCharUUID(centralConnHandle, &req, centralTaskId);
+					LOG("    找到HID设备, CCCD_SvcStartHdl 0x%04X CCCD_SvcEndHdl 0x%04X\r\n", svc->svcStartHandle, svc->svcEndHandle);
 				}
 				else
 				{
