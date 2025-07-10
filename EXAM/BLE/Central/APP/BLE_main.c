@@ -988,7 +988,7 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 		{
 			centralDiscState = BLE_DISC_STATE_CHAR_ALL;
 			LOG("    BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_CHAR_ALL 状态\r\n");
-			// 此处有问题 查询的应该是hid相关的 todo
+			// 查询全部service
 			QueryServiceInfo(centralConnHandle, centralTaskId);
 		}
 	}
@@ -1070,22 +1070,22 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 			{
 				uint16_t handle = BUILD_UINT16(pDataList[len * i], pDataList[len * i+1]);
 				LOG("    发现 CCCD handle 0x%04X\r\n", handle);
-				if(i == 3 && CCCD_Hdl == 0)
-					CCCD_Hdl = handle;
-				// enableCCCD(handle);
+				// if(i == 3 && CCCD_Hdl == 0)
+				// 	CCCD_Hdl = handle;
+				enableCCCD(handle);
 			}
 			// Start do write CCCD
 			//tmos_start_task(centralTaskId, START_WRITE_CCCD_EVT, DEFAULT_WRITE_CCCD_DELAY);
 			if(pMsg->hdr.status == bleProcedureComplete)
 			{
-				if(CCCD_Hdl)
-				{
-					int8_t r = enableCCCD(CCCD_Hdl);
-					if(r == 0)
-						LOG("    尝试使能CCCD 0x%04X\r\n", CCCD_Hdl);
-					else
-						LOG("    使能CCCD失败\r\n");
-				}
+				// if(CCCD_Hdl)
+				// {
+				// 	int8_t r = enableCCCD(CCCD_Hdl);
+				// 	if(r == 0)
+				// 		LOG("    尝试使能CCCD 0x%04X\r\n", CCCD_Hdl);
+				// 	else
+				// 		LOG("    使能CCCD失败\r\n");
+				// }
 				centralDiscState = BLE_DISC_STATE_IDLE;
 				LOG("    BLE_DISC_STATE_CCCD 结束. 进入 BLE_DISC_STATE_IDLE 状态\r\n");
 			}
