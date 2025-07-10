@@ -442,7 +442,7 @@ void BLE_GATT_MSG_DESC(gattMsgEvent_t *m)
 	} else if(m->method == ATT_EXECUTE_WRITE_RSP) {
 		PRINT("GATT {method:%s}", BLE_Opcode2str(m->method));
 	} else if(m->method == ATT_HANDLE_VALUE_NOTI) {
-		PRINT("GATT {method:%s, {len:%d, pDataList:0x", BLE_Opcode2str(m->method), msg.handleValueNoti.len);
+		PRINT("GATT {method:%s, {handle: 0x%04x, len:%d, pDataList:0x", BLE_Opcode2str(m->method), msg.handleValueNoti.handle, msg.handleValueNoti.len);
 		Print_Memory(msg.handleValueNoti.pValue, msg.handleValueNoti.len , 0);
 		PRINT("}}");
 	} else if(m->method == ATT_HANDLE_VALUE_IND) {
