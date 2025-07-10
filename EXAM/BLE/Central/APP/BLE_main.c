@@ -323,6 +323,7 @@ int8_t QueryServiceInfo(uint16_t centralConnHandle, uint8_t centralTaskId)
 		return -2;
 	}
 	GATT_DiscAllChars(centralConnHandle, s->svcStartHandle, s->svcEndHandle, centralTaskId);
+	LOG("查询service 0x%04X\r\n", s->uuid);
 	return 0;
 }
 
@@ -436,35 +437,35 @@ void clearPeerDev(gapDevRec_t* peerDev)
 	memset(peerDev, 0, sizeof(gapDevRec_t));
 }
 
-#define MAX_READ_HANDLE 20
-static uint16_t lReadHandle[MAX_READ_HANDLE] = {0};
+// #define MAX_READ_HANDLE 20
+// static uint16_t lReadHandle[MAX_READ_HANDLE] = {0};
 
-void addReadHandle(uint16_t handle)
-{
-	for(uint8_t i = 0; i < MAX_READ_HANDLE; ++i)
-	{
-		if(lReadHandle[i] == 0)
-		{
-			lReadHandle[i] = handle;
-			break;
-		}
-	}
-}
+// void addReadHandle(uint16_t handle)
+// {
+// 	for(uint8_t i = 0; i < MAX_READ_HANDLE; ++i)
+// 	{
+// 		if(lReadHandle[i] == 0)
+// 		{
+// 			lReadHandle[i] = handle;
+// 			break;
+// 		}
+// 	}
+// }
 
-uint16_t getReadHandle(uint8_t remove)
-{
-	for(uint8_t i = 0; i < MAX_READ_HANDLE; ++i)
-	{
-		if(lReadHandle[i] != 0)
-		{
-			uint16_t hdl = lReadHandle[i];
-			if(remove > 0)
-				lReadHandle[i] = 0;
-			return hdl;
-		}
-	}
-	return 0;
-}
+// uint16_t getReadHandle(uint8_t remove)
+// {
+// 	for(uint8_t i = 0; i < MAX_READ_HANDLE; ++i)
+// 	{
+// 		if(lReadHandle[i] != 0)
+// 		{
+// 			uint16_t hdl = lReadHandle[i];
+// 			if(remove > 0)
+// 				lReadHandle[i] = 0;
+// 			return hdl;
+// 		}
+// 	}
+// 	return 0;
+// }
 
 #define MAX_JOB 100
 typedef struct {
@@ -747,78 +748,78 @@ uint16_t Central_ProcessEvent(uint8_t task_id, uint16_t events)
 		LOG("PHY Update %x...\r\n", t);
 		return (events ^ START_PHY_UPDATE_EVT);
 	}
-	if(events & START_READ_OR_WRITE_EVT)
-	{
-		LOG("主回调 START_READ_OR_WRITE_EVT 主机读数据从从机，一秒一次\r\n");
-		{
-			// if(centralDoWrite)
-			// {
-			// 	// Do a write
-			// 	attWriteReq_t req;
-			// 	req.cmd = FALSE;
-			// 	req.sig = FALSE;
-			// 	req.handle = centralCharHdl;
-			// 	req.len = 1;
-			// 	req.pValue = GATT_bm_alloc(centralConnHandle, ATT_WRITE_REQ, req.len, NULL, 0);
-			// 	if(req.pValue != NULL)
-			// 	{
-			// 		*req.pValue = centralCharVal;
-			// 		if(GATT_WriteCharValue(centralConnHandle, &req, centralTaskId) == SUCCESS)
-			// 		{
-			// 			centralDoWrite = !centralDoWrite;
-			// 			tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
-			// 		}
-			// 		else
-			// 		{
-			// 			GATT_bm_free((gattMsg_t *)&req, ATT_WRITE_REQ);
-			// 		}
-			// 	}
-			// }
-			// else
-			{
-				// Do a read
-				// LOG("0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X \r\n", jobHandle[0], jobHandle[1], jobHandle[2], jobHandle[3], jobHandle[4], jobHandle[5], jobHandle[6], jobHandle[7], jobHandle[8], jobHandle[9]);
-				uint16_t hdl = getReadHandle(1);
-				if(hdl != 0)
-				{
-					attReadReq_t req;
-					req.handle = hdl;
-					// 调用后收到 GATT_MSG_EVENT 事件， ATT_READ_RSP 消息
-					LOG("    开启一个读写任务 handle 0x%04X\r\n", hdl);
-					if(GATT_ReadCharValue(centralConnHandle, &req, centralTaskId) == SUCCESS)
-					{
-						centralDoWrite = !centralDoWrite;
-					}
-					tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
-				}
-			}
-		}
-		return (events ^ START_READ_OR_WRITE_EVT);
-	}
-	if(events & START_WRITE_CCCD_EVT)
-	{
-		LOG("主回调 START_WRITE_CCCD_EVT 尝试使能 CCCD\r\n");
-		{
-			// Do a write
-			attWriteReq_t req;
-			req.cmd = FALSE;
-			req.sig = FALSE;
-			req.handle = 0;
-			req.len = 2;
-			req.pValue = GATT_bm_alloc(centralConnHandle, ATT_WRITE_REQ, req.len, NULL, 0);
-			if(req.pValue != NULL)
-			{
-				req.pValue[0] = 1;
-				req.pValue[1] = 0;
-				if(GATT_WriteCharValue(centralConnHandle, &req, centralTaskId) == SUCCESS)
-				{
-					LOG("主回调 START_WRITE_CCCD_EVT 尝试使能 CCCD 2\r\n");
-				}
-				GATT_bm_free((gattMsg_t *)&req, ATT_WRITE_REQ);
-			}
-		}
-		return (events ^ START_WRITE_CCCD_EVT);
-	}
+	// if(events & START_READ_OR_WRITE_EVT)
+	// {
+	// 	LOG("主回调 START_READ_OR_WRITE_EVT 主机读数据从从机，一秒一次\r\n");
+	// 	{
+	// 		// if(centralDoWrite)
+	// 		// {
+	// 		// 	// Do a write
+	// 		// 	attWriteReq_t req;
+	// 		// 	req.cmd = FALSE;
+	// 		// 	req.sig = FALSE;
+	// 		// 	req.handle = centralCharHdl;
+	// 		// 	req.len = 1;
+	// 		// 	req.pValue = GATT_bm_alloc(centralConnHandle, ATT_WRITE_REQ, req.len, NULL, 0);
+	// 		// 	if(req.pValue != NULL)
+	// 		// 	{
+	// 		// 		*req.pValue = centralCharVal;
+	// 		// 		if(GATT_WriteCharValue(centralConnHandle, &req, centralTaskId) == SUCCESS)
+	// 		// 		{
+	// 		// 			centralDoWrite = !centralDoWrite;
+	// 		// 			tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
+	// 		// 		}
+	// 		// 		else
+	// 		// 		{
+	// 		// 			GATT_bm_free((gattMsg_t *)&req, ATT_WRITE_REQ);
+	// 		// 		}
+	// 		// 	}
+	// 		// }
+	// 		// else
+	// 		{
+	// 			// Do a read
+	// 			// LOG("0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X 0x%04X \r\n", jobHandle[0], jobHandle[1], jobHandle[2], jobHandle[3], jobHandle[4], jobHandle[5], jobHandle[6], jobHandle[7], jobHandle[8], jobHandle[9]);
+	// 			uint16_t hdl = getReadHandle(1);
+	// 			if(hdl != 0)
+	// 			{
+	// 				attReadReq_t req;
+	// 				req.handle = hdl;
+	// 				// 调用后收到 GATT_MSG_EVENT 事件， ATT_READ_RSP 消息
+	// 				LOG("    开启一个读写任务 handle 0x%04X\r\n", hdl);
+	// 				if(GATT_ReadCharValue(centralConnHandle, &req, centralTaskId) == SUCCESS)
+	// 				{
+	// 					centralDoWrite = !centralDoWrite;
+	// 				}
+	// 				tmos_start_task(centralTaskId, START_READ_OR_WRITE_EVT, DEFAULT_READ_OR_WRITE_DELAY);
+	// 			}
+	// 		}
+	// 	}
+	// 	return (events ^ START_READ_OR_WRITE_EVT);
+	// }
+	// if(events & START_WRITE_CCCD_EVT)
+	// {
+	// 	LOG("主回调 START_WRITE_CCCD_EVT 尝试使能 CCCD\r\n");
+	// 	{
+	// 		// Do a write
+	// 		attWriteReq_t req;
+	// 		req.cmd = FALSE;
+	// 		req.sig = FALSE;
+	// 		req.handle = 0;
+	// 		req.len = 2;
+	// 		req.pValue = GATT_bm_alloc(centralConnHandle, ATT_WRITE_REQ, req.len, NULL, 0);
+	// 		if(req.pValue != NULL)
+	// 		{
+	// 			req.pValue[0] = 1;
+	// 			req.pValue[1] = 0;
+	// 			if(GATT_WriteCharValue(centralConnHandle, &req, centralTaskId) == SUCCESS)
+	// 			{
+	// 				LOG("主回调 START_WRITE_CCCD_EVT 尝试使能 CCCD 2\r\n");
+	// 			}
+	// 			GATT_bm_free((gattMsg_t *)&req, ATT_WRITE_REQ);
+	// 		}
+	// 	}
+	// 	return (events ^ START_WRITE_CCCD_EVT);
+	// }
 	if(events & START_READ_RSSI_EVT)
 	{
 		GAPRole_ReadRssiCmd(centralConnHandle);
@@ -927,7 +928,7 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 		// 接收到 数据 通知 指示
 		// LOG("  ATT_HANDLE_VALUE_NOTI Receive noti: %x 接收到从机notify数据 \r\n", *pMsg->msg.handleValueNoti.pValue);
 		uint8_t* p = pMsg->msg.handleValueNoti.pValue;
-		uint8_t mouse = *p;
+		uint8_t mouse = *(p+0);
 		int8_t x = *(p + 2);
 		// int8_t y = *(p + 3);
 		int8_t y1 = *(p + 4);
@@ -1018,10 +1019,10 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 				(readWrite & GATT_PROP_EXTENDED) ? "扩展,":"", \
 				handle, uuid, BLE_UUID2str(uuid));
 
-				if(readWrite & GATT_PROP_READ)
-				{
-					addReadHandle(handle);
-				}
+				// if(readWrite & GATT_PROP_READ)
+				// {
+				// 	addReadHandle(handle);
+				// }
 			}
 			// 0x2A4B 是 HID信息的UUID 需要获取数据否则解析不了数据
 			if(pMsg->hdr.status == bleProcedureComplete)
