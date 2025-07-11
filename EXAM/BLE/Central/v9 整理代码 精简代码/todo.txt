@@ -1,0 +1,2 @@
+v5 获取Primary,secondary Service都ok,需要获取CCCD 中 获取消息不完整
+	GATT 消息总体描述. GATT {method:ATT_READ_RSP, {len:22, pDataList:0x05 01 09 06 a1 01 85 01 05 07 19 e0 29 e7 15 00 25 01 75 01 95 08 }}
