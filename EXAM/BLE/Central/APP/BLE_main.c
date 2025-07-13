@@ -477,6 +477,39 @@ void clearPeerDev(gapDevRec_t* peerDev)
 // 	return 0;
 // }
 
+uint16_t handle2A4B = 0;	// 键鼠HID定义handle
+uint8_t buf2A4B[1000];		// HID定义的buf
+uint16_t buf2A4B_len;
+
+uint8_t ReadCharValue(uint16_t hdl, uint16_t offset)
+{
+	bStatus_t ret = SUCCESS;
+	LOG("    开启一个读任务 handle 0x%04X\r\n", hdl);
+	if(offset == 0)
+	{
+		attReadReq_t req;
+		req.handle = hdl;
+		ret = GATT_ReadCharValue(centralConnHandle, &req, centralTaskId);
+	}
+	else
+	{
+		attReadBlobReq_t req;
+		req.handle = hdl;
+		req.offset = offset;
+		ret = GATT_ReadLongCharValue(centralConnHandle, &req, centralTaskId);
+	}
+
+	if(ret == SUCCESS)
+	{
+		LOG("    请求成功, offset %d\r\n", offset);
+	}
+	else
+	{
+		LOG("    请求失败, offset %d, result: %d, ERROR\r\n", offset, ret);
+	}
+	return ret;
+}
+
 #define MAX_JOB 100
 typedef struct {
     uint8_t type;
@@ -618,6 +651,9 @@ void Central_Init()
 	
 	for(uint8_t i = 0; i < MAX_JOB; ++i)
 		job_clear_at(i);
+
+	memset(buf2A4B, 0, sizeof(buf2A4B));
+	buf2A4B_len = 0;
 
 	// Setup GAP
 	GAP_SetParamValue(TGAP_DISC_SCAN, DEFAULT_SCAN_DURATION);	// 单次扫描时长
@@ -919,10 +955,26 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 		LOG("  ATT_MTU_UPDATED_EVENT MTU: %d\r\n", pMsg->msg.mtuEvt.MTU);
 	}
 	// 如果消息是读取响应 或 读取请求的错误响应，则处理读取结果。
-	if(pMsg->method == ATT_READ_RSP)
+	if(pMsg->method == ATT_READ_RSP || pMsg->method == ATT_READ_BLOB_RSP)
 	{
 		// After a successful read, display the read value
-		LOG("  ATT_READ_RSP Read rsp: %s\r\n", *pMsg->msg.readRsp.pValue);
+		uint16_t len = pMsg->msg.readRsp.len;
+		uint8_t* p = pMsg->msg.readRsp.pValue;
+		//LOG("  ATT_READ_RSP Read len %d, rsp: %s", len, *p);Print_Memory(p, len, 1); PRINT("\r\n");
+		// uint16_t devHdl = pMsg->connHandle;
+		// 如果是鼠标输入的2A4B服务，则保存数据
+		// if(hdl == handle2A4B)
+		if(len != 0)	// 如果=0表示数据请求结束，可以请求下一个handle的数据了
+		{
+			memcpy(buf2A4B + buf2A4B_len, pMsg->msg.readRsp.pValue, len);
+			buf2A4B_len += len;
+			LOG("  buf2A4B: "); Print_Memory(buf2A4B, buf2A4B_len, 1); PRINT("\r\n");
+			ReadCharValue(handle2A4B, buf2A4B_len);
+		}
+		// else
+		// {
+		// 	LOG("  ATT_READ_RSP Read rsp: handle 0x%04X unknown\r\n", hdl);
+		// }
 	}
 	// 如果消息是写入响应 或 写入请求的错误响应，则处理写入结果。
 	else if(pMsg->method == ATT_WRITE_RSP)
@@ -1022,6 +1074,10 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 				(readWrite & GATT_PROP_EXTENDED) ? "扩展,":"", \
 				handle, uuid, BLE_UUID2str(uuid));
 
+				if(uuid == 0x2A4B)
+				{
+					handle2A4B = handle;
+				}
 				// if(readWrite & GATT_PROP_READ)
 				// {
 				// 	addReadHandle(handle);
@@ -1034,8 +1090,10 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 				if(r >= 0)
 				{
 					LOG("    继续状态 BLE_DISC_STATE_CHAR_ALL\r\n");
+					GATT_bm_free(&pMsg->msg, pMsg->method);
 					return;
 				}
+				ReadCharValue(handle2A4B, buf2A4B_len);
 				struct GATTService* svc = findGATTSvc(CCCD_HIDSvcUUID);
 				if(svc)
 				{
@@ -1095,6 +1153,7 @@ static void gattCentralMsg(gattMsgEvent_t *pMsg)
 			LOG("    未知错误 centralDiscState=%d\r\n", centralDiscState);
 		}
 	}
+	
 	GATT_bm_free(&pMsg->msg, pMsg->method);
 }
 

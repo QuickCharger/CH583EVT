@@ -1,46 +1,36 @@
 
-[22:56:23.062]收←◆start
-CH58x_BLE_LIB_V2.10
-
-[22:56:23.094]收←◆[Central_ProcessEvent:686] 主回调 START_DEVICE_EVT 设备初始化完成
-
-[22:56:23.121]收←◆[gapCentralEventCB   :1157] EventCB GAP_DEVICE_INIT_DONE_EVENT 初始化结束 开始探测设备
-
-[22:56:23.164]收←◆[gapCentralEventCB   :1170] EventCB GAP_DEVICE_INFO_EVENT 发现设备
-
-[22:56:23.226]收←◆[gapCentralEventCB   :1178]   扫描广播包 02 01 04 03 19 c2 03 03 03 12 18 0f 09 4d 37 32 30 20 54 72 69 61 74 68 6c 6f 6e 
+[20:14:21.704]收←◆[gapCentralEventCB   :1229] EventCB GAP_DEVICE_INFO_EVENT 发现设备
+[gapCentralEventCB   :1237]   扫描广播包 02 01 04 03 19 c2 03 03 03 12 18 0f 09 4d 37 32 30 20 54 72 69 61 74 68 6c 6f 6e 
 [parseDeviceInfo     :387]     广播类型 0x04 BR/EDR Not Supported
 [parseDeviceInfo     :427]     Appearance 0x03c2 Mouse
 [parseDeviceInfo     :396]     UUID 0x1812
 [parseDeviceInfo     :403]     设备名称 "M720 Triathlon"
-[centralAddDeviceInfo:1421]   发现新设备 MAC 80-a1-86-52-e4-c3, RSSI -23 dBm
-[centralAddDeviceInfo:1424]   发现新设备 记录 MAC 80-a1-86-52-e4-c3, RSSI -23 dBm
-[gapCentralEventCB   :1170] EventCB GAP_DEVICE_INFO_EVENT 发现设备
-[gapCentralEventCB   :1188]   扫描应答包 02 0a 04 
+[centralAddDeviceInfo:1480]   发现新设备 MAC 80-a1-86-52-e4-c3, RSSI -35 dBm
+[centralAddDeviceInfo:1483]   发现新设备 记录 MAC 80-a1-86-52-e4-c3, RSSI -35 dBm
+[gapCentralEventCB   :1229] EventCB GAP_DEVICE_INFO_EVENT 发现设备
+[gapCentralEventCB   :1247]   扫描应答包 02 0a 04 
 [parseDeviceInfo     :407]     电量 4%
 
-[22:56:23.444]收←◆[ ] Num Lock	[ ] Caps Lock	[ ] Scroll Lock
+[20:14:21.989]收←◆[gapCentralEventCB   :1261] EventCB GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
+[gapCentralEventCB   :1271]   找到设备 MAC 80-a1-86-52-e4-c3. rssi -35. 尝试连接
 
-[22:56:24.735]收←◆[gapCentralEventCB   :1202] EventCB GAP_DEVICE_DISCOVERY_EVENT 探测设备 结束
-[gapCentralEventCB   :1212]   找到设备 MAC 80-a1-86-52-e4-c3. rssi -23. 尝试连接
+[20:14:22.027]收←◆[gapCentralPairStateCB:1412] gapCentralPairStateCB 0 0
+[gapCentralPairStateCB:1415] Pairing started:0
+[gapCentralEventCB   :1282] EventCB GAP_LINK_ESTABLISHED_EVENT
+[gapCentralEventCB   :1286]   MAC 80-a1-86-52-e4-c3 连接成功
 
-[22:56:24.767]收←◆[gapCentralPairStateCB:1353] gapCentralPairStateCB 0 0
-[gapCentralPairStateCB:1356] Pairing started:0
-[gapCentralEventCB   :1223] EventCB GAP_LINK_ESTABLISHED_EVENT
-[gapCentralEventCB   :1227]   MAC 80-a1-86-52-e4-c3 连接成功
+[20:14:22.407]收←◆[gapCentralPasscodeCB:1460] gapCentralPasscodeCB
+[gapCentralPasscodeCB:1464]   send Passcode:000000
 
-[22:56:25.147]收←◆[gapCentralPasscodeCB:1401] gapCentralPasscodeCB
-[gapCentralPasscodeCB:1405]   send Passcode:000000
+[20:14:22.478]收←◆[gattCentralMsg      :950]   Negotiated MTU: 23
 
-[22:56:25.219]收←◆[gattCentralMsg      :914]   Negotiated MTU: 23
+[20:14:23.042]收←◆[Central_ProcessEvent:735] 主回调 START_SVC_DISCOVERY_EVT 搜索枚举服务任务 开始
+[Central_ProcessEvent:755] 主回调 START_SVC_DISCOVERY_EVT 请求配对失败 bleIncorrectMode
 
-[22:56:25.782]收←◆[Central_ProcessEvent:699] 主回调 START_SVC_DISCOVERY_EVT 搜索枚举服务任务 开始
-[Central_ProcessEvent:719] 主回调 START_SVC_DISCOVERY_EVT 请求配对失败 bleIncorrectMode
+[20:14:23.322]收←◆[gapCentralPairStateCB:1412] gapCentralPairStateCB 2 0
+[gapCentralPairStateCB:1432] Bonding success
 
-[22:56:25.986]收←◆[gapCentralPairStateCB:1353] gapCentralPairStateCB 2 0
-[gapCentralPairStateCB:1373] Bonding success
-
-[22:56:26.225]收←◆Service 1:
+[20:14:23.560]收←◆Service 1:
   Handle: 0x0001 ~ 0x0007
   UUID: 0x1800 UUID Service 通用访问
 Service 2:
@@ -50,113 +40,136 @@ Service 3:
   Handle: 0x000C ~ 0x001A
   UUID: 0x180A UUID Service 设备信息
 
-[22:56:26.448]收←◆Service 1:
+[20:14:23.783]收←◆Service 1:
   Handle: 0x001B ~ 0x001D
   UUID: 0x180F UUID Service 电池数据
 Service 2:
   Handle: 0x001E ~ 0x003D
   UUID: 0x1812 UUID Service HID设备
 
-[22:56:26.670]收←◆Service 1:
+[20:14:24.005]收←◆Service 1:
   Handle: 0x003E ~ 0xFFFF
   UUID: 00010000-0000-1000-8000-011F2000046D 
 
-[22:56:26.702]收←◆[gattCentralMsg      :990]     BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_CHAR_ALL 状态
+[20:14:24.038]收←◆[gattCentralMsg      :1042]     BLE_DISC_STATE_ALL_SVC 结束. 进入 BLE_DISC_STATE_CHAR_ALL 状态
 [QueryServiceInfo    :326] 查询service 0x1800
 
-[22:56:26.738]收←◆[gapCentralPairStateCB:1353] gapCentralPairStateCB 1 0
-[gapCentralPairStateCB:1362] Pairing success
-[gapCentralPairStateCB:1353] gapCentralPairStateCB 3 0
-[gapCentralPairStateCB:1380] Bond save success
+[20:14:24.080]收←◆[Central_ProcessEvent:781] 主回调 START_PARAM_UPDATE_EVT
+[gapCentralPairStateCB:1412] gapCentralPairStateCB 1 0
+[gapCentralPairStateCB:1421] Pairing success
+[gapCentralPairStateCB:1412] gapCentralPairStateCB 3 0
+[gapCentralPairStateCB:1439] Bond save success
 
-[22:56:26.772]收←◆[Central_ProcessEvent:745] 主回调 START_PARAM_UPDATE_EVT
+[20:14:24.169]收←◆[gapCentralEventCB   :1338] EventCB GAP_LINK_PARAM_UPDATE_EVENT 更新成功
 
-[22:56:26.835]收←◆[gapCentralEventCB   :1279] EventCB GAP_LINK_PARAM_UPDATE_EVENT 更新成功
+[20:14:25.018]收←◆[gattCentralMsg      :1053]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :1075]     DeclareHandle 0x0002 权限 读,写, handle 0x0003 uuid 0x2A00 UUID Characteristic 设备名称
+[gattCentralMsg      :1075]     DeclareHandle 0x0004 权限 读, handle 0x0005 uuid 0x2A01 UUID Characteristic 外观
+[gattCentralMsg      :1075]     DeclareHandle 0x0006 权限 读, handle 0x0007 uuid 0x2A04 UUID Characteristic 外围设备首选连接参数
 
-[22:56:27.684]收←◆[gattCentralMsg      :1001]     当前状态 BLE_DISC_STATE_CHAR_ALL
-[gattCentralMsg      :1023]     DeclareHandle 0x0002 权限 读,写, handle 0x0003 uuid 0x2A00 UUID Characteristic 设备名称
-[gattCentralMsg      :1023]     DeclareHandle 0x0004 权限 读, handle 0x0005 uuid 0x2A01 UUID Characteristic 外观
-[gattCentralMsg      :1023]     DeclareHandle 0x0006 权限 读, handle 0x0007 uuid 0x2A04 UUID Characteristic 外围设备首选连接参数
-
-[22:56:27.710]收←◆[gattCentralMsg      :1001]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[20:14:25.044]收←◆[gattCentralMsg      :1053]     当前状态 BLE_DISC_STATE_CHAR_ALL
 [QueryServiceInfo    :326] 查询service 0x1801
-[gattCentralMsg      :1036]     继续状态 BLE_DISC_STATE_CHAR_ALL
-[gattCentralMsg      :1001]     当前状态 BLE_DISC_STATE_CHAR_ALL
-[gattCentralMsg      :1023]     DeclareHandle 0x0009 权限 指示, handle 0x000A uuid 0x2A05 UUID Characteristic 服务已更改
+[gattCentralMsg      :1092]     继续状态 BLE_DISC_STATE_CHAR_ALL
 
-[22:56:27.771]收←◆[gattCentralMsg      :1001]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[20:14:25.073]收←◆[gattCentralMsg      :1053]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :1075]     DeclareHandle 0x0009 权限 指示, handle 0x000A uuid 0x2A05 UUID Characteristic 服务已更改
+
+[20:14:25.106]收←◆[gattCentralMsg      :1053]     当前状态 BLE_DISC_STATE_CHAR_ALL
 [QueryServiceInfo    :326] 查询service 0x180A
-[gattCentralMsg      :1036]     继续状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :1092]     继续状态 BLE_DISC_STATE_CHAR_ALL
 
-[22:56:27.823]收←◆[gattCentralMsg      :1001]     当前状态 BLE_DISC_STATE_CHAR_ALL
-[gattCentralMsg      :1023]     DeclareHandle 0x000D 权限 读, handle 0x000E uuid 0x2A29 UUID Characteristic 制造商名称字符
-[gattCentralMsg      :1023]     DeclareHandle 0x000F 权限 读, handle 0x0010 uuid 0x2A24 UUID Characteristic 型号字符
-[gattCentralMsg      :1023]     DeclareHandle 0x0011 权限 读, handle 0x0012 uuid 0x2A25 UUID Characteristic 序列号字符
+[20:14:25.158]收←◆[gattCentralMsg      :1053]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :1075]     DeclareHandle 0x000D 权限 读, handle 0x000E uuid 0x2A29 UUID Characteristic 制造商名称字符
+[gattCentralMsg      :1075]     DeclareHandle 0x000F 权限 读, handle 0x0010 uuid 0x2A24 UUID Characteristic 型号字符
+[gattCentralMsg      :1075]     DeclareHandle 0x0011 权限 读, handle 0x0012 uuid 0x2A25 UUID Characteristic 序列号字符
 
-[22:56:27.877]收←◆[gattCentralMsg      :1001]     当前状态 BLE_DISC_STATE_CHAR_ALL
-[gattCentralMsg      :1023]     DeclareHandle 0x0013 权限 读, handle 0x0014 uuid 0x2A27 UUID Characteristic 硬件修订字符
-[gattCentralMsg      :1023]     DeclareHandle 0x0015 权限 读, handle 0x0016 uuid 0x2A26 UUID Characteristic 固件修订字符
-[gattCentralMsg      :1023]     DeclareHandle 0x0017 权限 读, handle 0x0018 uuid 0x2A28 UUID Characteristic 软件修订版字符
+[20:14:25.211]收←◆[gattCentralMsg      :1053]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :1075]     DeclareHandle 0x0013 权限 读, handle 0x0014 uuid 0x2A27 UUID Characteristic 硬件修订字符
+[gattCentralMsg      :1075]     DeclareHandle 0x0015 权限 读, handle 0x0016 uuid 0x2A26 UUID Characteristic 固件修订字符
+[gattCentralMsg      :1075]     DeclareHandle 0x0017 权限 读, handle 0x0018 uuid 0x2A28 UUID Characteristic 软件修订版字符
+[gattCentralMsg      :1053]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :1075]     DeclareHandle 0x0019 权限 读, handle 0x001A uuid 0x2A50 UUID Characteristic 即插即用ID
 
-[22:56:27.904]收←◆[gattCentralMsg      :1001]     当前状态 BLE_DISC_STATE_CHAR_ALL
-[gattCentralMsg      :1023]     DeclareHandle 0x0019 权限 读, handle 0x001A uuid 0x2A50 UUID Characteristic 即插即用ID
-
-[22:56:27.938]收←◆[gattCentralMsg      :1001]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[20:14:25.272]收←◆[gattCentralMsg      :1053]     当前状态 BLE_DISC_STATE_CHAR_ALL
 [QueryServiceInfo    :326] 查询service 0x180F
-[gattCentralMsg      :1036]     继续状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :1092]     继续状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :1053]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :1075]     DeclareHandle 0x001C 权限 读, handle 0x001D uuid 0x2A19 UUID Characteristic 电池电量
 
-[22:56:27.965]收←◆[gattCentralMsg      :1001]     当前状态 BLE_DISC_STATE_CHAR_ALL
-[gattCentralMsg      :1023]     DeclareHandle 0x001C 权限 读, handle 0x001D uuid 0x2A19 UUID Characteristic 电池电量
-
-[22:56:27.998]收←◆[gattCentralMsg      :1001]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[20:14:25.333]收←◆[gattCentralMsg      :1053]     当前状态 BLE_DISC_STATE_CHAR_ALL
 [QueryServiceInfo    :326] 查询service 0x1812
-[gattCentralMsg      :1036]     继续状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :1092]     继续状态 BLE_DISC_STATE_CHAR_ALL
 
-[22:56:28.053]收←◆[gattCentralMsg      :1001]     当前状态 BLE_DISC_STATE_CHAR_ALL
-[gattCentralMsg      :1023]     DeclareHandle 0x001F 权限 读, handle 0x0020 uuid 0x2A4A UUID Characteristic HID信息
-[gattCentralMsg      :1023]     DeclareHandle 0x0021 权限 读,通知, handle 0x0022 uuid 0x2A22 UUID Characteristic 启动键盘输入报告
-[gattCentralMsg      :1023]     DeclareHandle 0x0024 权限 读,写无应答,写, handle 0x0025 uuid 0x2A32 UUID Characteristic 启动键盘输出报告
+[20:14:25.387]收←◆[gattCentralMsg      :1053]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :1075]     DeclareHandle 0x001F 权限 读, handle 0x0020 uuid 0x2A4A UUID Characteristic HID信息
+[gattCentralMsg      :1075]     DeclareHandle 0x0021 权限 读,通知, handle 0x0022 uuid 0x2A22 UUID Characteristic 启动键盘输入报告
+[gattCentralMsg      :1075]     DeclareHandle 0x0024 权限 读,写无应答,写, handle 0x0025 uuid 0x2A32 UUID Characteristic 启动键盘输出报告
 
-[22:56:28.112]收←◆[gattCentralMsg      :1001]     当前状态 BLE_DISC_STATE_CHAR_ALL
-[gattCentralMsg      :1023]     DeclareHandle 0x0026 权限 读,通知, handle 0x0027 uuid 0x2A33 UUID Characteristic 启动鼠标输入报告
-[gattCentralMsg      :1023]     DeclareHandle 0x0029 权限 读, handle 0x002A uuid 0x2A4B UUID Characteristic 报告地图
-[gattCentralMsg      :1023]     DeclareHandle 0x002B 权限 读,通知, handle 0x002C uuid 0x2A4D UUID Characteristic 报告
+[20:14:25.446]收←◆[gattCentralMsg      :1053]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :1075]     DeclareHandle 0x0026 权限 读,通知, handle 0x0027 uuid 0x2A33 UUID Characteristic 启动鼠标输入报告
+[gattCentralMsg      :1075]     DeclareHandle 0x0029 权限 读, handle 0x002A uuid 0x2A4B UUID Characteristic 报告地图
+[gattCentralMsg      :1075]     DeclareHandle 0x002B 权限 读,通知, handle 0x002C uuid 0x2A4D UUID Characteristic 报告
 
-[22:56:28.164]收←◆[gattCentralMsg      :1001]     当前状态 BLE_DISC_STATE_CHAR_ALL
-[gattCentralMsg      :1023]     DeclareHandle 0x002F 权限 读,通知, handle 0x0030 uuid 0x2A4D UUID Characteristic 报告
-[gattCentralMsg      :1023]     DeclareHandle 0x0033 权限 读,通知, handle 0x0034 uuid 0x2A4D UUID Characteristic 报告
-[gattCentralMsg      :1023]     DeclareHandle 0x0037 权限 读,写无应答,写, handle 0x0038 uuid 0x2A4D UUID Characteristic 报告
+[20:14:25.499]收←◆[gattCentralMsg      :1053]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :1075]     DeclareHandle 0x002F 权限 读,通知, handle 0x0030 uuid 0x2A4D UUID Characteristic 报告
+[gattCentralMsg      :1075]     DeclareHandle 0x0033 权限 读,通知, handle 0x0034 uuid 0x2A4D UUID Characteristic 报告
+[gattCentralMsg      :1075]     DeclareHandle 0x0037 权限 读,写无应答,写, handle 0x0038 uuid 0x2A4D UUID Characteristic 报告
 
-[22:56:28.206]收←◆[gattCentralMsg      :1001]     当前状态 BLE_DISC_STATE_CHAR_ALL
-[gattCentralMsg      :1023]     DeclareHandle 0x003A 权限 写无应答, handle 0x003B uuid 0x2A4C UUID Characteristic HID控制点
-[gattCentralMsg      :1023]     DeclareHandle 0x003C 权限 读,写无应答, handle 0x003D uuid 0x2A4E UUID Characteristic 协议模式
+[20:14:25.541]收←◆[gattCentralMsg      :1053]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :1075]     DeclareHandle 0x003A 权限 写无应答, handle 0x003B uuid 0x2A4C UUID Characteristic HID控制点
+[gattCentralMsg      :1075]     DeclareHandle 0x003C 权限 读,写无应答, handle 0x003D uuid 0x2A4E UUID Characteristic 协议模式
 
-[22:56:28.235]收←◆[gattCentralMsg      :1001]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[20:14:25.569]收←◆[gattCentralMsg      :1053]     当前状态 BLE_DISC_STATE_CHAR_ALL
 [QueryServiceInfo    :326] 查询service 0x0128
-[gattCentralMsg      :1036]     继续状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :1092]     继续状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :1053]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[gattCentralMsg      :1075]     DeclareHandle 0x003F 权限 读,写无应答,写,通知, handle 0x0040 uuid 0x046D UUID未知 046d
 
-[22:56:28.263]收←◆[gattCentralMsg      :1001]     当前状态 BLE_DISC_STATE_CHAR_ALL
-[gattCentralMsg      :1023]     DeclareHandle 0x003F 权限 读,写无应答,写,通知, handle 0x0040 uuid 0x046D UUID未知 046d
-
-[22:56:28.306]收←◆[gattCentralMsg      :1001]     当前状态 BLE_DISC_STATE_CHAR_ALL
+[20:14:25.651]收←◆[gattCentralMsg      :1053]     当前状态 BLE_DISC_STATE_CHAR_ALL
 [QueryServiceInfo    :322] 查询服务结束
-[gattCentralMsg      :1043]     BLE_DISC_STATE_CHAR_ALL 结束. 进入 BLE_DISC_STATE_CCCD 状态
-[gattCentralMsg      :1052]     找到HID设备, CCCD_SvcStartHdl 0x001E CCCD_SvcEndHdl 0x003D
+[ReadCharValue       :487]     开启一个读任务 handle 0x002A
+[ReadCharValue       :504]     请求成功, offset 0
+[gattCentralMsg      :1101]     BLE_DISC_STATE_CHAR_ALL 结束. 进入 BLE_DISC_STATE_CCCD 状态
+[gattCentralMsg      :1110]     找到HID设备, CCCD_SvcStartHdl 0x001E CCCD_SvcEndHdl 0x003D
 
-[22:56:28.355]收←◆[gattCentralMsg      :1064]     当前状态 BLE_DISC_STATE_CCCD
-[gattCentralMsg      :1072]     发现 CCCD handle 0x0023
-[gattCentralMsg      :1072]     发现 CCCD handle 0x0028
-[gattCentralMsg      :1072]     发现 CCCD handle 0x002D
-[gattCentralMsg      :1072]     发现 CCCD handle 0x0031
-[gattCentralMsg      :1072]     发现 CCCD handle 0x0035
+[20:14:25.689]收←◆[gattCentralMsg      :971]   buf2A4B: 05 01 09 06 a1 01 85 01 05 07 19 e0 29 e7 15 00 25 01 75 01 95 08 
 
-[22:56:28.382]收←◆[gattCentralMsg      :1064]     当前状态 BLE_DISC_STATE_CCCD
-[gattCentralMsg      :1090]     BLE_DISC_STATE_CCCD 结束. 进入 BLE_DISC_STATE_IDLE 状态
+[ReadCharValue       :487]     开启一个读任务 handle 0x002A
+[ReadCharValue       :504]     请求成功, offset 22
 
-[22:56:42.664]收←◆GATT {method:ATT_HANDLE_VALUE_NOTI, {handle: 0x0030, len:7, pDataList:0x00 00 05 40 00 00 00 }}
-GATT {method:ATT_HANDLE_VALUE_NOTI, {handle: 0x0030, len:7, pDataList:0x00 00 02 20 00 00 00 }}
-GATT {method:ATT_HANDLE_VALUE_NOTI, {handle: 0x0030, len:7, pDataList:0x00 00 06 50 00 00 00 }}
-GATT {method:ATT_HANDLE_VALUE_NOTI, {handle: 0x0030, len:7, pDataList:0x00 00 05 50 00 00 00 }}
-GATT {method:ATT_HANDLE_VALUE_NOTI, {handle: 0x0030, len:7, pDataList:0x00 00 0a b0 00 00 00 }}
-GATT {method:ATT_HANDLE_VALUE_NOTI, {handle: 0x0030, len:7, pDataList:0x00 00 0b f0 00 00 00 }}
-GATT {method:ATT_HANDLE_VALUE_NOTI, {handle: 0x0030, len:7, pDataList:0x00 00 07 70 00 00 00 }}
+[20:14:25.734]收←◆[gattCentralMsg      :971]   buf2A4B: 05 01 09 06 a1 01 85 01 05 07 19 e0 29 e7 15 00 25 01 75 01 95 08 81 02 95 06 75 08 15 00 26 a4 00 05 07 19 00 2a a4 00 81 00 c0 05 
+
+[ReadCharValue       :487]     开启一个读任务 handle 0x002A
+[ReadCharValue       :508]     请求失败, offset 44, result: 22, ERROR
+
+[20:14:25.786]收←◆[gattCentralMsg      :971]   buf2A4B: 05 01 09 06 a1 01 85 01 05 07 19 e0 29 e7 15 00 25 01 75 01 95 08 81 02 95 06 75 08 15 00 26 a4 00 05 07 19 00 2a a4 00 81 00 c0 05 01 09 02 a1 01 85 02 09 01 a1 00 95 10 75 01 15 00 25 01 05 09 19 
+
+[ReadCharValue       :487]     开启一个读任务 handle 0x002A
+[ReadCharValue       :508]     请求失败, offset 66, result: 22, ERROR
+
+[20:14:25.846]收←◆[gattCentralMsg      :971]   buf2A4B: 05 01 09 06 a1 01 85 01 05 07 19 e0 29 e7 15 00 25 01 75 01 95 08 81 02 95 06 75 08 15 00 26 a4 00 05 07 19 00 2a a4 00 81 00 c0 05 01 09 02 a1 01 85 02 09 01 a1 00 95 10 75 01 15 00 25 01 05 09 19 01 29 10 81 02 05 01 16 01 f8 26 ff 07 75 0c 95 02 09 30 09 31 81 
+
+[ReadCharValue       :487]     开启一个读任务 handle 0x002A
+[ReadCharValue       :508]     请求失败, offset 88, result: 22, ERROR
+
+[20:14:25.916]收←◆[gattCentralMsg      :971]   buf2A4B: 05 01 09 06 a1 01 85 01 05 07 19 e0 29 e7 15 00 25 01 75 01 95 08 81 02 95 06 75 08 15 00 26 a4 00 05 07 19 00 2a a4 00 81 00 c0 05 01 09 02 a1 01 85 02 09 01 a1 00 95 10 75 01 15 00 25 01 05 09 19 01 29 10 81 02 05 01 16 01 f8 26 ff 07 75 0c 95 02 09 30 09 31 81 06 15 81 25 7f 75 08 95 01 09 38 81 06 95 01 05 0c 0a 38 02 81 06 
+
+[ReadCharValue       :487]     开启一个读任务 handle 0x002A
+[ReadCharValue       :508]     请求失败, offset 110, result: 22, ERROR
+
+[20:14:25.993]收←◆[gattCentralMsg      :971]   buf2A4B: 05 01 09 06 a1 01 85 01 05 07 19 e0 29 e7 15 00 25 01 75 01 95 08 81 02 95 06 75 08 15 00 26 a4 00 05 07 19 00 2a a4 00 81 00 c0 05 01 09 02 a1 01 85 02 09 01 a1 00 95 10 75 01 15 00 25 01 05 09 19 01 29 10 81 02 05 01 16 01 f8 26 ff 07 75 0c 95 02 09 30 09 31 81 06 15 81 25 7f 75 08 95 01 09 38 81 06 95 01 05 0c 0a 38 02 81 06 c0 c0 06 43 ff 0a 02 02 a1 01 85 11 75 08 95 13 15 00 26 ff 00 09 
+
+[ReadCharValue       :487]     开启一个读任务 handle 0x002A
+[ReadCharValue       :508]     请求失败, offset 132, result: 22, ERROR
+
+[20:14:26.072]收←◆[gattCentralMsg      :971]   buf2A4B: 05 01 09 06 a1 01 85 01 05 07 19 e0 29 e7 15 00 25 01 75 01 95 08 81 02 95 06 75 08 15 00 26 a4 00 05 07 19 00 2a a4 00 81 00 c0 05 01 09 02 a1 01 85 02 09 01 a1 00 95 10 75 01 15 00 25 01 05 09 19 01 29 10 81 02 05 01 16 01 f8 26 ff 07 75 0c 95 02 09 30 09 31 81 06 15 81 25 7f 75 08 95 01 09 38 81 06 95 01 05 0c 0a 38 02 81 06 c0 c0 06 43 ff 0a 02 02 a1 01 85 11 75 08 95 13 15 00 26 ff 00 09 02 81 00 09 02 91 00 c0 
+
+[ReadCharValue       :487]     开启一个读任务 handle 0x002A
+[ReadCharValue       :504]     请求成功, offset 140
+
+[20:14:27.636]收←◆GATT {method:ATT_HANDLE_VALUE_NOTI, {handle: 0x0030, len:7, pDataList:0x00 00 01 20 00 00 00 }}
+GATT {method:ATT_HANDLE_VALUE_NOTI, {handle: 0x0030, len:7, pDataList:0x00 00 01 20 00 00 00 }}
+GATT {method:ATT_HANDLE_VALUE_NOTI, {handle: 0x0030, len:7, pDataList:0x00 00 03 40 00 00 00 }}
+GATT {method:ATT_HANDLE_VALUE_NOTI, {handle: 0x0030, len:7, pDataList:0x00 00 06 60 00 00 00 }}
+GATT {method:ATT_HANDLE_VALUE_NOTI, {handle: 0x0030, len:7, pDataList:0x00 00 09 80 00 00 00 }}
+GATT {method:ATT_HANDLE_VALUE_NOTI, {handle: 0x0030, len:7, pDataList:0x00 00 08 80 00 00 00 }}
