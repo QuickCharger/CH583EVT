@@ -1728,7 +1728,7 @@ typedef union
 typedef struct
 {
     tmos_event_hdr_t hdr;  //!< GATT_MSG_EVENT and status
-    uint16_t connHandle;   //!< Connection message was received on
+    uint16_t connHandle;   //!< Connection message was received on ´Ë´¦ÎªdevHandle£¡£¡£¡
     uint8_t method;        //!< Type of message
     gattMsg_t msg;         //!< Attribute protocol/profile message
 } gattMsgEvent_t;
