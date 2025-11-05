@@ -235,7 +235,7 @@ static gapDevRec_t centralDevList[DEFAULT_MAX_SCAN_RES];
 // static uint8_t PeerAddrDef[B_ADDR_LEN] = {0x0, 0xa1, 0x86, 0x52, 0xe4, 0xc3};
 
 // 自动连接的最小RSSI
-const static int8_t requireRSSI = -70;
+const static int8_t requireRSSI = -40;
 // 自动连接的设备信息
 static gapDevRec_t peerDev;
 
@@ -1300,7 +1300,7 @@ static void  gapCentralEventCB(gapRoleEvent_t *pEvent)
 		// 蓝牙设备扫描过程中触发，一次扫描过程中会被触发多次。每当扫描到一个新设备或接收到一个设备的广播数据包时，都会触发这个事件。 GAPRole_CentralStartDiscovery 触发
 		case GAP_DEVICE_INFO_EVENT:
 		{
-			if(pEvent->deviceInfo.rssi > -60)
+			if(pEvent->deviceInfo.rssi > requireRSSI)
 			{
 				int8_t rssi = pEvent->deviceInfo.rssi;
 				LOG("EventCB GAP_DEVICE_INFO_EVENT 发现设备。 rssi %d\r\n", rssi);
@@ -1384,13 +1384,14 @@ static void  gapCentralEventCB(gapRoleEvent_t *pEvent)
 
 				// Initiate service discovery
 				// 开启枚举服务任务
-				//tmos_start_task(centralTaskId, START_SVC_DISCOVERY_EVT, DEFAULT_SVC_DISCOVERY_DELAY);
+				tmos_start_task(centralTaskId, START_SVC_DISCOVERY_EVT, DEFAULT_SVC_DISCOVERY_DELAY);
 
 				// See if initiate connect parameter update
 				// 开启更新连接参数任务
 				if(centralParamUpdate)
 				{
-					tmos_start_task(centralTaskId, START_PARAM_UPDATE_EVT, 10);
+					// 此处设备重连不需要再次调用，否则设备会卡顿10秒 todo
+					tmos_start_task(centralTaskId, START_PARAM_UPDATE_EVT, DEFAULT_PARAM_UPDATE_DELAY);
 				}
 			}
 			else

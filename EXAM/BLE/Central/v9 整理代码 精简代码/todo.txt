@@ -4,4 +4,7 @@ v5 获取Primary,secondary Service都ok,需要获取CCCD 中 获取消息不完整 解决了
 了解鼠标的HID报告描述符数据定义，重新定义鼠标的HID报告描述符
 
 
-鼠标运行不正常！！！ 先备份下
+此处重连会有10秒卡顿，目前没有好的方法，需要查询API
+					// 此处设备重连不需要再次调用，否则设备会卡顿10秒 todo
+					tmos_start_task(centralTaskId, START_PARAM_UPDATE_EVT, DEFAULT_PARAM_UPDATE_DELAY);
+
